@@ -13,6 +13,6 @@ authRouter.post('/register',register);
 authRouter.post('/login',login);
 authRouter.post('/logout',userMiddleware, logout);
 authRouter.post('/admin/register',adminMiddleware,adminRegister);
-// authRouter.get('getProfile',getProfile);
+// authRouter.get('getProfile',getProfile); 
 
 module.exports = authRouter;
