@@ -5,266 +5,179 @@ const {
 } = require("../utils/problemUtility");
 const Problem = require("../models/problems");
 
+
 const createProblem = async (req, res) => {
-  const {
-    title,
-    description,
-    difficulty,
-    tags,
-    visibleTestCases,
-    hiddenTestCases,
-    startCode,
-    referenceSolution,
-    problemCreator,
-  } = req.body;
+  const { referenceSolution } = req.body;
+
   try {
+    // STEP 1: Loop through and validate ALL solutions first.
     for (const { language, completeCode } of referenceSolution) {
-      // source_code:
-      // language_id:
-      // stdin:
-      // expectedOutput:
-
       const languageId = getLanguageById(language);
-      // I am creating Batch submission
-      const submissions = visibleTestCases.map((testcase) => ({
-        source_code: completeCode, 
+
+      const submissions = req.body.visibleTestCases.map((testcase) => ({
+        source_code: completeCode,
         language_id: languageId,
         stdin: testcase.input,
         expected_output: testcase.output,
       }));
 
       const submitResult = await submitBatch(submissions);
-      // console.log(submitResult);
-
-      const resultToken = submitResult.map((value) => value.token);
-      const testResult = await submitToken(resultToken);
       if (!submitResult) {
-        return res.status(500).send("No response from Judge0");
+        return res.status(500).send("No response from Judge0 during submission.");
       }
-
-      const submissionsArray = submitResult.submissions || submitResult;
-
-      if (!Array.isArray(submissionsArray)) {
-        return res.status(500).send("Invalid response format from Judge0");
-      }
-      
-      for (const result of testResult) {
-        if (result.status.id !== 3) {
-          return res.status(400).json({
-            message: `Test case failed: ${result.status.description}`,
-            language: result.language.name,
-            status_id: result.status.id,
-          });
-        }
-      }
-
-        try {
-          const userProblem = await Problem.create({
-            ...req.body,
-            problemCreator: req.result._id,
-          });
-          return res.status(201).send("Problem Saved Successfully");
-        } catch (er) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong", error: er });
-        }
-    }
-  }catch(er){
-    return res.status(500).json({err:er});
-  }
-}
-
-
-const updateProblem = async (req, res) => {
-
-  const{id} = req.params;
-  const {
-    title,description,difficulty,tags,
-    visibleTestCases, hiddenTestCases, startCode,
-    referenceSolution, problemCreator,
-  } = req.body;
-
-  try{
-
-      if(!id){
-    res.status(400).send("Missing id filled");
-  }
-  const DsaProblem = await Problem.findById(id);
-  if(!DsaProblem){
-    return res.status(404).send("Id is not present in server");
-  }
-
-    for (const { language, completeCode } of referenceSolution) {
-      // source_code:
-      // language_id:
-      // stdin:
-      // expectedOutput:
-
-      const languageId = getLanguageById(language);
-
-      // I am creating Batch submission
-      const submissions = visibleTestCases.map((testcase) => ({
-        source_code: completeCode, 
-        language_id: languageId,
-        stdin: testcase.input,
-        expected_output: testcase.output,
-      }));
-
-      const submitResult = await submitBatch(submissions);
-      // console.log(submitResult);
 
       const resultToken = submitResult.map((value) => value.token);
-
-      // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
-
       const testResult = await submitToken(resultToken);
+      if (!testResult) {
+        return res.status(500).send("No response from Judge0 when fetching results.");
+      }
 
-      //  console.log(testResult);
-
-      // console.log(testResult)
-      for (const test of testResult) {
-        if (test.status_id != 3) {
-          return res.status(400).send("Error Occured");
+      for (const result of testResult) {
+        // If ANY test case for ANY language fails, return an error immediately.
+        if (result.status.id !== 3) { // 3 = Accepted
+          return res.status(400).json({
+            message: `The reference solution for '${language}' failed a test case.`,
+            details: result.status.description,
+          });
         }
       }
     }
 
-    const newProblem = await Problem.findByIdAndUpdate(id,{...req.body},{runValidators:true,new:true});
-    res.status(200).send(newProblem);
+    // STEP 2: If the loop completes without returning, all solutions are valid. Now, save the problem.
+    const userProblem = await Problem.create({
+      ...req.body,
+      problemCreator: req.result._id,
+    });
+
+    return res.status(201).send("Problem Saved Successfully");
+
   } catch (err) {
-    res.status(404).send("Error"+err);
+    return res.status(500).json({ message: "An unexpected error occurred.", error: err.message });
   }
 };
 
+const updateProblem = async (req, res) => {
+  const { id } = req.params;
+  const { referenceSolution } = req.body;
 
-// const updateProblem = async (req, res) => {
-//   const {id} = req.params;
-//   const {
-//     title,
-//     description,
-//     difficulty,
-//     tags,
-//     visibleTestCases,
-//     hiddenTestCases,
-//     startCode,
-//     referenceSolution,
-//     problemCreator,
-//   } = req.body;
-//   try {
-//     for (const { language, completeCode } of referenceSolution) {
+  try {
+    // Check if the problem exists before doing anything else
+    const dsaProblem = await Problem.findById(id);
+    if (!dsaProblem) {
+      return res.status(404).send("A problem with this ID was not found.");
+    }
 
-//       const languageId = getLanguageById(language);
-//       // I am creating Batch submission
-//       const submissions = visibleTestCases.map((testcase) => ({
-//         source_code: completeCode,
-//         language_id: languageId,
-//         stdin: testcase.input,
-//         expected_output: testcase.output,
-//       }));
+    // STEP 1: Loop through and validate ALL solutions first.
+    for (const { language, completeCode } of referenceSolution) {
+      const languageId = getLanguageById(language);
 
-//       // console.log(submissions,"sumission");
+      const submissions = req.body.visibleTestCases.map((testcase) => ({
+        source_code: completeCode,
+        language_id: languageId,
+        stdin: testcase.input,
+        expected_output: testcase.output,
+      }));
 
-//       const submitResult = await submitBatch(submissions);
+      const submitResult = await submitBatch(submissions);
+      if (!submitResult) {
+        return res.status(500).send("No response from Judge0 during submission.");
+      }
 
-//       if (!submitResult) {
-//         return res.status(500).send("No response from Judge0");
-//       }
+      const resultToken = submitResult.map((value) => value.token);
+      const testResult = await submitToken(resultToken);
+      if (!testResult) {
+        return res.status(500).send("No response from Judge0 when fetching results.");
+      }
 
-//       const submissionsArray = submitResult.submissions || submitResult;
+      for (const result of testResult) {
+        // If ANY test case for ANY language fails, return an error immediately.
+        if (result.status.id !== 3) { // 3 = Accepted
+          return res.status(400).json({
+            message: `The updated reference solution for '${language}' failed a test case.`,
+            details: result.status.description,
+          });
+        }
+      }
+    }
 
-//       if (!Array.isArray(submissionsArray)) {
-//         return res.status(500).send("Invalid response format from Judge0");
-//       }
+    // STEP 2: If the loop completes, all solutions are valid. Now, update the problem.
+    const updatedProblem = await Problem.findByIdAndUpdate(
+      id,
+      { ...req.body },
+      { runValidators: true, new: true }
+    );
 
-//       const resultToken = submissionsArray.map((v) => v.token);
+    res.status(200).send(updatedProblem);
 
+  } catch (err) {
+    res.status(500).json({ message: "An unexpected error occurred during the update.", error: err.message });
+  }
+};
 
-//       const testResult = await submitToken(resultToken);
+const deleteProblem = async(req,res)=>{
 
-//       let statusCode = testResult.map(test=> test.status_id);  //[1,2,3,4,..]
-      
-//       if (statusCode.includes(3)) {
-//         // We can update it in our DB
-//         try {
-//         const newProblem = await Problem.findByIdAndUpdate(id,{...req.body},{runValidators:true,new:true});
-//         return res.status(200).json({message:"Problem is updated"});
-//         } catch (er) {
-//           return res
-//             .status(500)
-//             .json({ message: "Something went wrong", error: er });
-//         }
-//       }
-//     }
-//   } catch (err) {
-//     res.status(400).send("Error: " + err);
-//   }
-// };
+  const {id} = req.params;
 
-// const deleteProblem = async(req,res)=>{
+  try{
+    if(!id){
+      return res.status(400).send("ID is Missing");
+    }
 
-//   const {id} = req.params;
+    const deletedProblem = await Problem.findByIdAndDelete(id);
 
-//   try{
-//     if(!id){
-//       return res.status(400).send("ID is Missing");
-//     }
+    if(!deleteProblem){
+      res.status(404).send("Problem is Missing");
+    }
 
-//     const deletedProblem = await Problem.findByIdAndDelete(id);
+    res.status(200).send("Deleted Succesfully");
+  }
+  catch(err){
+    res.status(500).send("Error"+err);
+  }
+};
 
-//     if(!deleteProblem){
-//       res.status(404).send("Problem is Missing");
-//     }
+const getProblemById = async(req,res)=>{
 
-//     res.status(200).send("Deleted Succesfully");
-//   }
-//   catch(err){
-//     res.status(500).send("Error"+err);
-//   }
-// };
+  const {id} = req.params;
 
-// const getProblemById = async(req,res)=>{
+  try{
+    if(!id){
+      res.status(400).send("ID is Missing");
+    }
 
-//   const {id} = req.params;
+    const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution');
 
-//   try{
-//     if(!id){
-//       res.status(400).send("ID is Missing");
-//     }
+    if(!getProblem){
+      res.status(404).send("Problem is Missing");
+    }
 
-//     const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution');
+    res.status(200).send(getProblem);
+  }
+  catch(err){
+    res.status(500).send("Error"+err);
+  }
 
-//     if(!getProblem){
-//       res.status(404).send("Problem is Missing");
-//     }
+}
 
-//     res.status(200).send(getProblem);
-//   }
-//   catch(err){
-//     res.status(500).send("Error"+err);
-//   }
+const getAllProblem = async(req,res)=>{
 
-// }
+  try{
+  const allProbem = await Problem.find({}).select('_id title difficulty tags');
 
-// const getAllProblem = async(req,res)=>{
+  if(allProbem.length===0){
+    res.status(404).send("Problems is Missing");
+  }
 
-//   try{
-//   const allProbem = await Problem.find({}).select('_id title difficulty tags');
+  res.status(200).send(allProbem);
+  }
+  catch(err){
+    res.status(500).send("Error"+err);
+  }
 
-//   if(allProbem.length===0){
-//     res.status(404).send("Problems is Missing");
-//   }
-
-//   res.status(200).send(allProbem);
-//   }
-//   catch(err){
-//     res.status(500).send("Error"+err);
-//   }
-
-// };
+};
 
 // const solvedAllProblemByUser  = async(req,res)=>{
 
 // }
 
-module.exports = { createProblem,updateProblem};
+module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem };

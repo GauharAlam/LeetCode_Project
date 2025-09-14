@@ -13,11 +13,11 @@ const userMiddleware = require("../middleware/userMiddleware");
 // Only admin can operate this 
 problemRouter.post("/create", adminMiddleware, createProblem);
 problemRouter.put("/update/:id", adminMiddleware, updateProblem);
-// problemRouter.delete("/delete/:id", adminMiddleware, deleteProblem);
+problemRouter.delete("/delete/:id", adminMiddleware, deleteProblem);
 
 
-// problemRouter.get("/problemById/:id",userMiddleware, getProblemById);
-// problemRouter.get("/getAllProblem",userMiddleware, getAllProblem);
+problemRouter.get("/problemById/:id",userMiddleware, getProblemById);
+problemRouter.get("/getAllProblem",userMiddleware, getAllProblem);
 // problemRouter.get("/problemSolvedByUser",userMiddleware, solvedAllProblemByUser);
 
 
