@@ -10,15 +10,15 @@ const userMiddleware = require("../middleware/userMiddleware");
 // delete
 // no of problem solved by user
 
-// Only admin can operate this 
+// Only admin can operate on these 
 problemRouter.post("/create", adminMiddleware, createProblem);
 problemRouter.put("/update/:id", adminMiddleware, updateProblem);
 problemRouter.delete("/delete/:id", adminMiddleware, deleteProblem);
 
-
+// This is for user 
 problemRouter.get("/problemById/:id",userMiddleware, getProblemById);
 problemRouter.get("/getAllProblem",userMiddleware, getAllProblem);
-// problemRouter.get("/problemSolvedByUser",userMiddleware, solvedAllProblemByUser);
+problemRouter.get("/problemSolvedByUser",userMiddleware, solvedAllProblemByUser);
 
 
 module.exports = problemRouter;

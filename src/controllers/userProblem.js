@@ -176,8 +176,8 @@ const getAllProblem = async(req,res)=>{
 
 };
 
-// const solvedAllProblemByUser  = async(req,res)=>{
+const solvedAllProblemByUser  = async(req,res)=>{
 
-// }
+}
 
-module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem };
+module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblemByUser };
