@@ -178,6 +178,15 @@ const getAllProblem = async(req,res)=>{
 
 const solvedAllProblemByUser  = async(req,res)=>{
 
+  try {
+    const count = req.result.problemSolved.length;
+
+    res.status(200).send(count);
+  }
+  catch (error) {
+    res.status(500).send("Server Error")
+  }
+
 }
 
 module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblemByUser };

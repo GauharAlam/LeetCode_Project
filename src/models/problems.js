@@ -24,8 +24,9 @@ const problemSchema = new Schema({
         "math",
         "dp",
         "greedy",
-        "hashmap", // <-- add this
+        "hashmap",
         "graph",
+        "stack",
         "tree",
       ],
       required: true,
