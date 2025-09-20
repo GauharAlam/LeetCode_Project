@@ -90,4 +90,46 @@ const submitCode = async (req, res) => {
   }
 };
 
-module.exports = submitCode;
+const runCode = async(req, res)=>{
+   try {
+    const userId = req.result._id;
+    const problemId = req.params.id;
+    const { code, language } = req.body;
+    
+    if (!userId || !problemId || !code || !language) {
+      return res.status(400).send("Some field missing");
+    }
+
+    const problem = await Problem.findById(problemId);
+    if (!problem) {
+      return res.status(404).send("Problem not found");
+    }
+
+    const languageId = getLanguageById(language);
+    const submissions = problem.visibleTestCases.map((testcase) => ({
+      source_code: code,
+      language_id: languageId,
+      stdin: testcase.input,
+      expected_output: testcase.output,
+    }));
+
+    const submitResult = await submitBatch(submissions);
+    if (!submitResult) {
+      return res.status(500).send("No response from Judge0 during submission.");
+    }
+
+    const resultToken = submitResult.map((value) => value.token);
+    const testResult = await submitToken(resultToken);
+    if (!testResult) {
+      return res.status(500).send("No response from Judge0 when fetching results.");
+    }
+
+    res.status(201).send(testResult);
+
+  } catch (error) {
+    console.error("CRASH IN SUBMITCODE:", error);
+    res.status(500).send("Internal server error");
+  }
+}
+
+module.exports = {submitCode,runCode};

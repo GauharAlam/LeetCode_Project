@@ -4,6 +4,7 @@ const {
   submitToken,
 } = require("../utils/problemUtility");
 const Problem = require("../models/problems");
+const User = require("../models/user")
 
 
 const createProblem = async (req, res) => {
@@ -179,9 +180,14 @@ const getAllProblem = async(req,res)=>{
 const solvedAllProblemByUser  = async(req,res)=>{
 
   try {
-    const count = req.result.problemSolved.length;
+    const userId = req.result._id;
+    
+    const user = await User.findById(userId).populate({
+      path:"problemSolved",
+      select:"_id title difficulty tags"
+    })
 
-    res.status(200).send(count);
+    res.status(200).send(user.problemSolved);
   }
   catch (error) {
     res.status(500).send("Server Error")
