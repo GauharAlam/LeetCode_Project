@@ -4,7 +4,8 @@ const {
   submitToken,
 } = require("../utils/problemUtility");
 const Problem = require("../models/problems");
-const User = require("../models/user")
+const User = require("../models/user");
+const Submission = require("../models/submission");
 
 
 const createProblem = async (req, res) => {
@@ -195,4 +196,22 @@ const solvedAllProblemByUser  = async(req,res)=>{
 
 }
 
-module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblemByUser };
+const submittedProblem = async(req,res)=>{
+  try{
+    const userId = req.result._id;
+    const problemId = req.params.pid;
+
+    const ans = await Submission.find(userId,problemId);
+
+    if(ans.length==0)
+      res.status(200).send("NO Submission is Present");
+
+
+    res.status(200).send(ans);
+  }
+  catch(err){
+    res.status(500).send("Internal Server Error"+err);
+  }
+}
+
+module.exports = { createProblem, updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblemByUser,submittedProblem };
