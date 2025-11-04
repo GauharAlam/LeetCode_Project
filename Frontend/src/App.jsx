@@ -1,4 +1,5 @@
-import { Routes,Route, Navigate } from "react-router";
+// Change this line in Frontend/src/App.jsx
+import { Routes, Route, Navigate } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
