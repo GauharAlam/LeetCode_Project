@@ -1,26 +1,42 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from "react-router";
+import { registerUser } from '../authSlice';
 
 const SignupSchema = z.object({
-    firstName: z.string().min(3, "Name Should Contain at least 3 Characters"),
-    emailId: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password Should contain at least 8 Characters")
+    firstName: z.string().min(3, "Name should contain at least 3 characters"),
+    emailId: z.email("Invalid email address"),
+    password: z.string().min(8, "Password should contain at least 8 characters")
 });
 
 function Signup() {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(SignupSchema)
     });
 
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
+
     const submittedData = (data) => {
-        console.log(data);
+        dispatch(registerUser(data));
     };
 
     return (
         <>
             <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-                <form onSubmit={handleSubmit(submittedData)}
+                <form
+                    onSubmit={handleSubmit(submittedData)}
                     className='bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6'
                 >
                     <h2 className="text-3xl font-bold mb-6 text-white">Leetcode</h2>
@@ -64,7 +80,10 @@ function Signup() {
                         {errors.password && (<span className="text-red-400 text-sm mt-1">{errors.password.message}</span>)}
                     </div>
 
-                    <button type='submit' className='btn btn-primary w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white'>
+                    <button
+                        type='submit'
+                        className='btn btn-primary w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white'
+                    >
                         Sign Up
                     </button>
                 </form>

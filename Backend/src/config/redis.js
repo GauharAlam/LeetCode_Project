@@ -4,8 +4,8 @@ const redisClient = createClient({
     username: 'default',
     password: process.env.REDIS_PASS,
     socket: {
-        host: 'redis-17349.c281.us-east-1-2.ec2.redns.redis-cloud.com',
-        port: 17349
+        host: 'redis-15246.crce179.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 15246
     }
 });
 
