@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../authslice";
@@ -13,6 +13,7 @@ const SignupSchema = z.object({
 });
 
 function Signup() {
+  const [showPassword,setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector(
@@ -85,7 +86,7 @@ function Signup() {
               <span className="label-text text-gray-400">Password</span>
             </label>
             <input
-              type="password"
+              type={showPassword? "text":"password"}
               placeholder="••••••••"
               className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
               {...register("password")}
@@ -100,9 +101,9 @@ function Signup() {
           <button
             type="submit"
             className="btn btn-primary w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white"
-            disabled={loading} // NEW: Disable button while loading
+            disabled={loading}
           >
-            {/* NEW: Show loading text or a spinner */}
+            
             {loading ? (
               <span className="loading loading-spinner"></span> // DaisyUI spinner
             ) : (
