@@ -9,9 +9,12 @@ const problemRouter = require("./routes/problemCreator");
 const submitRouter = require("./routes/submit");
 const cors = require("cors");
 
+// FIXED CORS ISSUE: origin cannot be '*' when credentials is true
 app.use(cors({
-    origin:'*',
-    credentials: true
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Allow your Vite frontend port
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
 app.use(express.json());
@@ -22,7 +25,6 @@ app.use("/submission", submitRouter);
 
 const InitializeConnection = async () => {
     try {
-        // 1. Add 'await' here so the server waits for DB/Redis before starting
         await Promise.all([main(), redisClient.connect()]);
         console.log('DB Connected');
 
@@ -30,18 +32,8 @@ const InitializeConnection = async () => {
             console.log("Server listening at port number:" + process.env.PORT);
         });
     } catch (err) {
-        // 2. Change 'res.send' to 'console.error' because 'res' is not available here
         console.error("Connection Error:", err);
     }
 }
 
 InitializeConnection();
-
-// main()
-// .then(async()=>{
-
-//     app.listen(process.env.PORT, ()=>{
-//     console.log("Server listening at port number:"+process.env.PORT);
-// })
-// })
-// .catch(err=> console.log("Error Occured"+err))

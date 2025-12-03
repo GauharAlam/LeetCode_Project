@@ -22,7 +22,16 @@ const register = async (req, res) => {
         const user = await User.create(req.body);
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'user' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
-        res.status(201).send("User Registered Succesfully");
+        // Return full user info including role
+        res.status(201).json({
+            message: "User Registered Succesfully",
+            user: {
+                firstName: user.firstName,
+                emailId: user.emailId,
+                _id: user._id,
+                role: user.role
+            }
+        });
     }
     catch (error) {
         res.status(400).send("Error: " + error);
@@ -43,6 +52,8 @@ const login = async (req, res) => {
             throw new Error("Invalid Credentials");
 
         const user = await User.findOne({ emailId });
+        if(!user) throw new Error("Invalid Credentials");
+
         const match = await bcrypt.compare(password, user.password);
 
         if (!match)
@@ -51,10 +62,13 @@ const login = async (req, res) => {
         const reply = {
             firstName : user.firstName,
             emailId : user.emailId,
-            _id : user._id
+            _id : user._id,
+            role: user.role // ADDED ROLE HERE
         }
 
+        constjh = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
         res.status(200).json({
             user:reply,
@@ -90,11 +104,6 @@ const logout = async (req, res) => {
 const adminRegister = async (req, res) => {
 
     try {
-
-        // validate the data
-        // if(req.result.role!='admin')
-        //     throw new Error("Invalid User");
-
         Validate(req.body);
         const { firstName, emailId, password } = req.body;
 
@@ -102,9 +111,18 @@ const adminRegister = async (req, res) => {
         req.body.role = 'admin';
 
         const user = await User.create(req.body);
-        const token = jwt.sign({ _id: User._id, emailId: emailId, role: 'user' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'admin' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
-        res.status(201).send("User Registered Succesfully");
+        
+         res.status(201).json({
+            message: "Admin Registered Succesfully",
+            user: {
+                firstName: user.firstName,
+                emailId: user.emailId,
+                _id: user._id,
+                role: user.role
+            }
+        });
     }
     catch (error) {
         res.status(400).send("Error: " + error);
@@ -121,7 +139,7 @@ const deleteProfile = async (req, res) => {
         await User.findByIdAndDelete(userId);
 
         // Delete from submission also 
-        await Submission.deleteMany(userId);
+        await Submission.deleteMany({ userId: userId }); // Fixed Mongoose query
 
         res.status(200).send("Deleted Succesfully");
     }
@@ -129,7 +147,5 @@ const deleteProfile = async (req, res) => {
         res.status(500).send("Internal Server Error"+error);
     }
 }
-
-
 
 module.exports = { register, login, logout, adminRegister, deleteProfile };

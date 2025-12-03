@@ -3,8 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { registerUser } from "../authslice";
+import { useNavigate, Link } from "react-router-dom"; // Added Link
+import { registerUser } from "../authSlice";
 
 const SignupSchema = z.object({
   firstName: z.string().min(3, "Name should contain at least 3 characters"),
@@ -13,7 +13,7 @@ const SignupSchema = z.object({
 });
 
 function Signup() {
-  const [showPassword,setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector(
@@ -46,6 +46,9 @@ function Signup() {
           className="bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6"
         >
           <h2 className="text-3xl font-bold mb-6 text-white">Leetcode</h2>
+
+          {/* Show Error Message */}
+          {error && <div className="alert alert-error text-sm py-2">{typeof error === 'string' ? error : 'Signup failed'}</div>}
 
           <div className="form-control w-full">
             <label className="label">
@@ -86,7 +89,7 @@ function Signup() {
               <span className="label-text text-gray-400">Password</span>
             </label>
             <input
-              type={showPassword? "text":"password"}
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
               {...register("password")}
@@ -103,13 +106,20 @@ function Signup() {
             className="btn btn-primary w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white"
             disabled={loading}
           >
-            
             {loading ? (
-              <span className="loading loading-spinner"></span> // DaisyUI spinner
+              <span className="loading loading-spinner"></span> 
             ) : (
               "Sign Up"
             )}
           </button>
+
+          {/* Added Navigation Link */}
+          <div className="text-sm text-gray-400 mt-2">
+            Already have an account?{" "}
+            <Link to="/login" className="text-purple-400 hover:text-purple-300 hover:underline">
+              Log in
+            </Link>
+          </div>
         </form>
       </div>
     </>

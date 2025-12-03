@@ -1,393 +1,412 @@
-import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Search,
-  Flame,
-  ChevronRight,
-  BarChart3,
-  CheckCircle2,
-  Circle,
-  Clock,
-  MessageSquare,
-  Rocket,
-  ChevronDown,
-  Filter,
-  PlayCircle,
-  BookOpen,
-  Bell,
-  User,
-  Settings,
-  Medal,
-  TrendingUp,
-  Calendar,
-  Sparkle,
-  Brain,
-  Zap,
-} from "lucide-react";
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import axiosClient from '../utils/axiosClient';
+import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronDown } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
-const promptsSeed = [
-  {
-    id: 1,
-    slug: "summarize-article",
-    title: "Summarize Any Article",
-    skill: "Prompt Engineering",
-    acceptance: 0.87,
-    paidOnly: false,
-    tags: ["Summarization", "Text"],
-    status: "Saved",
-  },
-  {
-    id: 2,
-    slug: "code-explanation",
-    title: "Code Explanation",
-    skill: "Programming",
-    acceptance: 0.78,
-    paidOnly: false,
-    tags: ["Programming", "Explain"],
-    status: "Tried",
-  },
-  {
-    id: 3,
-    slug: "creative-story-ideas",
-    title: "Creative Story Ideas",
-    skill: "Creativity",
-    acceptance: 0.95,
-    paidOnly: true,
-    tags: ["Story", "Creativity", "Writing"],
-    status: "Saved",
-  },
-  {
-    id: 4,
-    slug: "sql-query-generator",
-    title: "SQL Query Generator",
-    skill: "Data",
-    acceptance: 0.66,
-    paidOnly: false,
-    tags: ["SQL", "Data", "Database"],
-    status: "New",
-  },
-];
+const Homepage = () => {
+  const [problems, setProblems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  
+  // --- Filter & Sort States ---
+  const [difficultyFilter, setDifficultyFilter] = useState('All');
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [sortConfig, setSortConfig] = useState(null); // { key: 'title'|'difficulty', direction: 'asc'|'desc' }
 
-const skillColors = {
-  "Prompt Engineering": "text-indigo-700 bg-indigo-50 ring-indigo-200",
-  Programming: "text-emerald-700 bg-emerald-50 ring-emerald-200",
-  Creativity: "text-pink-700 bg-pink-50 ring-pink-200",
-  Data: "text-orange-700 bg-orange-50 ring-orange-200",
-};
+  // --- UI States ---
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-function Homepage() {
-  const [q, setQ] = useState("");
-  const [skill, setSkill] = useState("All");
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
-  const filtered = useMemo(() => {
-    return promptsSeed.filter((p) => {
-      const okSkill = skill === "All" ? true : p.skill === skill;
-      const okQ =
-        q.trim().length
-          ? p.title.toLowerCase().includes(q.toLowerCase()) ||
-            p.tags.join(" ").toLowerCase().includes(q.toLowerCase())
-          : true;
-      return okSkill && okQ;
+  // Refs for click outside
+  const sortRef = useRef(null);
+  const filterRef = useRef(null);
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setShowSortMenu(false);
+      }
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilterMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const fetchProblems = async () => {
+      try {
+        const { data } = await axiosClient.get('/problem/getAllProblem');
+        setProblems(data);
+      } catch (error) {
+        console.error("Failed to fetch problems", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProblems();
+  }, []);
+
+  // 1. Extract Unique Tags dynamically from fetched problems
+  const uniqueTags = useMemo(() => {
+    const tags = new Set();
+    problems.forEach(p => p.tags.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [problems]);
+
+  // 2. Main Logic: Filter -> Search -> Sort
+  const processedProblems = useMemo(() => {
+    let result = [...problems];
+
+    // Search Filter
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(p => 
+        p.title.toLowerCase().includes(q) || 
+        p.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    // Difficulty Filter
+    if (difficultyFilter !== 'All') {
+      result = result.filter(p => p.difficulty === difficultyFilter);
+    }
+
+    // Tags Filter (Problem must have ALL selected tags)
+    if (selectedTags.length > 0) {
+      result = result.filter(p => 
+        selectedTags.every(tag => p.tags.includes(tag))
+      );
+    }
+
+    // Sorting Logic
+    if (sortConfig) {
+      result.sort((a, b) => {
+        let valA = a[sortConfig.key];
+        let valB = b[sortConfig.key];
+
+        // Custom sort for difficulty string
+        if (sortConfig.key === 'difficulty') {
+          const diffMap = { easy: 1, medium: 2, hard: 3 };
+          valA = diffMap[valA];
+          valB = diffMap[valB];
+        } else if (sortConfig.key === 'title') {
+          valA = valA.toLowerCase();
+          valB = valB.toLowerCase();
+        }
+
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [problems, search, difficultyFilter, selectedTags, sortConfig]);
+
+  // Helper Functions
+  const toggleTag = (tag) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleSort = (key) => {
+    setSortConfig(current => {
+      if (current?.key === key) {
+        // Toggle direction if same key
+        return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      // Default to ascending for new key
+      return { key, direction: 'asc' };
     });
-  }, [q, skill]);
+    setShowSortMenu(false);
+  };
+
+  const isSolved = (problemId) => user?.problemSolved?.includes(problemId);
+
+  const getDifficultyColor = (diff) => {
+    switch (diff) {
+      case 'easy': return 'text-green-400 bg-green-400/10 border-green-400/20';
+      case 'medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+      case 'hard': return 'text-red-400 bg-red-400/10 border-red-400/20';
+      default: return 'text-gray-400';
+    }
+  };
 
   return (
-    <div className="bg-gradient-to-tr from-indigo-50 via-white to-emerald-50 min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="hidden md:flex flex-col gap-4 p-6 bg-white border-r border-gray-200 w-[260px]">
-        <div className="flex items-center gap-3 mb-6">
-          <Sparkle className="h-6 w-6 text-fuchsia-500" />
-          <span className="font-bold text-xl tracking-tight text-gray-900">GPT-5 Studio</span>
-        </div>
-        <nav className="flex flex-col gap-4 text-gray-800">
-          <a href="#dashboard" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <BarChart3 /> Dashboard
-          </a>
-          <a href="#prompts" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <BookOpen /> Prompt Library
-          </a>
-          <a href="#history" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <Clock /> History
-          </a>
-          <a href="#labs" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <Zap /> Labs
-          </a>
-          <a href="#contest" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <Medal /> Contests
-          </a>
-          <a href="#skill" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <TrendingUp /> Skill Tracks
-          </a>
-          <a href="#discuss" className="flex gap-2 items-center hover:text-fuchsia-600 transition">
-            <MessageSquare /> Community
-          </a>
-        </nav>
-        <div className="mt-auto flex gap-2 items-center pt-6 border-t border-gray-100">
-          <User className="h-5 w-5 text-gray-500" />
-          <span className="text-gray-800 font-medium">AI Enthusiast</span>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 px-2 md:px-8 py-5">
-        {/* Sticky Top Nav/Notifications */}
-        <header className="sticky top-0 z-50 flex justify-between items-center bg-white/60 backdrop-blur px-4 py-2 border-b border-gray-100">
-          <div className="font-bold text-base text-gray-900 flex items-center gap-2">
-            <Sparkle className="h-5 w-5 text-fuchsia-500" /> GPT-5 Studio
-          </div>
-          <div className="flex gap-3 items-center">
-            <button className="relative">
-              <Bell className="h-5 w-5 text-gray-500" />
-              <span className="absolute top-0 right-0 h-2 w-2 bg-fuchsia-500 rounded-full border border-white" />
-            </button>
-            <button className="rounded-full overflow-hidden border-2 border-gray-200">
-              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="avatar" className="w-8 h-8" />
-            </button>
-          </div>
-        </header>
-
-        {/* Hero - Trending Lab / Challenge */}
-        <motion.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="rounded-2xl border border-fuchsia-200 bg-gradient-to-r from-fuchsia-50 to-white shadow-md px-6 py-6 mt-4 flex flex-col md:flex-row gap-8 items-center justify-between"
-        >
-          <div>
-            <div className="flex gap-2 items-center mb-2">
-              <Brain className="h-5 w-5 text-fuchsia-500" />
-              <span className="text-sm font-medium text-fuchsia-700">Trending Lab</span>
+    <div className="min-h-screen bg-[#0d1117] text-gray-300 font-sans">
+      <Navbar />
+      
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        
+        {/* --- Controls Header --- */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          
+          {/* Search */}
+          <div className="relative w-full md:w-96 group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">
-              Next-Gen Code Generation (GPT-5 Beta)
-            </h2>
-            <div className="flex gap-2">
-              <span className="inline-flex rounded-full px-2.5 py-1 text-sm ring-1 text-fuchsia-700 bg-white ring-fuchsia-200">Creativity</span>
-              <span className="inline-flex rounded-full px-2.5 py-1 text-sm ring-1 text-emerald-800 bg-white ring-emerald-200">Code</span>
-            </div>
+            <input 
+              type="text" 
+              placeholder="Search problems or tags..." 
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-700 rounded-lg bg-[#161b22] text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-          <div className="flex gap-4">
-            <button className="inline-flex items-center gap-2 rounded-xl bg-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow hover:bg-fuchsia-700 transition">
-              <PlayCircle className="h-5 w-5" />
-              Try Lab Now
-            </button>
-          </div>
-        </motion.section>
-
-        {/* Progress, Leaderboard, Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-          {/* Progress + Leaderboard */}
-          <aside className="lg:col-span-1 flex flex-col gap-6">
-            <motion.section
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="rounded-xl border border-gray-200 bg-white shadow p-6 flex flex-col gap-4"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg font-bold text-gray-800">Your Stats</span>
-                <a href="#stats" className="text-xs text-fuchsia-600 hover:underline">Details</a>
-              </div>
-              <div className="flex gap-8 justify-between">
-                <div>
-                  <span className="block text-xs text-gray-500">Prompts Used</span>
-                  <span className="block text-xl font-bold text-fuchsia-700">432</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500">Contests</span>
-                  <span className="block text-xl font-bold text-blue-500">3</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500">Skill Level</span>
-                  <span className="block text-xl font-bold text-emerald-700">Pro</span>
-                </div>
-              </div>
-              <div className="mt-4 h-3 w-full rounded-full bg-gray-100">
-                <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-fuchsia-400 to-blue-500" />
-              </div>
-            </motion.section>
-
-            <section className="rounded-xl border border-gray-200 bg-white shadow p-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-lg font-bold text-gray-800">Leaderboard</span>
-                <a href="#lead" className="text-xs text-fuchsia-600 hover:underline">View All</a>
-              </div>
-              <ul className="flex flex-col gap-3">
-                <li className="flex gap-2 items-center">
-                  <Medal className="h-5 w-5 text-amber-500" />
-                  Jane Doe - 812 points
-                </li>
-                <li className="flex gap-2 items-center">
-                  <Rocket className="h-5 w-5 text-purple-600" />
-                  Ravi Kumar - 781 points
-                </li>
-                <li className="flex gap-2 items-center text-fuchsia-900">
-                  <User className="h-5 w-5" />
-                  You - 690 points
-                </li>
-              </ul>
-            </section>
-          </aside>
-
-          {/* Center: Prompt Search/List Table */}
-          <section className="lg:col-span-2 rounded-xl border border-gray-200 bg-white shadow px-6 py-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-3">
-              <div className="relative w-full md:max-w-md">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search prompts, tags…"
-                  className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-3 text-base outline-none ring-0 placeholder:text-gray-400 focus:border-fuchsia-400"
-                />
-              </div>
-              <div className="flex gap-2 overflow-x-auto">
-                {["All", "Prompt Engineering", "Programming", "Creativity", "Data"].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setSkill(f)}
-                    className={`rounded-xl border px-4 py-2 text-sm transition font-semibold ${
-                      skill === f
-                        ? "border-fuchsia-600 bg-fuchsia-600 text-white shadow"
-                        : "border-gray-200 bg-white text-gray-700 hover:bg-fuchsia-50"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-                <button className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ml-auto">
-                  <Filter className="h-4 w-4" />
-                  Advanced
+          
+          <div className="flex flex-wrap items-center gap-3">
+            
+            {/* Quick Difficulty Tabs */}
+            <div className="bg-[#161b22] p-1 rounded-lg border border-gray-700 flex items-center">
+              {['All', 'easy', 'medium', 'hard'].map((diff) => (
+                <button
+                  key={diff}
+                  onClick={() => setDifficultyFilter(diff)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                    difficultyFilter === diff 
+                      ? 'bg-blue-600 text-white shadow-sm' 
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                  }`}
+                >
+                  {diff.charAt(0).toUpperCase() + diff.slice(1)}
                 </button>
-              </div>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-gray-100 mt-2">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50 text-left font-semibold uppercase tracking-wider text-gray-500">
-                  <tr>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Title</th>
-                    <th className="px-4 py-3">Approval</th>
-                    <th className="px-4 py-3">Skill</th>
-                    <th className="px-4 py-3">Try</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {filtered.map((p) => (
-                    <tr key={p.id} className="hover:bg-fuchsia-50/60 transition">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {p.status === "Saved" ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                          ) : p.status === "Tried" ? (
-                            <Circle className="h-5 w-5 text-orange-500" />
-                          ) : (
-                            <Circle className="h-5 w-5 text-gray-300" />
-                          )}
-                          <span className="text-gray-700">{p.status}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <a href={`#/prompts/${p.slug}`} className="font-semibold text-fuchsia-900 hover:underline">{p.title}</a>
-                        <div className="mt-1 flex flex-wrap gap-1.5">
-                          {p.tags.map((t) => (
-                            <span key={t} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 bg-gray-50 text-gray-500 ring-gray-100">{t}</span>
-                          ))}
-                          {p.paidOnly && (
-                            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ring-1 bg-yellow-50 text-amber-700 ring-amber-200">
-                              <Star className="h-3.5 w-3.5" /> Premium
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-700">{Math.round(p.acceptance * 100)}%</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs ring-1 ${skillColors[p.skill]}`}>{p.skill}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <a href={`#/run/${p.slug}`} className="inline-flex items-center gap-1 text-gray-700 hover:text-fuchsia-800">
-                          Try <ChevronRight className="h-4 w-4" />
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        {/* Labs, Contests, Skill Tracks */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-          <motion.section
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="bg-white rounded-xl border border-gray-200 shadow p-6 flex flex-col gap-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-lg font-bold text-gray-800">Featured Labs</span>
-              <button className="inline-flex items-center gap-1 text-sm text-fuchsia-800 hover:text-fuchsia-600 font-medium">All <ChevronDown className="h-4 w-4" /></button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { title: "Prompt Composer", desc: "Craft advanced instructions", color: "bg-indigo-50" },
-                { title: "API Playground", desc: "Try new GPT-5 APIs", color: "bg-fuchsia-50" },
-                { title: "Voice-to-Prompt", desc: "Speak for instant text", color: "bg-blue-50" },
-                { title: "Image Generation", desc: "AI-generated visuals", color: "bg-pink-50" },
-              ].map((c) => (
-                <a key={c.title} href="#" className={`rounded-xl border border-gray-200 p-4 ${c.color} hover:bg-gray-50 flex items-center justify-between group transition`}>
-                  <div>
-                    <div className="font-bold text-gray-900">{c.title}</div>
-                    <div className="text-sm text-gray-500">{c.desc}</div>
-                  </div>
-                  <Zap className="h-6 w-6 text-fuchsia-400 group-hover:text-fuchsia-700" />
-                </a>
               ))}
             </div>
-          </motion.section>
 
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="bg-white rounded-xl border border-gray-200 shadow p-6 flex flex-col gap-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-lg font-bold text-gray-800">AI Contests</span>
-              <a href="#contest" className="text-xs text-fuchsia-600 hover:underline">See all</a>
-            </div>
-            <div className="flex items-center gap-4 justify-between">
-              <div className="flex gap-3 items-center">
-                <Medal className="h-8 w-8 text-fuchsia-500" />
-                <div>
-                  <div className="font-semibold text-gray-900">PromptFest #20</div>
-                  <div className="text-sm text-gray-500">Starts in 01:44:07</div>
+            {/* Sort Dropdown */}
+            <div className="relative" ref={sortRef}>
+              <button 
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
+                  sortConfig 
+                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400' 
+                    : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                }`}
+              >
+                <ArrowUpDown size={18} />
+                <span className="text-sm font-medium hidden sm:inline">Sort</span>
+              </button>
+
+              {showSortMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-[#1e232a] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                  <div className="p-1">
+                    <button 
+                      onClick={() => handleSort('difficulty')}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
+                    >
+                      <span>Difficulty</span>
+                      {sortConfig?.key === 'difficulty' && (
+                        <span className="text-xs opacity-70">{sortConfig.direction === 'asc' ? 'Easy→Hard' : 'Hard→Easy'}</span>
+                      )}
+                    </button>
+                    <button 
+                      onClick={() => handleSort('title')}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
+                    >
+                      <span>Title</span>
+                      {sortConfig?.key === 'title' && (
+                        <span className="text-xs opacity-70">{sortConfig.direction === 'asc' ? 'A→Z' : 'Z→A'}</span>
+                      )}
+                    </button>
+                    {sortConfig && (
+                      <>
+                        <div className="h-px bg-gray-700 my-1 mx-2" />
+                        <button 
+                          onClick={() => { setSortConfig(null); setShowSortMenu(false); }}
+                          className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <X size={14} /> Reset Sort
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <button className="rounded-lg bg-fuchsia-600 px-4 py-2 text-sm font-bold text-white hover:bg-fuchsia-700 shadow transition">Register</button>
+              )}
             </div>
-          </motion.section>
+
+            {/* Tags Filter Dropdown */}
+            <div className="relative" ref={filterRef}>
+              <button 
+                onClick={() => setShowFilterMenu(!showFilterMenu)}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
+                  selectedTags.length > 0
+                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400' 
+                    : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                }`}
+              >
+                <ListFilter size={18} />
+                <span className="text-sm font-medium hidden sm:inline">Tags</span>
+                {selectedTags.length > 0 && (
+                  <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    {selectedTags.length}
+                  </span>
+                )}
+              </button>
+
+              {showFilterMenu && (
+                <div className="absolute right-0 mt-2 w-72 bg-[#1e232a] border border-gray-700 rounded-xl shadow-xl z-50 p-3">
+                  <div className="flex justify-between items-center mb-3 px-1">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Filter by Tags</span>
+                    {selectedTags.length > 0 && (
+                      <button 
+                        onClick={() => setSelectedTags([])}
+                        className="text-xs text-red-400 hover:underline"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                    {uniqueTags.map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => toggleTag(tag)}
+                        className={`px-2.5 py-1 text-xs rounded-md border transition-all ${
+                          selectedTags.includes(tag)
+                            ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
+                            : 'bg-[#161b22] border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                    {uniqueTags.length === 0 && <span className="text-sm text-gray-500 italic w-full text-center py-2">No tags found</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-16 px-2 md:px-8 py-6 border-t border-gray-200 text-sm text-gray-500 flex flex-col gap-4 md:flex-row justify-between items-center">
-          <div className="flex gap-2 items-center">
-            <Sparkle className="h-5 w-5 text-fuchsia-500" />
-            <span className="font-semibold">GPT-5 Studio</span>
-            <span>• Next-gen generative playground.</span>
+        {/* Selected Tags Pills */}
+        {selectedTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {selectedTags.map(tag => (
+              <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-800/50">
+                <Tag size={12} />
+                {tag}
+                <button onClick={() => toggleTag(tag)} className="hover:text-white transition-colors"><X size={12} /></button>
+              </span>
+            ))}
           </div>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-gray-900">About</a>
-            <a href="#" className="hover:text-gray-900">Terms</a>
-            <a href="#" className="hover:text-gray-900">Privacy</a>
-            <a href="#" className="hover:text-gray-900">Help</a>
+        )}
+
+        {/* --- Problems Table --- */}
+        <div className="overflow-hidden rounded-xl border border-gray-800 bg-[#161b22] shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-800 bg-[#0d1117]/50 text-gray-400 text-sm">
+                  <th className="px-6 py-4 font-medium w-16 text-center">Status</th>
+                  <th className="px-6 py-4 font-medium">Title</th>
+                  <th className="px-6 py-4 font-medium w-32">Difficulty</th>
+                  <th className="px-6 py-4 font-medium">Tags</th>
+                  <th className="px-6 py-4 font-medium w-32 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <span className="loading loading-spinner loading-lg text-blue-500"></span>
+                        <span className="text-gray-500 text-sm">Loading problems...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : processedProblems.length > 0 ? (
+                  processedProblems.map((prob, index) => (
+                    <tr 
+                      key={prob._id} 
+                      className={`group transition-colors hover:bg-[#1c2128] ${index % 2 === 0 ? 'bg-[#161b22]' : 'bg-[#161b22]/50'}`}
+                    >
+                      <td className="px-6 py-4 text-center">
+                        {isSolved(prob._id) ? (
+                          <CheckCircle2 className="inline-block w-5 h-5 text-green-500" />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-gray-700 inline-block group-hover:border-gray-500 transition-colors" />
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => navigate(`/problem/${prob._id}`)}
+                          className="text-gray-200 font-medium hover:text-blue-400 transition-colors text-base text-left"
+                        >
+                          {prob.title}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getDifficultyColor(prob.difficulty)} uppercase tracking-wide`}>
+                          {prob.difficulty}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-2">
+                          {prob.tags.slice(0, 3).map((tag, idx) => (
+                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-800 text-gray-400 border border-gray-700">
+                              {tag}
+                            </span>
+                          ))}
+                          {prob.tags.length > 3 && (
+                            <span className="text-xs text-gray-500 self-center">+{prob.tags.length - 3}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button 
+                          onClick={() => navigate(`/problem/${prob._id}`)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity btn btn-sm btn-outline btn-info h-8 min-h-0 font-normal"
+                        >
+                          Solve
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Filter className="w-8 h-8 opacity-20" />
+                        <p>No problems match your filters.</p>
+                        <button 
+                          onClick={() => {
+                            setSearch('');
+                            setDifficultyFilter('All');
+                            setSelectedTags([]);
+                            setSortConfig(null);
+                          }}
+                          className="text-blue-400 hover:underline text-sm mt-2"
+                        >
+                          Clear all filters
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          <div className="mt-2 md:mt-0 text-xs text-gray-400">© {new Date().getFullYear()} GPT-5 Studio. Powered by AI ✨</div>
-        </footer>
+        </div>
+        
+        {!loading && (
+          <div className="mt-4 text-xs text-gray-500 text-right">
+            Showing {processedProblems.length} of {problems.length} problems
+          </div>
+        )}
       </main>
     </div>
   );
-}
+};
 
 export default Homepage;
