@@ -3,45 +3,67 @@ import { useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import Navbar from '../components/Navbar';
 import axiosClient from '../utils/axiosClient';
-import { 
-  Play, 
-  Send, 
-  RotateCcw, 
-  CheckCircle2, 
-  AlertCircle, 
-  ChevronDown, 
+import {
+  Play,
+  Send,
+  RotateCcw,
+  CheckCircle2,
+  AlertCircle,
+  ChevronDown,
   Maximize2,
   Code2,
   FileText,
   Clock,
-  Cpu
+  Cpu,
+  Bookmark,
+  BookmarkCheck,
+  Lightbulb,
+  Loader2,
+  X
 } from 'lucide-react';
 
 const ProblemPage = () => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Editor State
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
   const [theme, setTheme] = useState('vs-dark');
-  
+
   // Execution State
   const [output, setOutput] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState('description'); // description, solutions
   const [activeCase, setActiveCase] = useState(0); // 0, 1, 2 (index of test case)
 
+  // Bookmark State
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
+  // AI Hint State
+  const [showHintModal, setShowHintModal] = useState(false);
+  const [hint, setHint] = useState('');
+  const [hintLoading, setHintLoading] = useState(false);
+
   useEffect(() => {
     const fetchProblem = async () => {
       try {
         const { data } = await axiosClient.get(`/problem/problemById/${id}`);
         setProblem(data);
-        
-        // Set initial code for default language
-        const defaultStartCode = data.startCode.find(sc => sc.language === language);
-        setCode(defaultStartCode ? defaultStartCode.initialCode : '// Write your code here');
+
+        // Set initial code for default language (handle missing startCode)
+        const defaultStartCode = data.startCode?.find(sc => sc.language === language);
+        setCode(defaultStartCode ? defaultStartCode.initialCode : '// Write your solution here\n\nfunction solution() {\n  // Your code\n}');
+
+        // Check if bookmarked
+        try {
+          const bookmarkRes = await axiosClient.get(`/problem/bookmark/${id}`);
+          setIsBookmarked(bookmarkRes.data.isBookmarked);
+        } catch (e) {
+          setIsBookmarked(false);
+        }
       } catch (error) {
         console.error("Failed to load problem", error);
       } finally {
@@ -51,12 +73,49 @@ const ProblemPage = () => {
     fetchProblem();
   }, [id]);
 
+  // Toggle Bookmark
+  const handleBookmark = async () => {
+    setBookmarkLoading(true);
+    try {
+      if (isBookmarked) {
+        await axiosClient.delete(`/problem/bookmark/${id}`);
+      } else {
+        await axiosClient.post('/problem/bookmark', { problemId: id });
+      }
+      setIsBookmarked(!isBookmarked);
+    } catch (error) {
+      console.error("Bookmark error", error);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+
+  // Get AI Hint
+  const handleGetHint = async () => {
+    setShowHintModal(true);
+    setHintLoading(true);
+    setHint('');
+    try {
+      const { data } = await axiosClient.post('/problem/ai-hint', {
+        problemTitle: problem.title,
+        problemDescription: problem.description,
+        difficulty: problem.difficulty,
+        userCode: code
+      });
+      setHint(data.hint);
+    } catch (error) {
+      setHint('Unable to get hint at this time. Try again later.');
+    } finally {
+      setHintLoading(false);
+    }
+  };
+
   // Handle Language Switch
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
     setLanguage(newLang);
-    const langCode = problem.startCode.find(sc => sc.language === newLang);
-    setCode(langCode ? langCode.initialCode : '');
+    const langCode = problem.startCode?.find(sc => sc.language === newLang);
+    setCode(langCode ? langCode.initialCode : '// Write your solution here');
   };
 
   // Run Code (Visible Test Cases)
@@ -100,21 +159,21 @@ const ProblemPage = () => {
   return (
     <div className="h-screen flex flex-col bg-[#1a1a1a] text-gray-300 overflow-hidden">
       <Navbar />
-      
+
       {/* Main Workspace */}
       <div className="flex-1 flex overflow-hidden">
-        
+
         {/* LEFT PANEL: Description */}
         <div className="w-1/2 flex flex-col border-r border-gray-700 bg-[#262626]">
           {/* Tabs */}
           <div className="flex bg-[#333] border-b border-gray-700">
-            <button 
+            <button
               onClick={() => setActiveTab('description')}
               className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'description' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
             >
               <FileText size={16} /> Description
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('submissions')}
               className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'submissions' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
             >
@@ -127,16 +186,42 @@ const ProblemPage = () => {
             {activeTab === 'description' && (
               <div className="space-y-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-white mb-2">{problem.title}</h1>
+                  <div className="flex items-center justify-between mb-2">
+                    <h1 className="text-2xl font-bold text-white">{problem.title}</h1>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleGetHint}
+                        className="btn btn-sm bg-purple-600 hover:bg-purple-700 text-white gap-1"
+                        title="Get AI Hint"
+                      >
+                        <Lightbulb size={16} />
+                        Hint
+                      </button>
+                      <button
+                        onClick={handleBookmark}
+                        disabled={bookmarkLoading}
+                        className={`btn btn-sm gap-1 ${isBookmarked ? 'bg-orange-500 text-white' : 'btn-outline border-gray-600 text-gray-300'}`}
+                        title={isBookmarked ? 'Remove Bookmark' : 'Save Problem'}
+                      >
+                        {bookmarkLoading ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : isBookmarked ? (
+                          <BookmarkCheck size={16} />
+                        ) : (
+                          <Bookmark size={16} />
+                        )}
+                        {isBookmarked ? 'Saved' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex gap-2 mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold bg-opacity-20 ${
-                      problem.difficulty === 'easy' ? 'text-green-400 bg-green-400' :
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold bg-opacity-20 ${problem.difficulty === 'easy' ? 'text-green-400 bg-green-400' :
                       problem.difficulty === 'medium' ? 'text-yellow-400 bg-yellow-400' :
-                      'text-red-400 bg-red-400'
-                    }`}>
+                        'text-red-400 bg-red-400'
+                      }`}>
                       {problem.difficulty}
                     </span>
-                    {problem.tags.map(tag => (
+                    {(problem.tags || []).map(tag => (
                       <span key={tag} className="px-2 py-1 rounded-full text-xs bg-gray-700 text-gray-300">
                         {tag}
                       </span>
@@ -147,7 +232,7 @@ const ProblemPage = () => {
 
                 {/* Examples */}
                 <div className="space-y-4">
-                  {problem.visibleTestCases.map((testCase, idx) => (
+                  {(problem.visibleTestCases || []).map((testCase, idx) => (
                     <div key={idx} className="bg-[#333] rounded-lg p-4">
                       <h3 className="text-white font-semibold mb-2">Example {idx + 1}:</h3>
                       <div className="space-y-2 text-sm font-mono">
@@ -165,14 +250,14 @@ const ProblemPage = () => {
 
         {/* RIGHT PANEL: Editor & Console */}
         <div className="w-1/2 flex flex-col h-full">
-          
+
           {/* Editor Header */}
           <div className="h-12 bg-[#262626] border-b border-gray-700 flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Code2 size={16} className="absolute left-2 top-2.5 text-gray-400" />
-                <select 
-                  value={language} 
+                <select
+                  value={language}
                   onChange={handleLanguageChange}
                   className="bg-[#333] text-white text-sm pl-8 pr-8 py-1 rounded border border-gray-600 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
                 >
@@ -183,11 +268,11 @@ const ProblemPage = () => {
                 <ChevronDown size={14} className="absolute right-2 top-3 text-gray-400 pointer-events-none" />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setCode(problem.startCode.find(sc => sc.language === language)?.initialCode)}
-                className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition" 
+              <button
+                onClick={() => setCode(problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here')}
+                className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition"
                 title="Reset Code"
               >
                 <RotateCcw size={16} />
@@ -218,36 +303,36 @@ const ProblemPage = () => {
 
           {/* Bottom Panel: Test Cases / Results */}
           <div className="h-64 bg-[#262626] border-t border-gray-700 flex flex-col">
-            
+
             {/* Console Toolbar */}
             <div className="h-10 bg-[#333] flex items-center px-4 gap-6 border-b border-gray-700">
-              <button 
+              <button
                 onClick={() => setOutput(null)}
                 className={`text-sm font-medium flex items-center gap-2 ${!output ? 'text-white' : 'text-gray-400 hover:text-white'}`}
               >
                 <CheckCircle2 size={14} className="text-green-500" /> Test Cases
               </button>
-              <button 
+              <button
                 className={`text-sm font-medium flex items-center gap-2 ${output ? 'text-white' : 'text-gray-400 hover:text-white'}`}
               >
-                <Cpu size={14} className={output?.type === 'error' ? 'text-red-500' : 'text-blue-500'} /> 
+                <Cpu size={14} className={output?.type === 'error' ? 'text-red-500' : 'text-blue-500'} />
                 {output?.type === 'submit' ? 'Submission Result' : 'Run Result'}
               </button>
-              
+
               <div className="ml-auto flex items-center gap-3">
-                <button 
+                <button
                   onClick={handleRun}
                   disabled={isRunning}
                   className="btn btn-sm bg-[#333] hover:bg-[#444] border-gray-600 text-gray-300 gap-2"
                 >
                   <Play size={14} /> Run
                 </button>
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={isRunning}
                   className="btn btn-sm bg-green-600 hover:bg-green-700 text-white border-none gap-2"
                 >
-                  {isRunning ? <span className="loading loading-spinner loading-xs"></span> : <Send size={14} />} 
+                  {isRunning ? <span className="loading loading-spinner loading-xs"></span> : <Send size={14} />}
                   Submit
                 </button>
               </div>
@@ -274,18 +359,17 @@ const ProblemPage = () => {
                     <div className="space-y-4">
                       <div className="flex gap-2">
                         {output.results.map((res, idx) => (
-                          <button 
+                          <button
                             key={idx}
                             onClick={() => setActiveCase(idx)}
-                            className={`px-3 py-1 rounded text-xs transition ${
-                              res.status.id === 3 ? 'bg-green-900/30 text-green-400 border-green-800' : 'bg-red-900/30 text-red-400 border-red-800'
-                            } border ${activeCase === idx ? 'ring-1 ring-white' : ''}`}
+                            className={`px-3 py-1 rounded text-xs transition ${res.status.id === 3 ? 'bg-green-900/30 text-green-400 border-green-800' : 'bg-red-900/30 text-red-400 border-red-800'
+                              } border ${activeCase === idx ? 'ring-1 ring-white' : ''}`}
                           >
                             Case {idx + 1}
                           </button>
                         ))}
                       </div>
-                      
+
                       {output.results[activeCase] && (
                         <div className="space-y-2">
                           <div>
@@ -313,23 +397,23 @@ const ProblemPage = () => {
 
                   {output.type === 'submit' && (
                     <div className="text-center py-8">
-                        <h2 className={`text-2xl font-bold mb-2 ${output.result.status === 'accepted' ? 'text-green-500' : 'text-red-500'}`}>
-                            {output.result.status === 'accepted' ? 'Accepted' : 'Wrong Answer'}
-                        </h2>
-                        <div className="flex justify-center gap-8 mt-4 text-gray-400">
-                            <div>
-                                <span className="block text-xs uppercase tracking-wider">Runtime</span>
-                                <span className="text-lg text-white font-mono">{output.result.runtime} ms</span>
-                            </div>
-                            <div>
-                                <span className="block text-xs uppercase tracking-wider">Memory</span>
-                                <span className="text-lg text-white font-mono">{output.result.memory} KB</span>
-                            </div>
-                            <div>
-                                <span className="block text-xs uppercase tracking-wider">Passed</span>
-                                <span className="text-lg text-white font-mono">{output.result.testCasesPassed} / {output.result.testCasesTotal}</span>
-                            </div>
+                      <h2 className={`text-2xl font-bold mb-2 ${output.result.status === 'accepted' ? 'text-green-500' : 'text-red-500'}`}>
+                        {output.result.status === 'accepted' ? 'Accepted' : 'Wrong Answer'}
+                      </h2>
+                      <div className="flex justify-center gap-8 mt-4 text-gray-400">
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider">Runtime</span>
+                          <span className="text-lg text-white font-mono">{output.result.runtime} ms</span>
                         </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider">Memory</span>
+                          <span className="text-lg text-white font-mono">{output.result.memory} KB</span>
+                        </div>
+                        <div>
+                          <span className="block text-xs uppercase tracking-wider">Passed</span>
+                          <span className="text-lg text-white font-mono">{output.result.testCasesPassed} / {output.result.testCasesTotal}</span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -337,32 +421,31 @@ const ProblemPage = () => {
                 // DEFAULT TEST CASE VIEW
                 <div className="space-y-4">
                   <div className="flex gap-2">
-                    {problem.visibleTestCases.map((_, idx) => (
-                      <button 
+                    {(problem.visibleTestCases || []).map((_, idx) => (
+                      <button
                         key={idx}
                         onClick={() => setActiveCase(idx)}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-medium transition ${
-                          activeCase === idx 
-                            ? 'bg-[#444] text-white' 
-                            : 'bg-[#333] text-gray-400 hover:bg-[#3d3d3d]'
-                        }`}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-medium transition ${activeCase === idx
+                          ? 'bg-[#444] text-white'
+                          : 'bg-[#333] text-gray-400 hover:bg-[#3d3d3d]'
+                          }`}
                       >
                         Case {idx + 1}
                       </button>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Input</label>
                       <div className="bg-[#333] p-3 rounded-lg text-gray-300">
-                        {problem.visibleTestCases[activeCase]?.input}
+                        {problem.visibleTestCases?.[activeCase]?.input || 'No test cases available'}
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Expected Output</label>
                       <div className="bg-[#333] p-3 rounded-lg text-gray-300">
-                        {problem.visibleTestCases[activeCase]?.output}
+                        {problem.visibleTestCases?.[activeCase]?.output || 'No expected output'}
                       </div>
                     </div>
                   </div>
@@ -372,6 +455,39 @@ const ProblemPage = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Hint Modal */}
+      {showHintModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#262626] rounded-xl p-6 max-w-lg w-full mx-4 border border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Lightbulb className="text-purple-400" size={24} />
+                AI Hint
+              </h3>
+              <button
+                onClick={() => setShowHintModal(false)}
+                className="btn btn-sm btn-ghost btn-circle"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {hintLoading ? (
+              <div className="flex flex-col items-center py-8">
+                <Loader2 className="w-8 h-8 text-purple-400 animate-spin mb-3" />
+                <span className="text-gray-400">Generating hint...</span>
+              </div>
+            ) : (
+              <div className="bg-[#333] rounded-lg p-4 text-gray-300 leading-relaxed">
+                {hint}
+              </div>
+            )}
+            <p className="text-xs text-gray-500 mt-4">
+              💡 Tip: Try to solve the problem yourself first. Hints are meant to guide you, not give away the answer.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

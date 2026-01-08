@@ -21,7 +21,12 @@ const register = async (req, res) => {
 
         const user = await User.create(req.body);
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'user' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false, // Ensure false for localhost
+            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+        });
         // Return full user info including role
         res.status(201).json({
             message: "User Registered Succesfully",
@@ -52,7 +57,7 @@ const login = async (req, res) => {
             throw new Error("Invalid Credentials");
 
         const user = await User.findOne({ emailId });
-        if(!user) throw new Error("Invalid Credentials");
+        if (!user) throw new Error("Invalid Credentials");
 
         const match = await bcrypt.compare(password, user.password);
 
@@ -60,19 +65,23 @@ const login = async (req, res) => {
             throw new Error("Wrong Password");
 
         const reply = {
-            firstName : user.firstName,
-            emailId : user.emailId,
-            _id : user._id,
-            role: user.role // ADDED ROLE HERE
+            firstName: user.firstName,
+            emailId: user.emailId,
+            _id: user._id,
+            role: user.role
         }
 
-        constjh = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false, // Ensure false for localhost
+            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+        });
         res.status(200).json({
-            user:reply,
-            message:"Login Succesfully"
+            user: reply,
+            message: "Login Succesfully"
         })
     }
     catch (err) {
@@ -112,9 +121,14 @@ const adminRegister = async (req, res) => {
 
         const user = await User.create(req.body);
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'admin' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
-        
-         res.status(201).json({
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false, // Ensure false for localhost
+            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+        });
+
+        res.status(201).json({
             message: "Admin Registered Succesfully",
             user: {
                 firstName: user.firstName,
@@ -139,12 +153,12 @@ const deleteProfile = async (req, res) => {
         await User.findByIdAndDelete(userId);
 
         // Delete from submission also 
-        await Submission.deleteMany({ userId: userId }); // Fixed Mongoose query
+        await Submission.deleteMany({ userId: userId });
 
         res.status(200).send("Deleted Succesfully");
     }
-    catch(error){
-        res.status(500).send("Internal Server Error"+error);
+    catch (error) {
+        res.status(500).send("Internal Server Error" + error);
     }
 }
 

@@ -4,19 +4,26 @@ import { useEffect } from "react";
 import { checkAuth } from "./authSlice";
 
 // Pages
+import LandingPage from "./pages/LandingPage";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProblemForm from "./pages/ProblemForm";
-import ProblemPage from "./pages/ProblemPage"; // Import the new page
+import ProblemPage from "./pages/ProblemPage";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import BookmarksPage from "./pages/BookmarksPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import StudyPlansPage from "./pages/StudyPlansPage";
+import ContestsPage from "./pages/ContestsPage";
 
 // Guard Component for Admin Routes
 const AdminRoute = () => {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-gray-950"><span className="loading loading-spinner text-primary"></span></div>;
-  
+
   // Check if authenticated AND role is admin
   if (isAuthenticated && user?.role === 'admin') {
     return <Outlet />;
@@ -26,27 +33,32 @@ const AdminRoute = () => {
   return <Navigate to="/" replace />;
 };
 
-function App(){
-  const {isAuthenticated, loading} = useSelector((state)=>state.auth);
+function App() {
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(checkAuth());
-  },[dispatch]);
+  }, [dispatch]);
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-gray-950"><span className="loading loading-ring loading-lg text-primary"></span></div>;
 
-  return(
+  return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={!isAuthenticated ? <Login/> : <Navigate to="/"/>} />
-      <Route path="/signup" element={!isAuthenticated ? <Signup/> : <Navigate to="/"/>} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
+      <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/" />} />
 
       {/* Protected User Routes */}
-      <Route path="/" element={isAuthenticated ? <Homepage/> : <Navigate to="/login"/>} />
-      
-      {/* THIS IS THE MISSING ROUTE */}
-      <Route path="/problem/:id" element={isAuthenticated ? <ProblemPage/> : <Navigate to="/login"/>} />
+      <Route path="/problems" element={isAuthenticated ? <Homepage /> : <Navigate to="/login" />} />
+      <Route path="/problem/:id" element={isAuthenticated ? <ProblemPage /> : <Navigate to="/login" />} />
+      <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+      <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+      <Route path="/bookmarks" element={isAuthenticated ? <BookmarksPage /> : <Navigate to="/login" />} />
+      <Route path="/leaderboard" element={isAuthenticated ? <LeaderboardPage /> : <Navigate to="/login" />} />
+      <Route path="/study-plans" element={isAuthenticated ? <StudyPlansPage /> : <Navigate to="/login" />} />
+      <Route path="/contests" element={isAuthenticated ? <ContestsPage /> : <Navigate to="/login" />} />
 
       {/* Protected Admin Routes */}
       <Route path="/admin" element={<AdminRoute />}>

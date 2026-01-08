@@ -32,6 +32,31 @@ const problemSchema = new Schema({
       required: true,
     },
   ],
+  companies: [
+    {
+      type: String,
+      enum: [
+        "google",
+        "amazon",
+        "meta",
+        "microsoft",
+        "apple",
+        "netflix",
+        "uber",
+        "airbnb",
+        "linkedin",
+        "twitter",
+        "spotify",
+        "oracle",
+        "salesforce",
+        "adobe",
+        "nvidia",
+        "stripe",
+        "coinbase",
+        "other"
+      ],
+    },
+  ],
   visibleTestCases: [
     {
       input: {

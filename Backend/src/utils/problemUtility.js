@@ -65,10 +65,14 @@ const submitToken = async (resultToken) => {
     }
   }
 
-  while (true) {
+  const MAX_RETRIES = 30; // Maximum 30 seconds timeout
+  let retries = 0;
+
+  while (retries < MAX_RETRIES) {
     const result = await fetchData();
 
     if (!result) {
+      retries++;
       await waiting(1000);
       continue;
     }
@@ -80,8 +84,11 @@ const submitToken = async (resultToken) => {
 
     if (isResultObtained) return result.submissions;
 
+    retries++;
     await waiting(1000);
   }
+
+  throw new Error("Judge0 request timeout - maximum retries exceeded");
 };
 
 module.exports = { getLanguageById, submitBatch, submitToken };
