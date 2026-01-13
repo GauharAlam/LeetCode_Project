@@ -2,14 +2,14 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axiosClient from '../utils/axiosClient';
-import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronDown } from 'lucide-react';
+import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronDown, Tag } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 const Homepage = () => {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  
+
   // --- Filter & Sort States ---
   const [difficultyFilter, setDifficultyFilter] = useState('All');
   const [selectedTags, setSelectedTags] = useState([]);
@@ -68,8 +68,8 @@ const Homepage = () => {
     // Search Filter
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(p => 
-        p.title.toLowerCase().includes(q) || 
+      result = result.filter(p =>
+        p.title.toLowerCase().includes(q) ||
         p.tags.some(t => t.toLowerCase().includes(q))
       );
     }
@@ -81,7 +81,7 @@ const Homepage = () => {
 
     // Tags Filter (Problem must have ALL selected tags)
     if (selectedTags.length > 0) {
-      result = result.filter(p => 
+      result = result.filter(p =>
         selectedTags.every(tag => p.tags.includes(tag))
       );
     }
@@ -113,7 +113,7 @@ const Homepage = () => {
 
   // Helper Functions
   const toggleTag = (tag) => {
-    setSelectedTags(prev => 
+    setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
@@ -144,39 +144,38 @@ const Homepage = () => {
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-300 font-sans">
       <Navbar />
-      
+
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        
+
         {/* --- Controls Header --- */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          
+
           {/* Search */}
           <div className="relative w-full md:w-96 group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
             </div>
-            <input 
-              type="text" 
-              placeholder="Search problems or tags..." 
+            <input
+              type="text"
+              placeholder="Search problems or tags..."
               className="block w-full pl-10 pr-3 py-2.5 border border-gray-700 rounded-lg bg-[#161b22] text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-3">
-            
+
             {/* Quick Difficulty Tabs */}
             <div className="bg-[#161b22] p-1 rounded-lg border border-gray-700 flex items-center">
               {['All', 'easy', 'medium', 'hard'].map((diff) => (
                 <button
                   key={diff}
                   onClick={() => setDifficultyFilter(diff)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                    difficultyFilter === diff 
-                      ? 'bg-blue-600 text-white shadow-sm' 
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${difficultyFilter === diff
+                      ? 'bg-blue-600 text-white shadow-sm'
                       : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-                  }`}
+                    }`}
                 >
                   {diff.charAt(0).toUpperCase() + diff.slice(1)}
                 </button>
@@ -185,13 +184,12 @@ const Homepage = () => {
 
             {/* Sort Dropdown */}
             <div className="relative" ref={sortRef}>
-              <button 
+              <button
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
-                  sortConfig 
-                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400' 
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${sortConfig
+                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400'
                     : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 <ArrowUpDown size={18} />
                 <span className="text-sm font-medium hidden sm:inline">Sort</span>
@@ -200,7 +198,7 @@ const Homepage = () => {
               {showSortMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#1e232a] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
                   <div className="p-1">
-                    <button 
+                    <button
                       onClick={() => handleSort('difficulty')}
                       className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
                     >
@@ -209,7 +207,7 @@ const Homepage = () => {
                         <span className="text-xs opacity-70">{sortConfig.direction === 'asc' ? 'Easy→Hard' : 'Hard→Easy'}</span>
                       )}
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleSort('title')}
                       className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
                     >
@@ -221,7 +219,7 @@ const Homepage = () => {
                     {sortConfig && (
                       <>
                         <div className="h-px bg-gray-700 my-1 mx-2" />
-                        <button 
+                        <button
                           onClick={() => { setSortConfig(null); setShowSortMenu(false); }}
                           className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2"
                         >
@@ -236,13 +234,12 @@ const Homepage = () => {
 
             {/* Tags Filter Dropdown */}
             <div className="relative" ref={filterRef}>
-              <button 
+              <button
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
-                  selectedTags.length > 0
-                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400' 
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${selectedTags.length > 0
+                    ? 'bg-blue-900/20 border-blue-500/50 text-blue-400'
                     : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 <ListFilter size={18} />
                 <span className="text-sm font-medium hidden sm:inline">Tags</span>
@@ -258,7 +255,7 @@ const Homepage = () => {
                   <div className="flex justify-between items-center mb-3 px-1">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Filter by Tags</span>
                     {selectedTags.length > 0 && (
-                      <button 
+                      <button
                         onClick={() => setSelectedTags([])}
                         className="text-xs text-red-400 hover:underline"
                       >
@@ -271,11 +268,10 @@ const Homepage = () => {
                       <button
                         key={tag}
                         onClick={() => toggleTag(tag)}
-                        className={`px-2.5 py-1 text-xs rounded-md border transition-all ${
-                          selectedTags.includes(tag)
+                        className={`px-2.5 py-1 text-xs rounded-md border transition-all ${selectedTags.includes(tag)
                             ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
                             : 'bg-[#161b22] border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200'
-                        }`}
+                          }`}
                       >
                         {tag}
                       </button>
@@ -327,8 +323,8 @@ const Homepage = () => {
                   </tr>
                 ) : processedProblems.length > 0 ? (
                   processedProblems.map((prob, index) => (
-                    <tr 
-                      key={prob._id} 
+                    <tr
+                      key={prob._id}
                       className={`group transition-colors hover:bg-[#1c2128] ${index % 2 === 0 ? 'bg-[#161b22]' : 'bg-[#161b22]/50'}`}
                     >
                       <td className="px-6 py-4 text-center">
@@ -339,7 +335,7 @@ const Homepage = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <button 
+                        <button
                           onClick={() => navigate(`/problem/${prob._id}`)}
                           className="text-gray-200 font-medium hover:text-blue-400 transition-colors text-base text-left"
                         >
@@ -364,7 +360,7 @@ const Homepage = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button 
+                        <button
                           onClick={() => navigate(`/problem/${prob._id}`)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity btn btn-sm btn-outline btn-info h-8 min-h-0 font-normal"
                         >
@@ -379,7 +375,7 @@ const Homepage = () => {
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Filter className="w-8 h-8 opacity-20" />
                         <p>No problems match your filters.</p>
-                        <button 
+                        <button
                           onClick={() => {
                             setSearch('');
                             setDifficultyFilter('All');
@@ -398,7 +394,7 @@ const Homepage = () => {
             </table>
           </div>
         </div>
-        
+
         {!loading && (
           <div className="mt-4 text-xs text-gray-500 text-right">
             Showing {processedProblems.length} of {problems.length} problems
