@@ -9,20 +9,21 @@
 //     }
 // });
 
-const { createClient } = require("redis");
+
+
+ const {createClient}  = require("redis");
 
 const redisClient = createClient({
     username: 'default',
     password: process.env.REDIS_PASS,
     socket: {
-        host: 'redis-14021.crce206.ap-south-1-1.ec2.cloud.redislabs.com',
-        port: 14021,
-        connectTimeout: 10000 // Optional: Increase timeout to 10 seconds
+        host: 'redis-14241.crce217.ap-south-1-1.ec2.cloud.redislabs.com',
+        port: 14241
     }
 });
 
 // IMPORTANT: Add these event listeners to prevent crashes
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
-redisClient.on('connect', () => console.log('Redis Client Connected'));
+// redisClient.on('error', (err) => console.log('Redis Client Error', err));
+// redisClient.on('connect', () => console.log('Redis Client Connected'));
 
 module.exports = redisClient;
