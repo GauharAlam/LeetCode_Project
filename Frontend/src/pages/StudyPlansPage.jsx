@@ -57,7 +57,7 @@ const StudyPlansPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             <Navbar />
 
             <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -79,7 +79,7 @@ const StudyPlansPage = () => {
                         return (
                             <div
                                 key={plan.id}
-                                className="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-all group"
+                                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-all group"
                             >
                                 <div className="flex items-start gap-4 mb-4">
                                     <div className={`p-3 rounded-xl bg-gradient-to-br ${plan.color}`}>
@@ -87,13 +87,13 @@ const StudyPlansPage = () => {
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
-                                        <p className="text-gray-400 text-sm">{plan.description}</p>
+                                        <p className="text-gray-600 dark:text-gray-400 text-sm">{plan.description}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {plan.topics.map((topic, idx) => (
-                                        <span key={idx} className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
+                                        <span key={idx} className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">
                                             {topic}
                                         </span>
                                     ))}
@@ -122,9 +122,9 @@ const StudyPlansPage = () => {
                 </div>
 
                 {/* Coming Soon Banner */}
-                <div className="mt-8 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 text-center">
+                <div className="mt-8 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-300 dark:border-gray-700 text-center">
                     <h3 className="text-lg font-medium text-white mb-2">More Plans Coming Soon!</h3>
-                    <p className="text-gray-400 text-sm">We're working on specialized tracks for System Design, SQL, and more.</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">We're working on specialized tracks for System Design, SQL, and more.</p>
                 </div>
             </main>
         </div>

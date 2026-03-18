@@ -89,7 +89,7 @@ const ProblemForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 pb-20">
       <Navbar />
       <div className="max-w-5xl mx-auto py-10 px-4">
         
@@ -105,19 +105,19 @@ const ProblemForm = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           
           {/* Section 1: Basic Info */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 shadow-md space-y-4">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md space-y-4">
             <h2 className="text-xl font-semibold text-blue-400">Basic Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
-                <label className="label text-gray-400">Title</label>
-                <input {...register("title")} className="input input-bordered bg-gray-800" placeholder="e.g. Two Sum" />
+                <label className="label text-gray-600 dark:text-gray-400">Title</label>
+                <input {...register("title")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="e.g. Two Sum" />
                 {errors.title && <span className="text-red-400 text-sm">{errors.title.message}</span>}
               </div>
 
               <div className="form-control">
-                <label className="label text-gray-400">Difficulty</label>
-                <select {...register("difficulty")} className="select select-bordered bg-gray-800">
+                <label className="label text-gray-600 dark:text-gray-400">Difficulty</label>
+                <select {...register("difficulty")} className="select select-bordered bg-gray-100 dark:bg-gray-800">
                   <option value="easy">Easy</option>
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
@@ -126,13 +126,13 @@ const ProblemForm = () => {
             </div>
 
             <div className="form-control">
-              <label className="label text-gray-400">Tags (comma separated)</label>
-              <input {...register("tags")} className="input input-bordered bg-gray-800" placeholder="Array, Hash Table" />
+              <label className="label text-gray-600 dark:text-gray-400">Tags (comma separated)</label>
+              <input {...register("tags")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="Array, Hash Table" />
             </div>
 
             <div className="form-control">
-              <label className="label text-gray-400">Description (Markdown)</label>
-              <textarea {...register("description")} className="textarea textarea-bordered bg-gray-800 h-32" placeholder="Problem description..." />
+              <label className="label text-gray-600 dark:text-gray-400">Description (Markdown)</label>
+              <textarea {...register("description")} className="textarea textarea-bordered bg-gray-100 dark:bg-gray-800 h-32" placeholder="Problem description..." />
               {errors.description && <span className="text-red-400 text-sm">{errors.description.message}</span>}
             </div>
           </div>
@@ -144,11 +144,11 @@ const ProblemForm = () => {
           </div>
 
           {/* Section 3: Code Logic */}
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 shadow-md">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
             <h2 className="text-xl font-semibold text-green-400 mb-4">Solution & Boilerplate</h2>
             <div className="space-y-6">
               {DEFAULT_LANGUAGES.map((lang, index) => (
-                <div key={lang} className="collapse collapse-arrow border border-gray-700 bg-gray-800/50">
+                <div key={lang} className="collapse collapse-arrow border border-gray-300 dark:border-gray-700 bg-gray-100/50 dark:bg-gray-800/50">
                   <input type="checkbox" /> 
                   <div className="collapse-title text-lg font-medium capitalize flex items-center gap-2">
                     <CodeIcon lang={lang} /> {lang} Configuration
@@ -162,7 +162,7 @@ const ProblemForm = () => {
                       <label className="label text-xs uppercase tracking-wide text-gray-500">Starter Code (User sees this)</label>
                       <textarea 
                         {...register(`startCode.${index}.initialCode`)} 
-                        className="textarea textarea-bordered font-mono text-sm h-24 bg-gray-950" 
+                        className="textarea textarea-bordered font-mono text-sm h-24 bg-gray-50 dark:bg-gray-950" 
                         placeholder={`class Solution {\n  // your code here \n}`}
                       />
                     </div>
@@ -170,7 +170,7 @@ const ProblemForm = () => {
                       <label className="label text-xs uppercase tracking-wide text-gray-500">Reference Solution (Used for validation)</label>
                       <textarea 
                         {...register(`referenceSolution.${index}.completeCode`)} 
-                        className="textarea textarea-bordered font-mono text-sm h-32 bg-gray-950 border-green-900/50" 
+                        className="textarea textarea-bordered font-mono text-sm h-32 bg-gray-50 dark:bg-gray-950 border-green-900/50" 
                          placeholder={`// Complete working solution`}
                       />
                     </div>
@@ -200,23 +200,23 @@ const ProblemForm = () => {
 
 // Helper Components
 const TestCaseSection = ({ title, fields, append, remove, register, name }) => (
-  <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 shadow-md h-full flex flex-col">
+  <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md h-full flex flex-col">
     <div className="flex justify-between items-center mb-4">
-      <h3 className="font-semibold text-gray-300">{title}</h3>
+      <h3 className="font-semibold text-gray-700 dark:text-gray-300">{title}</h3>
       <button type="button" onClick={() => append({ input: '', output: '', explanation: '' })} className="btn btn-xs btn-outline btn-success gap-1">
         <PlusCircle size={14} /> Add Case
       </button>
     </div>
     <div className="space-y-4 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
       {fields.map((field, index) => (
-        <div key={field.id} className="p-3 bg-gray-800 rounded-lg relative group border border-gray-700">
+        <div key={field.id} className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg relative group border border-gray-300 dark:border-gray-700">
           <button type="button" onClick={() => remove(index)} className="btn btn-xs btn-circle btn-error absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Trash2 size={12} />
           </button>
           <div className="grid grid-cols-1 gap-2">
-            <input {...register(`${name}.${index}.input`)} placeholder="Input (e.g. nums=[2,7], target=9)" className="input input-sm input-bordered bg-gray-900" />
-            <input {...register(`${name}.${index}.output`)} placeholder="Output (e.g. [0,1])" className="input input-sm input-bordered bg-gray-900" />
-            <input {...register(`${name}.${index}.explanation`)} placeholder="Explanation (Optional)" className="input input-sm input-bordered bg-gray-900" />
+            <input {...register(`${name}.${index}.input`)} placeholder="Input (e.g. nums=[2,7], target=9)" className="input input-sm input-bordered bg-white dark:bg-gray-900" />
+            <input {...register(`${name}.${index}.output`)} placeholder="Output (e.g. [0,1])" className="input input-sm input-bordered bg-white dark:bg-gray-900" />
+            <input {...register(`${name}.${index}.explanation`)} placeholder="Explanation (Optional)" className="input input-sm input-bordered bg-white dark:bg-gray-900" />
           </div>
         </div>
       ))}

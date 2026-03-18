@@ -137,12 +137,12 @@ const Homepage = () => {
       case 'easy': return 'text-green-400 bg-green-400/10 border-green-400/20';
       case 'medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
       case 'hard': return 'text-red-400 bg-red-400/10 border-red-400/20';
-      default: return 'text-gray-400';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-gray-300 font-sans">
+    <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
       <Navbar />
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -158,7 +158,7 @@ const Homepage = () => {
             <input
               type="text"
               placeholder="Search problems or tags..."
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-700 rounded-lg bg-[#161b22] text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-[#161b22] text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -167,14 +167,14 @@ const Homepage = () => {
           <div className="flex flex-wrap items-center gap-3">
 
             {/* Quick Difficulty Tabs */}
-            <div className="bg-[#161b22] p-1 rounded-lg border border-gray-700 flex items-center">
+            <div className="bg-[#161b22] p-1 rounded-lg border border-gray-300 dark:border-gray-700 flex items-center">
               {['All', 'easy', 'medium', 'hard'].map((diff) => (
                 <button
                   key={diff}
                   onClick={() => setDifficultyFilter(diff)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${difficultyFilter === diff
                       ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-200 hover:bg-gray-800'
                     }`}
                 >
                   {diff.charAt(0).toUpperCase() + diff.slice(1)}
@@ -188,7 +188,7 @@ const Homepage = () => {
                 onClick={() => setShowSortMenu(!showSortMenu)}
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${sortConfig
                     ? 'bg-blue-900/20 border-blue-500/50 text-blue-400'
-                    : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                    : 'bg-[#161b22] border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-600 hover:text-gray-200'
                   }`}
               >
                 <ArrowUpDown size={18} />
@@ -196,11 +196,11 @@ const Homepage = () => {
               </button>
 
               {showSortMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#1e232a] border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-[#1e232a] border border-gray-300 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
                   <div className="p-1">
                     <button
                       onClick={() => handleSort('difficulty')}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
                     >
                       <span>Difficulty</span>
                       {sortConfig?.key === 'difficulty' && (
@@ -209,7 +209,7 @@ const Homepage = () => {
                     </button>
                     <button
                       onClick={() => handleSort('title')}
-                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-600 hover:text-white rounded-lg transition-colors"
                     >
                       <span>Title</span>
                       {sortConfig?.key === 'title' && (
@@ -218,7 +218,7 @@ const Homepage = () => {
                     </button>
                     {sortConfig && (
                       <>
-                        <div className="h-px bg-gray-700 my-1 mx-2" />
+                        <div className="h-px bg-gray-200 dark:bg-gray-700 my-1 mx-2" />
                         <button
                           onClick={() => { setSortConfig(null); setShowSortMenu(false); }}
                           className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2"
@@ -238,7 +238,7 @@ const Homepage = () => {
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${selectedTags.length > 0
                     ? 'bg-blue-900/20 border-blue-500/50 text-blue-400'
-                    : 'bg-[#161b22] border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                    : 'bg-[#161b22] border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-600 hover:text-gray-200'
                   }`}
               >
                 <ListFilter size={18} />
@@ -251,9 +251,9 @@ const Homepage = () => {
               </button>
 
               {showFilterMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-[#1e232a] border border-gray-700 rounded-xl shadow-xl z-50 p-3">
+                <div className="absolute right-0 mt-2 w-72 bg-[#1e232a] border border-gray-300 dark:border-gray-700 rounded-xl shadow-xl z-50 p-3">
                   <div className="flex justify-between items-center mb-3 px-1">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Filter by Tags</span>
+                    <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Filter by Tags</span>
                     {selectedTags.length > 0 && (
                       <button
                         onClick={() => setSelectedTags([])}
@@ -270,7 +270,7 @@ const Homepage = () => {
                         onClick={() => toggleTag(tag)}
                         className={`px-2.5 py-1 text-xs rounded-md border transition-all ${selectedTags.includes(tag)
                             ? 'bg-blue-600 border-blue-500 text-white shadow-sm'
-                            : 'bg-[#161b22] border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                            : 'bg-[#161b22] border-gray-400 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-500 hover:text-gray-200'
                           }`}
                       >
                         {tag}
@@ -299,11 +299,11 @@ const Homepage = () => {
         )}
 
         {/* --- Problems Table --- */}
-        <div className="overflow-hidden rounded-xl border border-gray-800 bg-[#161b22] shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-[#161b22] shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-800 bg-[#0d1117]/50 text-gray-400 text-sm">
+                <tr className="border-b border-gray-200 dark:border-gray-800 bg-[#0d1117]/50 text-gray-600 dark:text-gray-400 text-sm">
                   <th className="px-6 py-4 font-medium w-16 text-center">Status</th>
                   <th className="px-6 py-4 font-medium">Title</th>
                   <th className="px-6 py-4 font-medium w-32">Difficulty</th>
@@ -331,13 +331,13 @@ const Homepage = () => {
                         {isSolved(prob._id) ? (
                           <CheckCircle2 className="inline-block w-5 h-5 text-green-500" />
                         ) : (
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-700 inline-block group-hover:border-gray-500 transition-colors" />
+                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-700 inline-block group-hover:border-gray-500 transition-colors" />
                         )}
                       </td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => navigate(`/problem/${prob._id}`)}
-                          className="text-gray-200 font-medium hover:text-blue-400 transition-colors text-base text-left"
+                          className="text-gray-800 dark:text-gray-200 font-medium hover:text-blue-400 transition-colors text-base text-left"
                         >
                           {prob.title}
                         </button>
@@ -350,7 +350,7 @@ const Homepage = () => {
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
                           {prob.tags.slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-800 text-gray-400 border border-gray-700">
+                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-700">
                               {tag}
                             </span>
                           ))}

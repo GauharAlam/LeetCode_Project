@@ -30,7 +30,7 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             <Navbar />
 
             {/* Hero Section */}
@@ -50,7 +50,7 @@ const LandingPage = () => {
                                 <br />
                                 Build for the Real World.
                             </h1>
-                            <p className="text-gray-400 text-lg max-w-lg">
+                            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-lg">
                                 Learning should be fun and rewarding. Practice coding problems,
                                 track your progress, and become a better developer every day.
                             </p>
@@ -63,7 +63,7 @@ const LandingPage = () => {
                                     Start your journey
                                     <ArrowRight size={20} />
                                 </button>
-                                <button className="btn btn-lg btn-outline border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-gray-500 gap-2">
+                                <button className="btn btn-lg btn-outline border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-800 hover:border-gray-500 gap-2">
                                     <Play size={20} />
                                     Watch Demo
                                 </button>
@@ -90,9 +90,9 @@ const LandingPage = () => {
                         <div className="relative hidden lg:block">
                             <div className="relative h-[500px]">
                                 {/* Problems Card */}
-                                <div className="absolute top-0 left-0 w-56 bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute top-0 left-0 w-56 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-400 text-sm">Problems Solved</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Problems Solved</span>
                                         <Star className="text-orange-500" size={20} />
                                     </div>
                                     <p className="text-4xl font-bold text-white mb-4">127</p>
@@ -110,9 +110,9 @@ const LandingPage = () => {
                                 </div>
 
                                 {/* Submissions Card */}
-                                <div className="absolute top-20 right-0 w-52 bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute top-20 right-0 w-52 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-400 text-sm">Submissions</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Submissions</span>
                                         <Code2 className="text-blue-500" size={20} />
                                     </div>
                                     <p className="text-4xl font-bold text-white mb-4">342</p>
@@ -123,15 +123,15 @@ const LandingPage = () => {
                                 </div>
 
                                 {/* Ranking Card */}
-                                <div className="absolute bottom-20 left-20 w-56 bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute bottom-20 left-20 w-56 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-400 text-sm">Your Ranking</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Your Ranking</span>
                                         <Trophy className="text-yellow-500" size={20} />
                                     </div>
                                     <p className="text-4xl font-bold text-white mb-4">#156</p>
                                     <div className="space-y-1">
                                         <p className="text-sm text-green-400">Top 15% ✓</p>
-                                        <p className="text-sm text-gray-400">Rising Fast 🔥</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Rising Fast 🔥</p>
                                     </div>
                                 </div>
                             </div>
@@ -141,11 +141,11 @@ const LandingPage = () => {
             </section>
 
             {/* Features Section */}
-            <section className="py-20 bg-gray-900/50">
+            <section className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-bold text-white mb-4 italic">Features</h2>
-                        <p className="text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                             Everything you need to transform learning into real-world skills.
                         </p>
                     </div>
@@ -217,12 +217,12 @@ const LandingPage = () => {
             {/* CTA Section */}
             <section className="py-20">
                 <div className="container mx-auto px-6">
-                    <div className="bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-blue-500/20 rounded-3xl p-12 text-center border border-gray-800">
+                    <div className="bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-blue-500/20 rounded-3xl p-12 text-center border border-gray-200 dark:border-gray-800">
                         <Zap className="text-orange-500 mx-auto mb-6" size={48} />
                         <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
                             Ready to level up your coding skills?
                         </h2>
-                        <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+                        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-xl mx-auto">
                             Join thousands of developers who are mastering algorithms and data structures every day.
                         </p>
                         <button
@@ -237,7 +237,7 @@ const LandingPage = () => {
             </section>
 
             {/* Footer */}
-            <footer className="py-8 border-t border-gray-800">
+            <footer className="py-8 border-t border-gray-200 dark:border-gray-800">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-4">
@@ -268,16 +268,16 @@ const LandingPage = () => {
 // Feature Card Component
 const FeatureCard = ({ title, description, icon, gradient, link, linkText }) => {
     return (
-        <div className={`bg-gradient-to-br ${gradient} bg-gray-900 rounded-2xl p-6 border border-gray-800 hover:border-gray-700 transition-all hover:transform hover:scale-[1.02]`}>
+        <div className={`bg-gradient-to-br ${gradient} bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:border-gray-700 transition-all hover:transform hover:scale-[1.02]`}>
             <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gray-800/50 rounded-lg">
+                <div className="p-2 bg-gray-100/50 dark:bg-gray-800/50 rounded-lg">
                     {icon}
                 </div>
-                <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-700 text-gray-300">
+                <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300">
                     {title}
                 </span>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                 {description}
             </p>
             <Link to={link} className="text-gray-500 hover:text-white text-sm flex items-center gap-1 group">

@@ -32,10 +32,10 @@ function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-white">
             <form
                 onSubmit={handleSubmit(submittedData)}
-                className='bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6'
+                className='bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6'
             >
                 <h2 className="text-3xl font-bold text-white">AlgoForge</h2>
 
@@ -43,29 +43,29 @@ function Login() {
                 {error && <div className="alert alert-error text-sm py-2">{typeof error === 'string' ? error : 'Login failed'}</div>}
 
                 <div className="w-full">
-                    <label className="text-gray-400">Email</label>
+                    <label className="text-gray-600 dark:text-gray-400">Email</label>
                     <input
                         type="email"
                         placeholder='nawaz@example.com'
-                        className='input input-bordered w-full bg-gray-700 border-gray-600 text-white'
+                        className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white'
                         {...register('emailId')}
                     />
                     {errors.emailId && <span className="text-red-400 text-sm">{errors.emailId.message}</span>}
                 </div>
 
                 <div className="w-full">
-                    <label className="text-gray-400">Password</label>
+                    <label className="text-gray-600 dark:text-gray-400">Password</label>
                     <div className="relative">
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder='••••••••'
-                            className='input input-bordered w-full bg-gray-700 border-gray-600 text-white pr-10'
+                            className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white pr-10'
                             {...register('password')}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white focus:outline-none"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 dark:text-gray-400 hover:text-white focus:outline-none"
                         >
                             {showPassword ? (
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -94,7 +94,7 @@ function Login() {
                     )}
                 </button>
 
-                <div className="text-sm text-gray-400 mt-2">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                     Don't have an account?{" "}
                     <Link to="/signup" className="text-purple-400 hover:text-purple-300 hover:underline">
                         Sign up

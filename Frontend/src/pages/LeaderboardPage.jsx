@@ -32,7 +32,7 @@ const LeaderboardPage = () => {
     const getRankIcon = (rank) => {
         switch (rank) {
             case 1: return <Trophy className="text-yellow-400" size={24} />;
-            case 2: return <Medal className="text-gray-400" size={24} />;
+            case 2: return <Medal className="text-gray-600 dark:text-gray-400" size={24} />;
             case 3: return <Medal className="text-orange-400" size={24} />;
             default: return <span className="text-gray-500 font-mono w-6 text-center">#{rank}</span>;
         }
@@ -43,12 +43,12 @@ const LeaderboardPage = () => {
             case 1: return 'bg-gradient-to-r from-yellow-900/30 to-yellow-900/10 border-yellow-500/30';
             case 2: return 'bg-gradient-to-r from-gray-700/30 to-gray-700/10 border-gray-500/30';
             case 3: return 'bg-gradient-to-r from-orange-900/30 to-orange-900/10 border-orange-500/30';
-            default: return 'bg-gray-900/50 border-gray-800';
+            default: return 'bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -68,7 +68,7 @@ const LeaderboardPage = () => {
                     <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-6 mb-8 border border-blue-500/20">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-gray-400 text-sm mb-1">Your Current Ranking</p>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Your Current Ranking</p>
                                 <div className="flex items-baseline gap-3">
                                     <span className="text-4xl font-bold text-white">#{userRank.rank}</span>
                                     <span className="text-gray-500">of {userRank.totalUsers} users</span>

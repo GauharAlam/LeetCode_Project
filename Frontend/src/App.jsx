@@ -22,7 +22,7 @@ import ContestsPage from "./pages/ContestsPage";
 const AdminRoute = () => {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-950"><span className="loading loading-spinner text-primary"></span></div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><span className="loading loading-spinner text-primary"></span></div>;
 
   // Check if authenticated AND role is admin
   if (isAuthenticated && user?.role === 'admin') {
@@ -41,7 +41,7 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-950"><span className="loading loading-ring loading-lg text-primary"></span></div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><span className="loading loading-ring loading-lg text-primary"></span></div>;
 
   return (
     <Routes>

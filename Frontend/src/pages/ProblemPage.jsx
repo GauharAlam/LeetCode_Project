@@ -157,25 +157,25 @@ const ProblemPage = () => {
   if (loading) return <div className="h-screen bg-[#1a1a1a] flex items-center justify-center text-white">Loading Problem Workspace...</div>;
 
   return (
-    <div className="h-screen flex flex-col bg-[#1a1a1a] text-gray-300 overflow-hidden">
+    <div className="h-screen flex flex-col bg-[#1a1a1a] text-gray-700 dark:text-gray-300 overflow-hidden">
       <Navbar />
 
       {/* Main Workspace */}
       <div className="flex-1 flex overflow-hidden">
 
         {/* LEFT PANEL: Description */}
-        <div className="w-1/2 flex flex-col border-r border-gray-700 bg-[#262626]">
+        <div className="w-1/2 flex flex-col border-r border-gray-300 dark:border-gray-700 bg-[#262626]">
           {/* Tabs */}
-          <div className="flex bg-[#333] border-b border-gray-700">
+          <div className="flex bg-[#333] border-b border-gray-300 dark:border-gray-700">
             <button
               onClick={() => setActiveTab('description')}
-              className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'description' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'description' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-600 dark:text-gray-400 hover:text-white'}`}
             >
               <FileText size={16} /> Description
             </button>
             <button
               onClick={() => setActiveTab('submissions')}
-              className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'submissions' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
+              className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${activeTab === 'submissions' ? 'bg-[#262626] text-white border-t-2 border-blue-500' : 'text-gray-600 dark:text-gray-400 hover:text-white'}`}
             >
               <Clock size={16} /> Submissions
             </button>
@@ -200,7 +200,7 @@ const ProblemPage = () => {
                       <button
                         onClick={handleBookmark}
                         disabled={bookmarkLoading}
-                        className={`btn btn-sm gap-1 ${isBookmarked ? 'bg-orange-500 text-white' : 'btn-outline border-gray-600 text-gray-300'}`}
+                        className={`btn btn-sm gap-1 ${isBookmarked ? 'bg-orange-500 text-white' : 'btn-outline border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300'}`}
                         title={isBookmarked ? 'Remove Bookmark' : 'Save Problem'}
                       >
                         {bookmarkLoading ? (
@@ -222,12 +222,12 @@ const ProblemPage = () => {
                       {problem.difficulty}
                     </span>
                     {(problem.tags || []).map(tag => (
-                      <span key={tag} className="px-2 py-1 rounded-full text-xs bg-gray-700 text-gray-300">
+                      <span key={tag} className="px-2 py-1 rounded-full text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{problem.description}</p>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{problem.description}</p>
                 </div>
 
                 {/* Examples */}
@@ -236,9 +236,9 @@ const ProblemPage = () => {
                     <div key={idx} className="bg-[#333] rounded-lg p-4">
                       <h3 className="text-white font-semibold mb-2">Example {idx + 1}:</h3>
                       <div className="space-y-2 text-sm font-mono">
-                        <div><span className="text-gray-400">Input:</span> <span className="text-white">{testCase.input}</span></div>
-                        <div><span className="text-gray-400">Output:</span> <span className="text-white">{testCase.output}</span></div>
-                        {testCase.explanation && <div><span className="text-gray-400">Explanation:</span> <span className="text-gray-300">{testCase.explanation}</span></div>}
+                        <div><span className="text-gray-600 dark:text-gray-400">Input:</span> <span className="text-white">{testCase.input}</span></div>
+                        <div><span className="text-gray-600 dark:text-gray-400">Output:</span> <span className="text-white">{testCase.output}</span></div>
+                        {testCase.explanation && <div><span className="text-gray-600 dark:text-gray-400">Explanation:</span> <span className="text-gray-700 dark:text-gray-300">{testCase.explanation}</span></div>}
                       </div>
                     </div>
                   ))}
@@ -252,32 +252,32 @@ const ProblemPage = () => {
         <div className="w-1/2 flex flex-col h-full">
 
           {/* Editor Header */}
-          <div className="h-12 bg-[#262626] border-b border-gray-700 flex items-center justify-between px-4">
+          <div className="h-12 bg-[#262626] border-b border-gray-300 dark:border-gray-700 flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Code2 size={16} className="absolute left-2 top-2.5 text-gray-400" />
+                <Code2 size={16} className="absolute left-2 top-2.5 text-gray-600 dark:text-gray-400" />
                 <select
                   value={language}
                   onChange={handleLanguageChange}
-                  className="bg-[#333] text-white text-sm pl-8 pr-8 py-1 rounded border border-gray-600 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
+                  className="bg-[#333] text-white text-sm pl-8 pr-8 py-1 rounded border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
                 >
                   <option value="javascript">JavaScript</option>
                   <option value="c++">C++</option>
                   <option value="java">Java</option>
                 </select>
-                <ChevronDown size={14} className="absolute right-2 top-3 text-gray-400 pointer-events-none" />
+                <ChevronDown size={14} className="absolute right-2 top-3 text-gray-600 dark:text-gray-400 pointer-events-none" />
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCode(problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here')}
-                className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition"
+                className="p-1.5 hover:bg-[#333] rounded text-gray-600 dark:text-gray-400 hover:text-white transition"
                 title="Reset Code"
               >
                 <RotateCcw size={16} />
               </button>
-              <button className="p-1.5 hover:bg-[#333] rounded text-gray-400 hover:text-white transition" title="Settings">
+              <button className="p-1.5 hover:bg-[#333] rounded text-gray-600 dark:text-gray-400 hover:text-white transition" title="Settings">
                 <Maximize2 size={16} />
               </button>
             </div>
@@ -302,18 +302,18 @@ const ProblemPage = () => {
           </div>
 
           {/* Bottom Panel: Test Cases / Results */}
-          <div className="h-64 bg-[#262626] border-t border-gray-700 flex flex-col">
+          <div className="h-64 bg-[#262626] border-t border-gray-300 dark:border-gray-700 flex flex-col">
 
             {/* Console Toolbar */}
-            <div className="h-10 bg-[#333] flex items-center px-4 gap-6 border-b border-gray-700">
+            <div className="h-10 bg-[#333] flex items-center px-4 gap-6 border-b border-gray-300 dark:border-gray-700">
               <button
                 onClick={() => setOutput(null)}
-                className={`text-sm font-medium flex items-center gap-2 ${!output ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`text-sm font-medium flex items-center gap-2 ${!output ? 'text-white' : 'text-gray-600 dark:text-gray-400 hover:text-white'}`}
               >
                 <CheckCircle2 size={14} className="text-green-500" /> Test Cases
               </button>
               <button
-                className={`text-sm font-medium flex items-center gap-2 ${output ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`text-sm font-medium flex items-center gap-2 ${output ? 'text-white' : 'text-gray-600 dark:text-gray-400 hover:text-white'}`}
               >
                 <Cpu size={14} className={output?.type === 'error' ? 'text-red-500' : 'text-blue-500'} />
                 {output?.type === 'submit' ? 'Submission Result' : 'Run Result'}
@@ -323,7 +323,7 @@ const ProblemPage = () => {
                 <button
                   onClick={handleRun}
                   disabled={isRunning}
-                  className="btn btn-sm bg-[#333] hover:bg-[#444] border-gray-600 text-gray-300 gap-2"
+                  className="btn btn-sm bg-[#333] hover:bg-[#444] border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 gap-2"
                 >
                   <Play size={14} /> Run
                 </button>
@@ -380,13 +380,13 @@ const ProblemPage = () => {
                           </div>
                           <div>
                             <span className="text-gray-500 block text-xs mb-1">Output</span>
-                            <div className="bg-[#111] p-3 rounded text-gray-300">
+                            <div className="bg-[#111] p-3 rounded text-gray-700 dark:text-gray-300">
                               {output.results[activeCase].stdout || "No output"}
                             </div>
                           </div>
                           <div>
                             <span className="text-gray-500 block text-xs mb-1">Expected</span>
-                            <div className="bg-[#111] p-3 rounded text-gray-300">
+                            <div className="bg-[#111] p-3 rounded text-gray-700 dark:text-gray-300">
                               {output.results[activeCase].expected_output || "No expected output"}
                             </div>
                           </div>
@@ -400,7 +400,7 @@ const ProblemPage = () => {
                       <h2 className={`text-2xl font-bold mb-2 ${output.result.status === 'accepted' ? 'text-green-500' : 'text-red-500'}`}>
                         {output.result.status === 'accepted' ? 'Accepted' : 'Wrong Answer'}
                       </h2>
-                      <div className="flex justify-center gap-8 mt-4 text-gray-400">
+                      <div className="flex justify-center gap-8 mt-4 text-gray-600 dark:text-gray-400">
                         <div>
                           <span className="block text-xs uppercase tracking-wider">Runtime</span>
                           <span className="text-lg text-white font-mono">{output.result.runtime} ms</span>
@@ -427,7 +427,7 @@ const ProblemPage = () => {
                         onClick={() => setActiveCase(idx)}
                         className={`px-4 py-1.5 rounded-lg text-xs font-medium transition ${activeCase === idx
                           ? 'bg-[#444] text-white'
-                          : 'bg-[#333] text-gray-400 hover:bg-[#3d3d3d]'
+                          : 'bg-[#333] text-gray-600 dark:text-gray-400 hover:bg-[#3d3d3d]'
                           }`}
                       >
                         Case {idx + 1}
@@ -438,13 +438,13 @@ const ProblemPage = () => {
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Input</label>
-                      <div className="bg-[#333] p-3 rounded-lg text-gray-300">
+                      <div className="bg-[#333] p-3 rounded-lg text-gray-700 dark:text-gray-300">
                         {problem.visibleTestCases?.[activeCase]?.input || 'No test cases available'}
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Expected Output</label>
-                      <div className="bg-[#333] p-3 rounded-lg text-gray-300">
+                      <div className="bg-[#333] p-3 rounded-lg text-gray-700 dark:text-gray-300">
                         {problem.visibleTestCases?.[activeCase]?.output || 'No expected output'}
                       </div>
                     </div>
@@ -459,7 +459,7 @@ const ProblemPage = () => {
       {/* AI Hint Modal */}
       {showHintModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-[#262626] rounded-xl p-6 max-w-lg w-full mx-4 border border-gray-700">
+          <div className="bg-[#262626] rounded-xl p-6 max-w-lg w-full mx-4 border border-gray-300 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Lightbulb className="text-purple-400" size={24} />
@@ -475,10 +475,10 @@ const ProblemPage = () => {
             {hintLoading ? (
               <div className="flex flex-col items-center py-8">
                 <Loader2 className="w-8 h-8 text-purple-400 animate-spin mb-3" />
-                <span className="text-gray-400">Generating hint...</span>
+                <span className="text-gray-600 dark:text-gray-400">Generating hint...</span>
               </div>
             ) : (
-              <div className="bg-[#333] rounded-lg p-4 text-gray-300 leading-relaxed">
+              <div className="bg-[#333] rounded-lg p-4 text-gray-700 dark:text-gray-300 leading-relaxed">
                 {hint}
               </div>
             )}

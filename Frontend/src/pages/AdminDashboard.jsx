@@ -36,12 +36,12 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
       <Navbar />
       <div className="max-w-6xl mx-auto py-10 px-4">
         
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
           <div>
             <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
             <p className="text-gray-500 mt-1">Manage coding problems and system settings</p>
@@ -52,8 +52,8 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 shadow-xl overflow-hidden mb-8">
-          <div className="p-4 bg-gray-800/50 border-b border-gray-800">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden mb-8">
+          <div className="p-4 bg-gray-100/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <span className="badge badge-primary">{problems.length}</span> Total Problems
             </h2>
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
-                <tr className="text-gray-400 bg-gray-800/30">
+                <tr className="text-gray-600 dark:text-gray-400 bg-gray-100/30 dark:bg-gray-800/30">
                   <th className="w-1/3">Title</th>
                   <th>Difficulty</th>
                   <th>Tags</th>
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
                         {prob.difficulty.toUpperCase()}
                       </div>
                     </td>
-                    <td className="text-gray-400 text-sm">
+                    <td className="text-gray-600 dark:text-gray-400 text-sm">
                         <div className="flex flex-wrap gap-1">
                             {prob.tags.slice(0, 3).map(tag => <span key={tag} className="badge badge-ghost badge-sm">{tag}</span>)}
                         </div>

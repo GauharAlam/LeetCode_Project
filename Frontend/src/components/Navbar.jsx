@@ -20,10 +20,10 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="navbar bg-gray-900/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 dark:border-gray-800 text-white px-4 md:px-8 sticky top-0 z-50">
+    <div className="navbar bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 text-white px-4 md:px-8 sticky top-0 z-50">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl normal-case gap-2 text-white hover:bg-gray-800">
-          <img src="/algoforge-logo.png" alt="AlgoForge Logo" className="h-9 w-9 object-cover rounded-full shadow-lg border border-gray-700" />
+          <img src="/algoforge-logo.png" alt="AlgoForge Logo" className="h-9 w-9 object-cover rounded-full shadow-lg border border-gray-300 dark:border-gray-700" />
           <span className="font-bold">Algo<span className="text-orange-500">Forge</span></span>
         </Link>
       </div>
@@ -33,7 +33,7 @@ const Navbar = () => {
           {/* Navigation Links */}
           <Link
             to="/"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/') ? 'text-orange-500' : 'text-gray-300 hover:text-white'}`}
+            className={`btn btn-sm btn-ghost gap-2 ${isActive('/') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
           >
             <Home size={16} />
             <span className="hidden sm:inline">Home</span>
@@ -41,7 +41,7 @@ const Navbar = () => {
 
           <Link
             to="/problems"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/problems') ? 'text-orange-500' : 'text-gray-300 hover:text-white'}`}
+            className={`btn btn-sm btn-ghost gap-2 ${isActive('/problems') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
           >
             <ListChecks size={16} />
             <span className="hidden sm:inline">Problems</span>
@@ -49,7 +49,7 @@ const Navbar = () => {
 
           <Link
             to="/dashboard"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/dashboard') ? 'text-orange-500' : 'text-gray-300 hover:text-white'}`}
+            className={`btn btn-sm btn-ghost gap-2 ${isActive('/dashboard') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
           >
             <LayoutDashboard size={16} />
             <span className="hidden sm:inline">Dashboard</span>
@@ -82,9 +82,9 @@ const Navbar = () => {
                 <span className="text-xl">{user?.firstName?.[0]?.toUpperCase() || 'U'}</span>
               </div>
             </label>
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-gray-800 rounded-box w-56 border border-gray-700">
+            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-gray-100 dark:bg-gray-800 rounded-box w-56 border border-gray-300 dark:border-gray-700">
               <li className="menu-title px-4 py-2">
-                <span className="text-gray-400 text-xs">Signed in as</span>
+                <span className="text-gray-600 dark:text-gray-400 text-xs">Signed in as</span>
                 <span className="text-white font-medium truncate">{user?.emailId || 'user@email.com'}</span>
               </li>
               <div className="divider my-1"></div>
@@ -157,7 +157,7 @@ const Navbar = () => {
               <Moon size={18} className="text-blue-400" />
             )}
           </button>
-          <Link to="/login" className="btn btn-sm btn-ghost text-gray-300 hover:text-white">
+          <Link to="/login" className="btn btn-sm btn-ghost text-gray-700 dark:text-gray-300 hover:text-white">
             Log In
           </Link>
           <Link to="/signup" className="btn btn-sm bg-orange-500 hover:bg-orange-600 text-white border-none">

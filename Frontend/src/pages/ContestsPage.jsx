@@ -58,7 +58,7 @@ const ContestsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             <Navbar />
 
             <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -81,7 +81,7 @@ const ContestsPage = () => {
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab
                                     ? 'bg-orange-500 text-white'
-                                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-700'
                                 }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -97,7 +97,7 @@ const ContestsPage = () => {
                 ) : contests.length === 0 ? (
                     <div className="text-center py-20">
                         <Trophy className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                        <h3 className="text-xl font-medium text-gray-400 mb-2">No contests found</h3>
+                        <h3 className="text-xl font-medium text-gray-600 dark:text-gray-400 mb-2">No contests found</h3>
                         <p className="text-gray-500">Check back later for new contests!</p>
                     </div>
                 ) : (
@@ -105,7 +105,7 @@ const ContestsPage = () => {
                         {contests.map((contest) => (
                             <div
                                 key={contest._id}
-                                className={`bg-gray-900 border rounded-2xl p-6 transition-all hover:scale-[1.01] ${contest.status === 'live' ? 'border-red-500/50' : 'border-gray-800 hover:border-gray-700'
+                                className={`bg-white dark:bg-gray-900 border rounded-2xl p-6 transition-all hover:scale-[1.01] ${contest.status === 'live' ? 'border-red-500/50' : 'border-gray-200 dark:border-gray-800 hover:border-gray-700'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-4">
@@ -120,7 +120,7 @@ const ContestsPage = () => {
                                     )}
                                 </div>
 
-                                <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                                     {contest.description || 'Compete against other coders!'}
                                 </p>
 
@@ -161,7 +161,7 @@ const ContestsPage = () => {
                                     ) : (
                                         <button
                                             onClick={() => navigate(`/contest/${contest._id}`)}
-                                            className="btn btn-sm btn-ghost text-gray-400"
+                                            className="btn btn-sm btn-ghost text-gray-600 dark:text-gray-400"
                                         >
                                             View Results
                                         </button>

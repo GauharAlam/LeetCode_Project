@@ -44,10 +44,10 @@ function Signup() {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-white">
         <form
           onSubmit={handleSubmit(submittedData)}
-          className="bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6"
+          className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6"
         >
           <h2 className="text-3xl font-bold mb-6 text-white">AlgoForge</h2>
 
@@ -56,12 +56,12 @@ function Signup() {
 
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text text-gray-400">First Name</span>
+              <span className="label-text text-gray-600 dark:text-gray-400">First Name</span>
             </label>
             <input
               type="text"
               placeholder="Nawaz"
-              className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+              className="input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white"
               {...register("firstName")}
             />
             {errors.firstName && (
@@ -73,12 +73,12 @@ function Signup() {
 
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text text-gray-400">Email</span>
+              <span className="label-text text-gray-600 dark:text-gray-400">Email</span>
             </label>
             <input
               type="email"
               placeholder="nawaz@example.com"
-              className="input input-bordered w-full bg-gray-700 border-gray-600 text-white"
+              className="input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white"
               {...register("emailId")}
             />
             {errors.emailId && (
@@ -90,19 +90,19 @@ function Signup() {
 
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text text-gray-400">Password</span>
+              <span className="label-text text-gray-600 dark:text-gray-400">Password</span>
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className="input input-bordered w-full bg-gray-700 border-gray-600 text-white pr-10"
+                className="input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white pr-10"
                 {...register("password")}
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white focus:outline-none"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 dark:text-gray-400 hover:text-white focus:outline-none"
               >
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -135,7 +135,7 @@ function Signup() {
             )}
           </button>
 
-          <div className="text-sm text-gray-400 mt-2">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
             Already have an account?{" "}
             <Link to="/login" className="text-purple-400 hover:text-purple-300 hover:underline">
               Log in

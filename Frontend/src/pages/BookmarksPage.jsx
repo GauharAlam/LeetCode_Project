@@ -38,12 +38,12 @@ const BookmarksPage = () => {
             case 'easy': return 'text-green-400 bg-green-400/10 border-green-400/20';
             case 'medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
             case 'hard': return 'text-red-400 bg-red-400/10 border-red-400/20';
-            default: return 'text-gray-400';
+            default: return 'text-gray-600 dark:text-gray-400';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-950">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             <Navbar />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -59,7 +59,7 @@ const BookmarksPage = () => {
                 ) : bookmarks.length === 0 ? (
                     <div className="text-center py-20">
                         <BookmarkX className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                        <h3 className="text-xl font-medium text-gray-400 mb-2">No bookmarks yet</h3>
+                        <h3 className="text-xl font-medium text-gray-600 dark:text-gray-400 mb-2">No bookmarks yet</h3>
                         <p className="text-gray-500 mb-6">Save problems you want to solve later</p>
                         <button
                             onClick={() => navigate('/problems')}
@@ -77,7 +77,7 @@ const BookmarksPage = () => {
                             return (
                                 <div
                                     key={bookmark._id}
-                                    className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between hover:border-gray-700 transition-colors"
+                                    className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 flex items-center justify-between hover:border-gray-700 transition-colors"
                                 >
                                     <div className="flex items-center gap-4 flex-1">
                                         <div className="flex-1">
@@ -93,7 +93,7 @@ const BookmarksPage = () => {
                                                 </span>
                                                 <div className="flex gap-2">
                                                     {problem.tags?.slice(0, 3).map((tag, idx) => (
-                                                        <span key={idx} className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+                                                        <span key={idx} className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                                                             {tag}
                                                         </span>
                                                     ))}
