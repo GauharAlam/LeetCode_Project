@@ -245,7 +245,7 @@ const LandingPage = () => {
                             <Link to="#" className="text-gray-500 hover:text-gray-300 text-sm">Report an Issue</Link>
                         </div>
                         <p className="text-gray-500 text-sm">
-                            © 2025 LeetCode Clone. All rights reserved.
+                            © 2025 AlgoForge. All rights reserved.
                         </p>
                         <div className="flex items-center gap-4">
                             <a href="#" className="text-gray-500 hover:text-gray-300">

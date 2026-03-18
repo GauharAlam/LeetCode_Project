@@ -49,7 +49,7 @@ function Signup() {
           onSubmit={handleSubmit(submittedData)}
           className="bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6"
         >
-          <h2 className="text-3xl font-bold mb-6 text-white">Leetcode</h2>
+          <h2 className="text-3xl font-bold mb-6 text-white">AlgoForge</h2>
 
           {/* Show Error Message */}
           {error && <div className="alert alert-error text-sm py-2">{typeof error === 'string' ? error : 'Signup failed'}</div>}
