@@ -23,7 +23,7 @@ const Navbar = () => {
     <div className="navbar bg-gray-900/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 dark:border-gray-800 text-white px-4 md:px-8 sticky top-0 z-50">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl normal-case gap-2 text-white hover:bg-gray-800">
-          <img src="/logo.png" alt="AlgoForge Logo" className="h-8 w-8 object-contain rounded" />
+          <img src="/algoforge-logo.png" alt="AlgoForge Logo" className="h-8 w-8 object-contain rounded" />
           <span className="font-bold">Algo<span className="text-orange-500">Forge</span></span>
         </Link>
       </div>
