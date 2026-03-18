@@ -1,5 +1,5 @@
 LeetCode Clone Project API
-This is the backend API for a LeetCode-style coding platform. It allows admins to create, update, and manage coding problems, and allows users to view them. The API uses Judge0 for code execution and validation.
+This is the backend API for an AlgoForge-style coding platform. It allows admins to create, update, and manage coding problems, and allows users to view them. The API uses Judge0 for code execution and validation.
 
 Features
 User registration and authentication (JWT-based)
