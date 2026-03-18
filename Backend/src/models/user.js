@@ -45,6 +45,19 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    // Verification
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: {
+        type: String,
+        default: null
+    },
+    otpExpiry: {
+        type: Date,
+        default: null
+    },
     // Profile - Personal Information
     bio: {
         type: String,

@@ -5,41 +5,96 @@ const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
 const { blockToken } = require("../utils/tokenBlocklist");
 const Submission = require("../models/submission");
+const sendEmail = require("../utils/sendEmail");
 
 // Register api
 
 const register = async (req, res) => {
 
     try {
-
         // validate the data
         await Validate(req.body);
         const { firstName, emailId, password } = req.body;
 
+        // Check if user already exists
+        let user = await User.findOne({ emailId });
+        
+        if (user) {
+            if (user.isVerified) {
+                return res.status(400).json({ message: "Email is already registered. Please log in." });
+            } else {
+                // User exists but unverified. Resend OTP and update password
+                user.password = await bcrypt.hash(password, 10);
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                user.otp = otp;
+                user.otpExpiry = Date.now() + 10 * 60 * 1000;
+                await user.save();
+
+                await sendEmail({
+                    email: user.emailId,
+                    subject: "Verify your email - AlgoForge",
+                    message: `
+                        <div style="font-family: sans-serif; max-w-width: 600px; margin: 0 auto; background: #fafafa; padding: 20px; border-radius: 10px;">
+                            <h2 style="color: #ff6b00;">Welcome to AlgoForge!</h2>
+                            <p>Hi ${user.firstName},</p>
+                            <p>Thank you for registering. Please use the following One-Time Password (OTP) to verify your email address. This code will expire in 10 minutes.</p>
+                            <div style="background: #e2e8f0; font-size: 28px; font-weight: bold; letter-spacing: 5px; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                                ${otp}
+                            </div>
+                            <p>If you didn't create an account with AlgoForge, please ignore this email.</p>
+                        </div>
+                    `
+                });
+
+                return res.status(200).json({
+                    message: "Welcome back! A new OTP was sent to your email to complete verification.",
+                    requiresOtp: true,
+                    emailId: user.emailId
+                });
+            }
+        }
+
+        // New User
         req.body.password = await bcrypt.hash(password, 10);
         req.body.role = 'user'
 
-        const user = await User.create(req.body);
-        const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'user' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, {
-            maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-            secure: false, // Ensure false for localhost
-            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // set expiry to 10 mins from now
+        req.body.otp = otp;
+        req.body.otpExpiry = Date.now() + 10 * 60 * 1000;
+        req.body.isVerified = false;
+
+        user = await User.create(req.body);
+
+        // Send Email
+        const emailSent = await sendEmail({
+            email: user.emailId,
+            subject: "Verify your email - AlgoForge",
+            message: `
+                <div style="font-family: sans-serif; max-w-width: 600px; margin: 0 auto; background: #fafafa; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #ff6b00;">Welcome to AlgoForge!</h2>
+                    <p>Hi ${user.firstName},</p>
+                    <p>Thank you for registering. Please use the following One-Time Password (OTP) to verify your email address. This code will expire in 10 minutes.</p>
+                    <div style="background: #e2e8f0; font-size: 28px; font-weight: bold; letter-spacing: 5px; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                        ${otp}
+                    </div>
+                    <p>If you didn't create an account with AlgoForge, please ignore this email.</p>
+                </div>
+            `
         });
-        // Return full user info including role
+
+        // We DO NOT send the JWT token here anymore, because they must verify first!
         res.status(201).json({
-            message: "User Registered Succesfully",
-            user: {
-                firstName: user.firstName,
-                emailId: user.emailId,
-                _id: user._id,
-                role: user.role
-            }
+            message: "OTP sent to email. Please verify.",
+            requiresOtp: true,
+            emailId: user.emailId
         });
     }
     catch (error) {
-        res.status(400).send("Error: " + error);
+        return res.status(400).json({ 
+            message: error.message || "Registration failed. Please check your inputs." 
+        });
     }
 }
 
@@ -63,6 +118,15 @@ const login = async (req, res) => {
 
         if (!match)
             throw new Error("Wrong Password");
+
+        // Check if verified
+        if (!user.isVerified) {
+            return res.status(403).json({ 
+                message: "Please verify your email to align with security policies.", 
+                requiresOtp: true,
+                emailId: user.emailId
+            });
+        }
 
         const reply = {
             firstName: user.firstName,
@@ -161,4 +225,152 @@ const deleteProfile = async (req, res) => {
     }
 }
 
-module.exports = { register, login, logout, adminRegister, deleteProfile };
+// verify OTP
+const verifyOtp = async (req, res) => {
+    try {
+        const { emailId, otp } = req.body;
+
+        const user = await User.findOne({ emailId });
+        if (!user) throw new Error("User not found");
+
+        if (user.isVerified) {
+            return res.status(400).json({ message: "Email is already verified" });
+        }
+
+        if (user.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
+        }
+
+        if (user.otpExpiry < Date.now()) {
+            return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+        }
+
+        // OTP is valid
+        user.isVerified = true;
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save();
+
+        // Log them in
+        const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax' 
+        });
+
+        res.status(200).json({
+            message: "Email verified correctly, logged in.",
+            user: {
+                firstName: user.firstName,
+                emailId: user.emailId,
+                _id: user._id,
+                role: user.role
+            }
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "An error occurred during verification" });
+    }
+};
+
+// Resend OTP
+const resendOtp = async (req, res) => {
+    try {
+        const { emailId } = req.body;
+        const user = await User.findOne({ emailId });
+        
+        if (!user) throw new Error("User not found");
+        if (user.isVerified) throw new Error("User already verified");
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpiry = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        await sendEmail({
+            email: user.emailId,
+            subject: "Your new OTP - AlgoForge",
+            message: `
+                <div style="font-family: sans-serif; max-w-width: 600px; margin: 0 auto; background: #fafafa; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #ff6b00;">AlgoForge</h2>
+                    <p>Hi ${user.firstName},</p>
+                    <p>A new OTP was requested for your account. It will expire in 10 minutes.</p>
+                    <div style="background: #e2e8f0; font-size: 28px; font-weight: bold; letter-spacing: 5px; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                        ${otp}
+                    </div>
+                </div>
+            `
+        });
+
+        res.status(200).json({ message: "New OTP sent to your email." });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "An error occurred" });
+    }
+}
+
+// Forgot Password
+const forgotPassword = async (req, res) => {
+    try {
+        const { emailId } = req.body;
+        const user = await User.findOne({ emailId });
+        
+        if (!user) throw new Error("If an account with that email exists, an OTP will be sent.");
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpiry = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        await sendEmail({
+            email: user.emailId,
+            subject: "Password Reset Request - AlgoForge",
+            message: `
+                <div style="font-family: sans-serif; max-w-width: 600px; margin: 0 auto; background: #fafafa; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #ff6b00;">Password Reset</h2>
+                    <p>Hi ${user.firstName},</p>
+                    <p>We received a request to reset your password. Use the following OTP to complete the reset. It will expire in 15 minutes.</p>
+                    <div style="background: #e2e8f0; font-size: 28px; font-weight: bold; letter-spacing: 5px; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                        ${otp}
+                    </div>
+                </div>
+            `
+        });
+
+        res.status(200).json({ message: "If an account with that email exists, an OTP will be sent." });
+    } catch (err) {
+        // Return same message to prevent email enumeration
+        res.status(200).json({ message: "If an account with that email exists, an OTP will be sent." });
+    }
+};
+
+// Reset Password
+const resetPassword = async (req, res) => {
+    try {
+        const { emailId, otp, newPassword } = req.body;
+
+        const user = await User.findOne({ emailId });
+        if (!user) throw new Error("Invalid details");
+
+        if (user.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
+        }
+
+        if (user.otpExpiry < Date.now()) {
+            return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+        }
+
+        // OTP is valid, reset password
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save();
+
+        res.status(200).json({ message: "Password has been successfully reset. You can now login." });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "An error occurred during password reset" });
+    }
+};
+
+module.exports = { register, login, logout, adminRegister, deleteProfile, verifyOtp, resendOtp, forgotPassword, resetPassword };

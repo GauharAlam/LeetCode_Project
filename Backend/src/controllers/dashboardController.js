@@ -201,4 +201,57 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
-module.exports = { getUserDashboard, getUserProfile, updateUserProfile };
+// Get Global Platform Stats
+const getGlobalStats = async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments();
+        const totalSubmissions = await Submission.countDocuments();
+        
+        // Get total problems and break them down by difficulty
+        const totalProblems = await Problem.aggregate([
+            {
+                $group: {
+                    _id: "$difficulty",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const problemsByDifficulty = { easy: 0, medium: 0, hard: 0 };
+        let totalProblemsCount = 0;
+        
+        totalProblems.forEach(item => {
+            problemsByDifficulty[item._id] = item.count;
+            totalProblemsCount += item.count;
+        });
+
+        // Get count of accepted submissions
+        const acceptedSubmissions = await Submission.countDocuments({ status: "Accepted" });
+        const pendingSubmissions = await Submission.countDocuments({ status: "Pending" });
+
+        // Get unique languages used
+        const uniqueLanguages = await Submission.distinct("language");
+
+        res.status(200).json({
+            users: totalUsers,
+            problems: {
+                total: totalProblemsCount,
+                easy: problemsByDifficulty.easy,
+                medium: problemsByDifficulty.medium,
+                hard: problemsByDifficulty.hard
+            },
+            submissions: {
+                total: totalSubmissions,
+                accepted: acceptedSubmissions,
+                pending: pendingSubmissions
+            },
+            languages: uniqueLanguages.length
+        });
+
+    } catch (error) {
+        console.error("Global stats error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+module.exports = { getUserDashboard, getUserProfile, updateUserProfile, getGlobalStats };

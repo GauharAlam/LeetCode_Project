@@ -6,7 +6,8 @@ export const registerUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post('/user/register', userData);  
-      return response.data.user;
+      // Returns { message, requiresOtp, emailId }
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || error.message || "Registration failed"
@@ -22,9 +23,26 @@ export const loginUser = createAsyncThunk(
       const response = await axiosClient.post('/user/login', credentials);
       return response.data.user;
     } catch (error) {
+      if (error.response?.data?.requiresOtp) {
+          return rejectWithValue(error.response.data);
+      }
       // FIXED: Added proper error message extraction
       return rejectWithValue(
         error.response?.data?.message || error.message || "Login failed"
+      );
+    }
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  'auth/verifyOtp',
+  async (otpData, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/user/verify-otp', otpData);
+      return response.data.user;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Verification failed"
       );
     }
   }
@@ -60,7 +78,9 @@ const authSlice = createSlice({
     user: null,
     isAuthenticated: false,
     loading: false,
-    error: null
+    error: null,
+    requiresOtp: false,
+    pendingEmail: null
   },
   reducers: {
   },
@@ -73,14 +93,36 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = !!action.payload;
-        state.user = action.payload;
+        if (action.payload.requiresOtp) {
+            state.requiresOtp = true;
+            state.pendingEmail = action.payload.emailId;
+        } else {
+            state.isAuthenticated = !!action.payload.user;
+            state.user = action.payload.user;
+        }
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Something went wrong'; // Fixed error payload access
+        state.error = action.payload || 'Something went wrong';
         state.isAuthenticated = false;
         state.user = null;
+      })
+  
+      // Verify OTP Cases
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.requiresOtp = false;
+        state.pendingEmail = null;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Invalid OTP';
       })
   
       // Login User Cases
@@ -95,9 +137,15 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Something went wrong'; // Fixed error payload access
-        state.isAuthenticated = false;
-        state.user = null;
+        if (action.payload?.requiresOtp) {
+            state.requiresOtp = true;
+            state.pendingEmail = action.payload.emailId;
+            state.error = action.payload.message;
+        } else {
+            state.error = action.payload || 'Something went wrong';
+            state.isAuthenticated = false;
+            state.user = null;
+        }
       })
   
       // Check Auth Cases

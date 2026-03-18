@@ -2,7 +2,7 @@ const express = require("express")
 const problemRouter = express.Router();
 const adminMiddleware = require("../middleware/adminMiddleware")
 const { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem } = require("../controllers/userProblem");
-const { getUserDashboard, getUserProfile, updateUserProfile } = require("../controllers/dashboardController");
+const { getUserDashboard, getUserProfile, updateUserProfile, getGlobalStats } = require("../controllers/dashboardController");
 const { addBookmark, removeBookmark, getBookmarks, isBookmarked } = require("../controllers/bookmarkController");
 const { getLeaderboard, getUserRank } = require("../controllers/leaderboardController");
 const { getDailyChallenge } = require("../controllers/dailyChallengeController");
@@ -18,6 +18,7 @@ problemRouter.delete("/delete/:id", adminMiddleware, deleteProblem);
 
 // Dashboard and Profile routes
 problemRouter.get("/dashboard", userMiddleware, getUserDashboard);
+problemRouter.get("/global-stats", getGlobalStats);
 problemRouter.get("/profile", userMiddleware, getUserProfile);
 problemRouter.put("/profile", userMiddleware, updateUserProfile);
 

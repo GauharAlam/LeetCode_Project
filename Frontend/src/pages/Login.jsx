@@ -79,7 +79,12 @@ function Login() {
                             )}
                         </button>
                     </div>
-                    {errors.password && <span className="text-red-400 text-sm">{errors.password.message}</span>}
+                    {errors.password && <span className="text-red-500 text-sm mt-1">{errors.password.message}</span>}
+                    <div className="flex justify-end mt-2">
+                        <Link to="/forgot-password" className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium hover:underline">
+                            Forgot password?
+                        </Link>
+                    </div>
                 </div>
 
                 <button

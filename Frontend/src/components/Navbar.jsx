@@ -20,7 +20,7 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="navbar bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 text-white px-4 md:px-8 sticky top-0 z-50">
+    <div className="navbar bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-800 text-white px-4 md:px-8 sticky top-4 z-50 mx-4 md:mx-8 mb-4 rounded-2xl shadow-sm transition-all">
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost text-xl normal-case gap-2 text-white hover:bg-gray-800">
           <img src="/algoforge-logo.png" alt="AlgoForge Logo" className="h-9 w-9 object-cover rounded-full shadow-lg border border-gray-300 dark:border-gray-700" />
@@ -29,8 +29,9 @@ const Navbar = () => {
       </div>
 
       {isAuthenticated ? (
-        <div className="flex-none gap-2">
+        <div className="flex-none flex items-center gap-4 md:gap-8">
           {/* Navigation Links */}
+          <div className="flex items-center gap-1 md:gap-2">
           <Link
             to="/"
             className={`btn btn-sm btn-ghost gap-2 ${isActive('/') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
@@ -61,7 +62,10 @@ const Navbar = () => {
               <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
+          </div>
 
+          {/* Theme & User Actions */}
+          <div className="flex items-center gap-2 md:gap-4">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -77,9 +81,9 @@ const Navbar = () => {
 
           {/* User Dropdown */}
           <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar placeholder">
-              <div className="bg-gradient-to-br from-orange-500 to-purple-500 text-neutral-content rounded-full w-10">
-                <span className="text-xl">{user?.firstName?.[0]?.toUpperCase() || 'U'}</span>
+            <label tabIndex={0} className="btn btn-ghost btn-circle hover:bg-transparent">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-purple-500 flex items-center justify-center text-white shadow-md border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform">
+                <span className="text-xl font-bold">{user?.firstName?.[0]?.toUpperCase() || 'U'}</span>
               </div>
             </label>
             <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-gray-100 dark:bg-gray-800 rounded-box w-56 border border-gray-300 dark:border-gray-700">
@@ -142,9 +146,10 @@ const Navbar = () => {
               </li>
             </ul>
           </div>
+          </div>
         </div>
       ) : (
-        <div className="flex-none gap-2">
+        <div className="flex-none flex items-center gap-3 md:gap-4">
           {/* Theme Toggle for non-auth users */}
           <button
             onClick={toggleTheme}

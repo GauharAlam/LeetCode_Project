@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProblemForm from "./pages/ProblemForm";
 import ProblemPage from "./pages/ProblemPage";
@@ -17,6 +18,7 @@ import BookmarksPage from "./pages/BookmarksPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import StudyPlansPage from "./pages/StudyPlansPage";
 import ContestsPage from "./pages/ContestsPage";
+import CreateContest from "./pages/CreateContest";
 
 // Guard Component for Admin Routes
 const AdminRoute = () => {
@@ -49,6 +51,7 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
       <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/" />} />
+      <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" />} />
 
       {/* Protected User Routes */}
       <Route path="/problems" element={isAuthenticated ? <Homepage /> : <Navigate to="/login" />} />
@@ -65,6 +68,7 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path="create" element={<ProblemForm />} />
         <Route path="edit/:id" element={<ProblemForm />} />
+        <Route path="contest/create" element={<CreateContest />} />
       </Route>
 
       {/* Catch all - Redirects to Home */}

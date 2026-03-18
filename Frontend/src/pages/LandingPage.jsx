@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import axiosClient from '../utils/axiosClient';
 import Navbar from '../components/Navbar';
 import {
     Code2,
@@ -20,6 +21,20 @@ import {
 const LandingPage = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useSelector((state) => state.auth);
+    const [stats, setStats] = useState(null);
+
+    useEffect(() => {
+        // Fetch global stats asynchronously
+        const fetchStats = async () => {
+            try {
+                const response = await axiosClient.get("/problem/global-stats");
+                setStats(response.data);
+            } catch (err) {
+                console.error("Failed to load platform stats:", err);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const handleStartJourney = () => {
         if (isAuthenticated) {
@@ -72,15 +87,15 @@ const LandingPage = () => {
                             {/* Stats Row */}
                             <div className="flex gap-12 pt-8">
                                 <div>
-                                    <p className="text-3xl font-bold text-white">500+</p>
+                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.problems.total : '500+'}</p>
                                     <p className="text-gray-500 text-sm">Problems</p>
                                 </div>
                                 <div>
-                                    <p className="text-3xl font-bold text-white">1000+</p>
+                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.users : '100+'}</p>
                                     <p className="text-gray-500 text-sm">Users Active</p>
                                 </div>
                                 <div>
-                                    <p className="text-3xl font-bold text-white">15+</p>
+                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.languages : '15+'}</p>
                                     <p className="text-gray-500 text-sm">Languages</p>
                                 </div>
                             </div>
@@ -92,19 +107,19 @@ const LandingPage = () => {
                                 {/* Problems Card */}
                                 <div className="absolute top-0 left-0 w-56 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Problems Solved</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Platform Catalog</span>
                                         <Star className="text-orange-500" size={20} />
                                     </div>
-                                    <p className="text-4xl font-bold text-white mb-4">127</p>
+                                    <p className="text-4xl font-bold text-white mb-4 transition-all duration-500">{stats ? stats.problems.total : 127}</p>
                                     <div className="space-y-1">
-                                        <p className="text-sm text-green-400 flex items-center gap-1">
-                                            <span>48 Easy</span> ✓
+                                        <p className="text-sm text-green-400 flex items-center justify-between">
+                                            <span>Easy</span> <span>{stats ? stats.problems.easy : 48} ✓</span>
                                         </p>
-                                        <p className="text-sm text-yellow-400 flex items-center gap-1">
-                                            <span>52 Medium</span> ✓
+                                        <p className="text-sm text-yellow-400 flex items-center justify-between">
+                                            <span>Medium</span> <span>{stats ? stats.problems.medium : 52} ✓</span>
                                         </p>
-                                        <p className="text-sm text-red-400 flex items-center gap-1">
-                                            <span>27 Hard</span> ✓
+                                        <p className="text-sm text-red-400 flex items-center justify-between">
+                                            <span>Hard</span> <span>{stats ? stats.problems.hard : 27} ✓</span>
                                         </p>
                                     </div>
                                 </div>
@@ -112,13 +127,13 @@ const LandingPage = () => {
                                 {/* Submissions Card */}
                                 <div className="absolute top-20 right-0 w-52 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Submissions</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Total Code Run</span>
                                         <Code2 className="text-blue-500" size={20} />
                                     </div>
-                                    <p className="text-4xl font-bold text-white mb-4">342</p>
+                                    <p className="text-4xl font-bold text-white mb-4 transition-all duration-500">{stats ? stats.submissions.total : 342}</p>
                                     <div className="space-y-1">
-                                        <p className="text-sm text-green-400">289 Accepted ✓</p>
-                                        <p className="text-sm text-orange-400">53 Pending •</p>
+                                        <p className="text-sm text-green-400">{stats ? stats.submissions.accepted : 289} Accepted ✓</p>
+                                        <p className="text-sm text-orange-400">{stats ? stats.submissions.pending : 53} Pending •</p>
                                     </div>
                                 </div>
 
@@ -128,10 +143,8 @@ const LandingPage = () => {
                                         <span className="text-gray-600 dark:text-gray-400 text-sm">Your Ranking</span>
                                         <Trophy className="text-yellow-500" size={20} />
                                     </div>
-                                    <p className="text-4xl font-bold text-white mb-4">#156</p>
-                                    <div className="space-y-1">
-                                        <p className="text-sm text-green-400">Top 15% ✓</p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">Rising Fast 🔥</p>
+                                    <div className="h-20 flex flex-col justify-center">
+                                         <p className="text-lg font-bold text-white text-center italic">Join {stats ? stats.users : ''} coders today!</p>
                                     </div>
                                 </div>
                             </div>

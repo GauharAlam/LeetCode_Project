@@ -6,11 +6,14 @@ import { Plus, Trash2, Edit, AlertCircle, Loader2 } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [problems, setProblems] = useState([]);
+  const [contests, setContests] = useState([]);
+  const [activeTab, setActiveTab] = useState('problems');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchProblems();
+    fetchContests();
   }, []);
 
   const fetchProblems = async () => {
@@ -19,6 +22,17 @@ const AdminDashboard = () => {
       setProblems(data);
     } catch (error) {
       console.error("Error fetching problems", error);
+    } finally {
+      if (activeTab === 'problems') setLoading(false);
+    }
+  };
+
+  const fetchContests = async () => {
+    try {
+      const { data } = await axiosClient.get('/problem/contests');
+      setContests(data);
+    } catch (error) {
+      console.error("Error fetching contests", error);
     } finally {
       setLoading(false);
     }
@@ -31,6 +45,7 @@ const AdminDashboard = () => {
       // Remove from local state to update UI immediately
       setProblems(prev => prev.filter(p => p._id !== id));
     } catch (error) {
+      console.error(error);
       alert("Failed to delete problem");
     }
   };
@@ -46,12 +61,35 @@ const AdminDashboard = () => {
             <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
             <p className="text-gray-500 mt-1">Manage coding problems and system settings</p>
           </div>
-          <Link to="/admin/create" className="btn btn-primary gap-2">
-            <Plus size={20} /> Create Problem
-          </Link>
+          {activeTab === 'problems' ? (
+            <Link to="/admin/create" className="btn btn-primary gap-2">
+              <Plus size={20} /> Create Problem
+            </Link>
+          ) : (
+            <Link to="/admin/contest/create" className="btn bg-orange-500 hover:bg-orange-600 text-white border-none gap-2">
+              <Plus size={20} /> Create Contest
+            </Link>
+          )}
         </div>
 
-        {/* Stats */}
+        {/* Tabs */}
+        <div className="tabs tabs-boxed bg-gray-200/50 dark:bg-gray-800/50 p-1 rounded-lg w-fit mb-6">
+          <button 
+            className={`tab px-6 transition-all ${activeTab === 'problems' ? 'tab-active bg-white dark:bg-gray-700 font-bold shadow-sm' : ''}`}
+            onClick={() => setActiveTab('problems')}
+          >
+            Problems
+          </button>
+          <button 
+            className={`tab px-6 transition-all ${activeTab === 'contests' ? 'tab-active bg-white dark:bg-gray-700 font-bold shadow-sm' : ''}`}
+            onClick={() => setActiveTab('contests')}
+          >
+            Contests
+          </button>
+        </div>
+
+        {/* Stats & Content */}
+        {activeTab === 'problems' ? (
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden mb-8">
           <div className="p-4 bg-gray-100/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
             <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -113,6 +151,58 @@ const AdminDashboard = () => {
             </table>
           </div>
         </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden mb-8">
+            <div className="p-4 bg-gray-100/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <span className="badge bg-orange-500 text-white border-none">{contests.length}</span> Total Contests
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table w-full">
+                <thead>
+                  <tr className="text-gray-600 dark:text-gray-400 bg-gray-100/30 dark:bg-gray-800/30">
+                    <th className="w-1/3">Title</th>
+                    <th>Status</th>
+                    <th>Start Date</th>
+                    <th>Participants</th>
+                    <th className="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan="5" className="text-center py-10"><span className="loading loading-dots loading-lg text-primary"></span></td></tr>
+                  ) : contests.length === 0 ? (
+                    <tr><td colSpan="5" className="text-center py-10 text-gray-500">No contests found. Create one!</td></tr>
+                  ) : contests.map((contest) => (
+                    <tr key={contest._id} className="hover:bg-gray-800/50 transition-colors">
+                      <td className="font-medium text-white text-lg">{contest.title}</td>
+                      <td>
+                        <div className={`badge ${
+                          contest.status === 'live' ? 'badge-error' : 
+                          contest.status === 'upcoming' ? 'badge-warning' : 'badge-ghost'
+                        } badge-outline font-bold uppercase`}>
+                          {contest.status}
+                        </div>
+                      </td>
+                      <td className="text-gray-600 dark:text-gray-400 text-sm">
+                        {new Date(contest.startTime).toLocaleDateString()}
+                      </td>
+                      <td className="text-gray-600 dark:text-gray-400 text-sm">
+                        {contest.participants?.length || 0}
+                      </td>
+                      <td className="flex justify-end gap-2">
+                        <button className="btn btn-sm btn-ghost text-gray-400 cursor-not-allowed" title="Editing disabled for now">
+                          <Edit size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
