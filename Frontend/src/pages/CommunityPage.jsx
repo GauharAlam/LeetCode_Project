@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../utils/axiosClient';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   MessageSquare, Search, Filter, Plus, TrendingUp, Clock, 
-  ChevronUp, MessageCircle, Share2, Tag, Loader2, Sparkles
+  ChevronUp, MessageCircle, Share2, Tag, Loader2, Sparkles, ArrowLeft
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const CommunityPage = () => {
+  const navigate = useNavigate();
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('newest');
@@ -69,11 +70,19 @@ const CommunityPage = () => {
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight mb-3">Community</h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xl">
-              Get support, share interview insights, and connect with fellow developers across the globe.
-            </p>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/')}
+              className="p-2 rounded-full hover:bg-white dark:hover:bg-neutral-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-neutral-700"
+            >
+              <ArrowLeft size={28} />
+            </button>
+            <div>
+              <h1 className="text-4xl font-black tracking-tight mb-1">Community</h1>
+              <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xl">
+                Get support, share interview insights, and connect with fellow developers.
+              </p>
+            </div>
           </div>
           <button 
             onClick={() => setShowNewPost(true)}
