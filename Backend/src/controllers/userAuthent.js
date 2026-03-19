@@ -140,8 +140,8 @@ const login = async (req, res) => {
         res.cookie('token', token, {
             maxAge: 60 * 60 * 1000,
             httpOnly: true,
-            secure: false, // Ensure false for localhost
-            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+            secure: true, // Required for sameSite: 'none'
+            sameSite: 'none' // Allows cross-site cookie sharing between Netlify and Render
         });
         res.status(200).json({
             user: reply,
@@ -163,7 +163,12 @@ const logout = async (req, res) => {
 
         await blockToken(token, payload.exp);
 
-        res.cookie("token", null, { expires: new Date(Date.now()) });
+        res.cookie("token", null, { 
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
         res.send("Logged out Succesfully");
     }
     catch (err) {
@@ -187,8 +192,8 @@ const adminRegister = async (req, res) => {
         res.cookie('token', token, {
             maxAge: 60 * 60 * 1000,
             httpOnly: true,
-            secure: false, // Ensure false for localhost
-            sameSite: 'lax' // Lax follows redirects and allows some cross-site navigation, better for dev
+            secure: true,
+            sameSite: 'none'
         });
 
         res.status(201).json({
@@ -257,8 +262,8 @@ const verifyOtp = async (req, res) => {
         res.cookie('token', token, {
             maxAge: 60 * 60 * 1000,
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax' 
+            secure: true,
+            sameSite: 'none' 
         });
 
         res.status(200).json({
