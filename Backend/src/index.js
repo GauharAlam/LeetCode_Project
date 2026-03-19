@@ -30,20 +30,6 @@ const corsOptions = {
     allowedHeaders: ["Content-Type", "Authorization"]
 };
 
-// Handle preflight OPTIONS requests (Express v5 compatible)
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (corsOptions.origin.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', corsOptions.methods.join(','));
-        res.setHeader('Access-Control-Allow-Headers', corsOptions.allowedHeaders.join(','));
-    }
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
 app.use(cors(corsOptions));
 
 app.use(express.json());
