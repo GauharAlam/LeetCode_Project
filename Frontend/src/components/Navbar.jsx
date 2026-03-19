@@ -35,7 +35,7 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-4 z-50 mx-4 md:mx-8 mb-4">
-      <div className="bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-full px-4 md:px-6 py-2 shadow-sm flex items-center justify-between transition-colors duration-300">
+      <div className="bg-white/30 dark:bg-neutral-900/30 backdrop-blur-xl border border-white/20 dark:border-neutral-800/20 rounded-full px-4 md:px-6 py-2 shadow-lg flex items-center justify-between transition-all duration-500">
 
         {/* Left — Logo */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0">
