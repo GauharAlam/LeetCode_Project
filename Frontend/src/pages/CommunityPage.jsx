@@ -5,6 +5,7 @@ import {
   MessageSquare, Search, Filter, Plus, TrendingUp, Clock, 
   ChevronUp, MessageCircle, Share2, Tag, Loader2, Sparkles, ArrowLeft
 } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
 const CommunityPage = () => {
   const navigate = useNavigate();
@@ -66,17 +67,12 @@ const CommunityPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 text-gray-900 dark:text-gray-100">
+      <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/')}
-              className="p-2 rounded-full hover:bg-white dark:hover:bg-neutral-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-neutral-700"
-            >
-              <ArrowLeft size={28} />
-            </button>
             <div>
               <h1 className="text-4xl font-black tracking-tight mb-1">Community</h1>
               <p className="text-gray-500 dark:text-gray-400 font-medium max-w-xl">
