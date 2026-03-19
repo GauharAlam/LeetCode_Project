@@ -153,7 +153,7 @@ const LandingPage = () => {
                         <FeatureCard title="Progress Tracking" description="Track your problem-solving journey, manage assignments, and monitor your learning progress." icon={<Target size={24} />} link="/dashboard" linkText="View Dashboard" />
                         <FeatureCard title="Real-world Problems" description="Real-world challenges that mirror industry expectations and build job-ready skills." icon={<Code2 size={24} />} link="/problems" linkText="Explore Problems" />
                         <FeatureCard title="Code Reviews" description="Give and receive constructive feedback to improve via collaborative learning." icon={<MessageSquare size={24} />} link="/problems" linkText="Start Coding" />
-                        <FeatureCard title="Community" description="Get support from the community and connect with other developers." icon={<Users size={24} />} link="/problems" linkText="Join Now" />
+                        <FeatureCard title="Community" description="Get support from the community and connect with other developers." icon={<Users size={24} />} link="/community" linkText="Join Now" />
                         <FeatureCard title="Self Learning" description="Learn at your own pace with our curated collection of problems and tutorials." icon={<BookOpen size={24} />} link="/problems" linkText="Start Learning" />
                         <FeatureCard title="Achievements" description="Earn badges and build a public portfolio you can proudly share with employers." icon={<Award size={24} />} link="/profile" linkText="View Profile" />
                     </div>
