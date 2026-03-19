@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../authSlice";
+import { loginUser, clearError } from "../authSlice";
 
 const LoginSchema = z.object({
     emailId: z.email("Invalid email address"),
@@ -21,11 +21,21 @@ function Login() {
         resolver: zodResolver(LoginSchema)
     });
 
+    // Clear error on mount and unmount
+    useEffect(() => {
+        dispatch(clearError());
+        return () => dispatch(clearError());
+    }, [dispatch]);
+
     useEffect(() => {
         if (isAuthenticated) {
             navigate('/');
         }
     }, [isAuthenticated, navigate]);
+
+    const handleInputChange = () => {
+        if (error) dispatch(clearError());
+    };
 
     const submittedData = (data) => {
         dispatch(loginUser(data));
@@ -48,7 +58,7 @@ function Login() {
                         type="email"
                         placeholder='nawaz@example.com'
                         className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white'
-                        {...register('emailId')}
+                        {...register('emailId', { onChange: handleInputChange })}
                     />
                     {errors.emailId && <span className="text-gray-400 text-sm">{errors.emailId.message}</span>}
                 </div>
@@ -60,7 +70,7 @@ function Login() {
                             type={showPassword ? "text" : "password"}
                             placeholder='••••••••'
                             className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white pr-10'
-                            {...register('password')}
+                            {...register('password', { onChange: handleInputChange })}
                         />
                         <button
                             type="button"

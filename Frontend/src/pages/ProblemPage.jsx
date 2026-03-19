@@ -57,6 +57,11 @@ const ProblemPage = () => {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  
+  // AI Code Fix State
+  const [showFixModal, setShowFixModal] = useState(false);
+  const [fixResult, setFixResult] = useState(null);
+  const [fixLoading, setFixLoading] = useState(false);
 
   // Resizable panels
   const [leftWidth, setLeftWidth] = useState(40); // percentage
@@ -223,6 +228,25 @@ const ProblemPage = () => {
       setHint('Unable to get hint at this time. Try again later.');
     } finally {
       setHintLoading(false);
+    }
+  };
+
+  const handleGetFix = async () => {
+    setShowFixModal(true);
+    setFixLoading(true);
+    setFixResult(null);
+    try {
+      const { data } = await axiosClient.post('/problem/ai-fix', {
+        problemTitle: problem.title,
+        problemDescription: problem.description,
+        userCode: code,
+        language: language
+      });
+      setFixResult(data);
+    } catch (error) {
+      setFixResult({ feedback: "Unable to analyze code at this time. Please try again later.", fixedCode: "" });
+    } finally {
+      setFixLoading(false);
     }
   };
 
@@ -802,6 +826,14 @@ const ProblemPage = () => {
                   {copied ? <Check size={14} className="text-gray-500" /> : <Copy size={14} />}
                 </button>
                 <button
+                  onClick={handleGetFix}
+                  disabled={fixLoading || !code.trim()}
+                  className="p-1.5 rounded-md text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  title="AI Code Fix"
+                >
+                  {fixLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                </button>
+                <button
                   onClick={() => setCode(problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here')}
                   className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   title="Reset code"
@@ -1147,6 +1179,76 @@ const ProblemPage = () => {
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
               💡 Try to solve the problem yourself first. Hints are guides, not answers.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════ AI FIX MODAL ═══════════════ */}
+      {showFixModal && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1e1e3a] rounded-2xl p-6 max-w-2xl w-full mx-4 border border-gray-200 dark:border-gray-700 shadow-xl flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Sparkles className="text-blue-500" size={22} />
+                AI Code Fix
+              </h3>
+              <button
+                onClick={() => setShowFixModal(false)}
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto flex-1 pr-2 space-y-4">
+              {fixLoading ? (
+                <div className="flex flex-col items-center py-12">
+                  <div className="relative mb-4">
+                     <Brain className="w-12 h-12 text-blue-500 animate-pulse" />
+                     <div className="absolute inset-0 border-2 border-transparent border-t-blue-500 rounded-full animate-spin" />
+                  </div>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">Analyzing your code for bugs...</span>
+                </div>
+              ) : fixResult && (
+                <>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-900/30">
+                    <p className="text-sm text-blue-800 dark:text-blue-300 font-medium mb-2">Analysis & Feedback:</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {fixResult.feedback}
+                    </p>
+                  </div>
+
+                  {fixResult.fixedCode && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Suggested Fix:</p>
+                        <button
+                          onClick={() => {
+                            setCode(fixResult.fixedCode);
+                            setShowFixModal(false);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                        >
+                          <Check size={12} /> Apply Fix
+                        </button>
+                      </div>
+                      <div className="bg-gray-900 dark:bg-black rounded-xl p-4 font-mono text-sm text-gray-200 overflow-x-auto border border-gray-800">
+                        <pre>{fixResult.fixedCode}</pre>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end shrink-0">
+               <button
+                 onClick={() => setShowFixModal(false)}
+                 className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+               >
+                 Close
+               </button>
+            </div>
           </div>
         </div>
       )}

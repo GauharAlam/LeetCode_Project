@@ -83,6 +83,10 @@ const authSlice = createSlice({
     pendingEmail: null
   },
   reducers: {
+    clearError: (state) => {
+      state.error = null;
+      state.requiresOtp = false;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -185,4 +189,5 @@ const authSlice = createSlice({
   }
 });
 
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer;
