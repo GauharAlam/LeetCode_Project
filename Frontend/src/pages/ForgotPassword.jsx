@@ -106,23 +106,23 @@ function ForgotPassword() {
               <input
                 type="email"
                 placeholder="developer@example.com"
-                className="input input-bordered w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-purple-500"
+                className="input input-bordered w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300"
                 {...registerEmail("emailId")}
               />
               {emailErrors.emailId && (
-                <span className="text-red-500 text-sm mt-1">{emailErrors.emailId.message}</span>
+                <span className="text-gray-500 text-sm mt-1">{emailErrors.emailId.message}</span>
               )}
             </div>
 
             <button
               type="submit"
-              className="btn w-full bg-purple-600 hover:bg-purple-700 text-white border-none mt-2"
+              className="btn w-full bg-gray-900 hover:bg-black text-white border-none mt-2"
               disabled={loading}
             >
               {loading ? <span className="loading loading-spinner"></span> : "Send Reset Code"}
             </button>
 
-            <Link to="/login" className="text-sm text-purple-600 dark:text-purple-400 font-medium hover:underline">
+            <Link to="/login" className="text-sm text-gray-700 dark:text-gray-400 font-medium hover:underline">
               Back to Login
             </Link>
           </form>
@@ -146,11 +146,11 @@ function ForgotPassword() {
                 type="text"
                 placeholder="OTP Code"
                 maxLength={6}
-                className="input input-bordered w-full text-center text-3xl tracking-[0.5em] pl-[0.5em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-purple-500 font-mono h-16"
+                className="input input-bordered w-full text-center text-3xl tracking-[0.5em] pl-[0.5em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300 font-mono h-16"
                 {...registerReset("otp")}
               />
               {resetErrors.otp && (
-                <span className="text-red-500 text-sm mt-1 text-center font-medium">{resetErrors.otp.message}</span>
+                <span className="text-gray-500 text-sm mt-1 text-center font-medium">{resetErrors.otp.message}</span>
               )}
             </div>
 
@@ -180,7 +180,7 @@ function ForgotPassword() {
                 </button>
               </div>
               {resetErrors.newPassword && (
-                <span className="text-red-500 text-sm mt-1">{resetErrors.newPassword.message}</span>
+                <span className="text-gray-500 text-sm mt-1">{resetErrors.newPassword.message}</span>
               )}
             </div>
 
@@ -195,13 +195,13 @@ function ForgotPassword() {
                 {...registerReset("confirmPassword")}
               />
               {resetErrors.confirmPassword && (
-                <span className="text-red-500 text-sm mt-1">{resetErrors.confirmPassword.message}</span>
+                <span className="text-gray-500 text-sm mt-1">{resetErrors.confirmPassword.message}</span>
               )}
             </div>
 
             <button
               type="submit"
-              className="btn w-full bg-purple-600 hover:bg-purple-700 text-white border-none mt-4 h-12"
+              className="btn w-full bg-gray-900 hover:bg-black text-white border-none mt-4 h-12"
               disabled={loading}
             >
               {loading ? <span className="loading loading-spinner"></span> : "Reset Password"}
@@ -209,7 +209,7 @@ function ForgotPassword() {
 
             <button
                type="button"
-               className="text-sm bg-transparent border-none text-purple-600 dark:text-purple-400 hover:underline mt-2"
+               className="text-sm bg-transparent border-none text-gray-700 dark:text-gray-400 hover:underline mt-2"
                onClick={() => setStep(1)}
             >
               Cancel

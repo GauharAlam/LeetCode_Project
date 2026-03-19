@@ -31,18 +31,18 @@ const LeaderboardPage = () => {
 
     const getRankIcon = (rank) => {
         switch (rank) {
-            case 1: return <Trophy className="text-yellow-400" size={24} />;
+            case 1: return <Trophy className="text-gray-400" size={24} />;
             case 2: return <Medal className="text-gray-600 dark:text-gray-400" size={24} />;
-            case 3: return <Medal className="text-orange-400" size={24} />;
+            case 3: return <Medal className="text-gray-400" size={24} />;
             default: return <span className="text-gray-500 font-mono w-6 text-center">#{rank}</span>;
         }
     };
 
     const getRankBg = (rank) => {
         switch (rank) {
-            case 1: return 'bg-gradient-to-r from-yellow-900/30 to-yellow-900/10 border-yellow-500/30';
+            case 1: return 'bg-gradient-to-r from-gray-200 to-gray-100 border-gray-400';
             case 2: return 'bg-gradient-to-r from-gray-700/30 to-gray-700/10 border-gray-500/30';
-            case 3: return 'bg-gradient-to-r from-orange-900/30 to-orange-900/10 border-orange-500/30';
+            case 3: return 'bg-gradient-to-r from-gray-200 to-gray-100 border-gray-400';
             default: return 'bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800';
         }
     };
@@ -54,8 +54,8 @@ const LeaderboardPage = () => {
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-yellow-500/20 rounded-xl">
-                        <Trophy className="text-yellow-400" size={32} />
+                    <div className="p-3 bg-gray-500/20 rounded-xl">
+                        <Trophy className="text-gray-400" size={32} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
@@ -65,7 +65,7 @@ const LeaderboardPage = () => {
 
                 {/* User's Rank Card */}
                 {userRank && (
-                    <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-6 mb-8 border border-blue-500/20">
+                    <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-6 mb-8 border border-gray-400/20">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Your Current Ranking</p>
@@ -75,7 +75,7 @@ const LeaderboardPage = () => {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="flex items-center gap-2 text-green-400">
+                                <div className="flex items-center gap-2 text-gray-400">
                                     <TrendingUp size={20} />
                                     <span className="text-2xl font-bold">Top {userRank.percentile}%</span>
                                 </div>
@@ -88,14 +88,14 @@ const LeaderboardPage = () => {
                 {/* Leaderboard Table */}
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {leaderboard.map((entry) => (
                             <div
                                 key={entry._id}
-                                className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01] ${getRankBg(entry.rank)} ${entry._id === user?._id ? 'ring-2 ring-blue-500' : ''}`}
+                                className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01] ${getRankBg(entry.rank)} ${entry._id === user?._id ? 'ring-2 ring-gray-500' : ''}`}
                             >
                                 <div className="w-12 flex justify-center">
                                     {getRankIcon(entry.rank)}
@@ -109,7 +109,7 @@ const LeaderboardPage = () => {
                                     <p className="font-medium text-white">
                                         {entry.firstName}
                                         {entry._id === user?._id && (
-                                            <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">You</span>
+                                            <span className="ml-2 text-xs bg-gray-600 text-white px-2 py-0.5 rounded-full">You</span>
                                         )}
                                     </p>
                                     <p className="text-gray-500 text-sm">{entry.email}</p>

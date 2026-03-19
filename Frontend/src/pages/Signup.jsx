@@ -99,11 +99,11 @@ function Signup() {
               type="text"
               placeholder="000000"
               maxLength={6}
-              className="input input-bordered w-full text-center text-3xl tracking-[1em] pl-[1em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-purple-500 font-mono h-16"
+              className="input input-bordered w-full text-center text-3xl tracking-[1em] pl-[1em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300 font-mono h-16"
               {...registerOtp("otp")}
             />
             {otpErrors.otp && (
-              <span className="text-red-500 mt-2 text-center text-sm font-medium">
+              <span className="text-gray-500 mt-2 text-center text-sm font-medium">
                 {otpErrors.otp.message}
               </span>
             )}
@@ -111,7 +111,7 @@ function Signup() {
 
           <button
             type="submit"
-            className="btn w-full mt-2 bg-purple-600 hover:bg-purple-700 border-none text-white text-lg h-12"
+            className="btn w-full mt-2 bg-gray-900 hover:bg-black border-none text-white text-lg h-12"
             disabled={loading}
           >
             {loading ? <span className="loading loading-spinner"></span> : "Verify & Login"}
@@ -123,7 +123,7 @@ function Signup() {
               type="button" 
               onClick={handleResendOtp}
               disabled={resendLoading}
-              className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold hover:underline border-none bg-transparent"
+              className="text-gray-700 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 font-semibold hover:underline border-none bg-transparent"
             >
               {resendLoading ? "Sending..." : "Resend OTP"}
             </button>
@@ -154,7 +154,7 @@ function Signup() {
             {...registerSignup("firstName")}
           />
           {signupErrors.firstName && (
-            <span className="text-red-500 text-sm mt-1">
+            <span className="text-gray-500 text-sm mt-1">
               {signupErrors.firstName.message}
             </span>
           )}
@@ -171,7 +171,7 @@ function Signup() {
             {...registerSignup("emailId")}
           />
           {signupErrors.emailId && (
-            <span className="text-red-500 text-sm mt-1">
+            <span className="text-gray-500 text-sm mt-1">
               {signupErrors.emailId.message}
             </span>
           )}
@@ -206,7 +206,7 @@ function Signup() {
             </button>
           </div>
               {signupErrors.password && (
-                <span className="text-red-500 text-sm mt-1">
+                <span className="text-gray-500 text-sm mt-1">
                   {signupErrors.password.message}
                 </span>
               )}
@@ -225,7 +225,7 @@ function Signup() {
                 />
               </div>
               {signupErrors.confirmPassword && (
-                <span className="text-red-500 text-sm mt-1">
+                <span className="text-gray-500 text-sm mt-1">
                   {signupErrors.confirmPassword.message}
                 </span>
               )}
@@ -233,7 +233,7 @@ function Signup() {
 
             <button
           type="submit"
-          className="btn w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white text-lg h-12"
+          className="btn w-full mt-4 bg-gray-900 hover:bg-black border-none text-white text-lg h-12"
           disabled={loading}
         >
           {loading ? (
@@ -245,7 +245,7 @@ function Signup() {
 
         <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
           Already have an account?{" "}
-          <Link to="/login" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline">
+          <Link to="/login" className="text-gray-700 dark:text-gray-400 font-semibold hover:underline">
             Log in
           </Link>
         </div>

@@ -84,7 +84,7 @@ const Profile = () => {
             <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <span className="loading loading-spinner loading-lg text-blue-500"></span>
+                    <span className="loading loading-spinner loading-lg text-gray-500"></span>
                 </div>
             </div>
         );
@@ -95,7 +95,7 @@ const Profile = () => {
             <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <p className="text-red-400">{error}</p>
+                    <p className="text-gray-400">{error}</p>
                 </div>
             </div>
         );
@@ -113,7 +113,7 @@ const Profile = () => {
                     value={editData[field] || ''}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                     placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-                    className="w-full bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-gray-400 transition-colors"
                 />
             ) : (
                 <p className="text-white">{value || 'N/A'}</p>
@@ -134,7 +134,7 @@ const Profile = () => {
                         value={editData[field] || ''}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         placeholder={placeholder || `Enter ${label} URL`}
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-1 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-1 text-white focus:outline-none focus:border-gray-400 transition-colors text-sm"
                     />
                 ) : (
                     <p className="text-white text-sm truncate">{value || 'N/A'}</p>
@@ -174,7 +174,7 @@ const Profile = () => {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
                             >
                                 {saving ? (
                                     <span className="loading loading-spinner loading-sm"></span>
@@ -205,14 +205,14 @@ const Profile = () => {
                                             value={editData.firstName || ''}
                                             onChange={(e) => handleInputChange('firstName', e.target.value)}
                                             placeholder="First Name"
-                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-blue-500"
+                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-gray-400"
                                         />
                                         <input
                                             type="text"
                                             value={editData.lastName || ''}
                                             onChange={(e) => handleInputChange('lastName', e.target.value)}
                                             placeholder="Last Name"
-                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-blue-500"
+                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-gray-400"
                                         />
                                     </div>
                                 ) : (
@@ -226,9 +226,9 @@ const Profile = () => {
                         </div>
 
                         {/* Role Badge */}
-                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30">
-                            <Shield className="w-4 h-4 text-blue-400" />
-                            <span className="text-blue-400 text-sm font-medium uppercase">{profile?.role}</span>
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-600/10 border border-gray-400/30">
+                            <Shield className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-400 text-sm font-medium uppercase">{profile?.role}</span>
                         </div>
                     </div>
                 </div>
@@ -236,7 +236,7 @@ const Profile = () => {
                 {/* Personal Information */}
                 <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
                     <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                        <User className="w-5 h-5 text-blue-400" />
+                        <User className="w-5 h-5 text-gray-400" />
                         Personal Information
                     </h3>
 
@@ -279,7 +279,7 @@ const Profile = () => {
                 {/* Social Information */}
                 <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
                     <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                        <Globe className="w-5 h-5 text-purple-400" />
+                        <Globe className="w-5 h-5 text-gray-400" />
                         Social Information
                     </h3>
 

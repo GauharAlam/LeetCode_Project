@@ -50,7 +50,7 @@ function Login() {
                         className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white'
                         {...register('emailId')}
                     />
-                    {errors.emailId && <span className="text-red-400 text-sm">{errors.emailId.message}</span>}
+                    {errors.emailId && <span className="text-gray-400 text-sm">{errors.emailId.message}</span>}
                 </div>
 
                 <div className="w-full">
@@ -79,9 +79,9 @@ function Login() {
                             )}
                         </button>
                     </div>
-                    {errors.password && <span className="text-red-500 text-sm mt-1">{errors.password.message}</span>}
+                    {errors.password && <span className="text-gray-500 text-sm mt-1">{errors.password.message}</span>}
                     <div className="flex justify-end mt-2">
-                        <Link to="/forgot-password" className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium hover:underline">
+                        <Link to="/forgot-password" className="text-sm text-gray-700 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 font-medium hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -89,7 +89,7 @@ function Login() {
 
                 <button
                     type="submit"
-                    className="btn btn-primary w-full mt-4 bg-purple-600 hover:bg-purple-700 border-none text-white"
+                    className="btn btn-primary w-full mt-4 bg-gray-900 hover:bg-black border-none text-white"
                     disabled={loading}
                 >
                     {loading ? (
@@ -101,7 +101,7 @@ function Login() {
 
                 <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                     Don't have an account?{" "}
-                    <Link to="/signup" className="text-purple-400 hover:text-purple-300 hover:underline">
+                    <Link to="/signup" className="text-gray-400 hover:text-gray-400 hover:underline">
                         Sign up
                     </Link>
                 </div>

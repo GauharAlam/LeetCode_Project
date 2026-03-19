@@ -4,18 +4,8 @@ import { useSelector } from 'react-redux';
 import axiosClient from '../utils/axiosClient';
 import Navbar from '../components/Navbar';
 import {
-    Code2,
-    Users,
-    Trophy,
-    Star,
-    ArrowRight,
-    BookOpen,
-    Target,
-    MessageSquare,
-    Laptop,
-    Award,
-    Zap,
-    Play
+    Code2, Users, Trophy, Star, ArrowRight, BookOpen,
+    Target, MessageSquare, Award, Zap, Play
 } from 'lucide-react';
 
 const LandingPage = () => {
@@ -24,7 +14,6 @@ const LandingPage = () => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
-        // Fetch global stats asynchronously
         const fetchStats = async () => {
             try {
                 const response = await axiosClient.get("/problem/global-stats");
@@ -45,27 +34,24 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="min-h-screen bg-white dark:bg-neutral-950">
             <Navbar />
 
             {/* Hero Section */}
             <section className="relative overflow-hidden">
-                {/* Background gradient effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-purple-500/10" />
-                <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100/50 via-transparent to-gray-200/30 dark:from-neutral-900/50 dark:via-transparent dark:to-neutral-800/30" />
 
                 <div className="relative container mx-auto px-6 py-20 lg:py-32">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left Content */}
                         <div className="space-y-8">
-                            <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
                                 Master Your{' '}
-                                <span className="text-orange-500">Code.</span>
+                                <span className="text-gray-900 dark:text-white underline decoration-2 underline-offset-4">Code.</span>
                                 <br />
                                 Build for the Real World.
                             </h1>
-                            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-lg">
+                            <p className="text-gray-500 dark:text-gray-400 text-lg max-w-lg">
                                 Learning should be fun and rewarding. Practice coding problems,
                                 track your progress, and become a better developer every day.
                             </p>
@@ -73,12 +59,12 @@ const LandingPage = () => {
                             <div className="flex flex-wrap gap-4">
                                 <button
                                     onClick={handleStartJourney}
-                                    className="btn btn-lg bg-orange-500 hover:bg-orange-600 text-white border-none gap-2 px-8 shadow-lg shadow-orange-500/25"
+                                    className="btn btn-lg bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 border-none gap-2 px-8"
                                 >
                                     Start your journey
                                     <ArrowRight size={20} />
                                 </button>
-                                <button className="btn btn-lg btn-outline border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-800 hover:border-gray-500 gap-2">
+                                <button className="btn btn-lg btn-outline border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:border-gray-400 dark:hover:border-gray-600 gap-2">
                                     <Play size={20} />
                                     Watch Demo
                                 </button>
@@ -87,15 +73,15 @@ const LandingPage = () => {
                             {/* Stats Row */}
                             <div className="flex gap-12 pt-8">
                                 <div>
-                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.problems.total : '500+'}</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats ? stats.problems.total : '500+'}</p>
                                     <p className="text-gray-500 text-sm">Problems</p>
                                 </div>
                                 <div>
-                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.users : '100+'}</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats ? stats.users : '100+'}</p>
                                     <p className="text-gray-500 text-sm">Users Active</p>
                                 </div>
                                 <div>
-                                    <p className="text-3xl font-bold text-white transition-all duration-500">{stats ? stats.languages : '15+'}</p>
+                                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats ? stats.languages : '15+'}</p>
                                     <p className="text-gray-500 text-sm">Languages</p>
                                 </div>
                             </div>
@@ -105,46 +91,46 @@ const LandingPage = () => {
                         <div className="relative hidden lg:block">
                             <div className="relative h-[500px]">
                                 {/* Problems Card */}
-                                <div className="absolute top-0 left-0 w-56 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute top-0 left-0 w-56 bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-200 dark:border-neutral-800 shadow-lg transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Platform Catalog</span>
-                                        <Star className="text-orange-500" size={20} />
+                                        <span className="text-gray-500 dark:text-gray-400 text-sm">Platform Catalog</span>
+                                        <Star className="text-gray-400 dark:text-gray-500" size={20} />
                                     </div>
-                                    <p className="text-4xl font-bold text-white mb-4 transition-all duration-500">{stats ? stats.problems.total : 127}</p>
+                                    <p className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{stats ? stats.problems.total : 127}</p>
                                     <div className="space-y-1">
-                                        <p className="text-sm text-green-400 flex items-center justify-between">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
                                             <span>Easy</span> <span>{stats ? stats.problems.easy : 48} ✓</span>
                                         </p>
-                                        <p className="text-sm text-yellow-400 flex items-center justify-between">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
                                             <span>Medium</span> <span>{stats ? stats.problems.medium : 52} ✓</span>
                                         </p>
-                                        <p className="text-sm text-red-400 flex items-center justify-between">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
                                             <span>Hard</span> <span>{stats ? stats.problems.hard : 27} ✓</span>
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Submissions Card */}
-                                <div className="absolute top-20 right-0 w-52 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute top-20 right-0 w-52 bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-200 dark:border-neutral-800 shadow-lg transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Total Code Run</span>
-                                        <Code2 className="text-blue-500" size={20} />
+                                        <span className="text-gray-500 dark:text-gray-400 text-sm">Total Code Run</span>
+                                        <Code2 className="text-gray-400 dark:text-gray-500" size={20} />
                                     </div>
-                                    <p className="text-4xl font-bold text-white mb-4 transition-all duration-500">{stats ? stats.submissions.total : 342}</p>
+                                    <p className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{stats ? stats.submissions.total : 342}</p>
                                     <div className="space-y-1">
-                                        <p className="text-sm text-green-400">{stats ? stats.submissions.accepted : 289} Accepted ✓</p>
-                                        <p className="text-sm text-orange-400">{stats ? stats.submissions.pending : 53} Pending •</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">{stats ? stats.submissions.accepted : 289} Accepted ✓</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-500">{stats ? stats.submissions.pending : 53} Pending •</p>
                                     </div>
                                 </div>
 
                                 {/* Ranking Card */}
-                                <div className="absolute bottom-20 left-20 w-56 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-2xl transform hover:scale-105 transition-transform">
+                                <div className="absolute bottom-20 left-20 w-56 bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-200 dark:border-neutral-800 shadow-lg transform hover:scale-105 transition-transform">
                                     <div className="flex justify-between items-start mb-4">
-                                        <span className="text-gray-600 dark:text-gray-400 text-sm">Your Ranking</span>
-                                        <Trophy className="text-yellow-500" size={20} />
+                                        <span className="text-gray-500 dark:text-gray-400 text-sm">Your Ranking</span>
+                                        <Trophy className="text-gray-400 dark:text-gray-500" size={20} />
                                     </div>
                                     <div className="h-20 flex flex-col justify-center">
-                                         <p className="text-lg font-bold text-white text-center italic">Join {stats ? stats.users : ''} coders today!</p>
+                                         <p className="text-lg font-bold text-gray-900 dark:text-white text-center italic">Join {stats ? stats.users : ''} coders today!</p>
                                     </div>
                                 </div>
                             </div>
@@ -154,75 +140,22 @@ const LandingPage = () => {
             </section>
 
             {/* Features Section */}
-            <section className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+            <section className="py-20 bg-gray-50 dark:bg-neutral-900/50">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl font-bold text-white mb-4 italic">Features</h2>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Features</h2>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
                             Everything you need to transform learning into real-world skills.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {/* Feature Card 1 */}
-                        <FeatureCard
-                            title="Progress Tracking"
-                            description="Track your problem-solving journey, manage assignments, and monitor your learning progress."
-                            icon={<Target className="text-purple-400" size={24} />}
-                            gradient="from-purple-500/20 to-purple-500/5"
-                            link="/dashboard"
-                            linkText="View Dashboard"
-                        />
-
-                        {/* Feature Card 2 */}
-                        <FeatureCard
-                            title="Real-world Problems"
-                            description="Real-world challenges that mirror industry expectations and build job-ready skills."
-                            icon={<Code2 className="text-orange-400" size={24} />}
-                            gradient="from-orange-500/20 to-orange-500/5"
-                            link="/problems"
-                            linkText="Explore Problems"
-                        />
-
-                        {/* Feature Card 3 */}
-                        <FeatureCard
-                            title="Code Reviews"
-                            description="Give and receive constructive feedback to improve via collaborative learning."
-                            icon={<MessageSquare className="text-pink-400" size={24} />}
-                            gradient="from-pink-500/20 to-pink-500/5"
-                            link="/problems"
-                            linkText="Start Coding"
-                        />
-
-                        {/* Feature Card 4 */}
-                        <FeatureCard
-                            title="Community"
-                            description="Get support from the community and connect with other developers."
-                            icon={<Users className="text-blue-400" size={24} />}
-                            gradient="from-blue-500/20 to-blue-500/5"
-                            link="/problems"
-                            linkText="Join Now"
-                        />
-
-                        {/* Feature Card 5 */}
-                        <FeatureCard
-                            title="Self Learning"
-                            description="Learn at your own pace with our curated collection of problems and tutorials."
-                            icon={<BookOpen className="text-green-400" size={24} />}
-                            gradient="from-green-500/20 to-green-500/5"
-                            link="/problems"
-                            linkText="Start Learning"
-                        />
-
-                        {/* Feature Card 6 */}
-                        <FeatureCard
-                            title="Achievements"
-                            description="Earn badges and build a public portfolio you can proudly share with employers."
-                            icon={<Award className="text-yellow-400" size={24} />}
-                            gradient="from-yellow-500/20 to-yellow-500/5"
-                            link="/profile"
-                            linkText="View Profile"
-                        />
+                        <FeatureCard title="Progress Tracking" description="Track your problem-solving journey, manage assignments, and monitor your learning progress." icon={<Target size={24} />} link="/dashboard" linkText="View Dashboard" />
+                        <FeatureCard title="Real-world Problems" description="Real-world challenges that mirror industry expectations and build job-ready skills." icon={<Code2 size={24} />} link="/problems" linkText="Explore Problems" />
+                        <FeatureCard title="Code Reviews" description="Give and receive constructive feedback to improve via collaborative learning." icon={<MessageSquare size={24} />} link="/problems" linkText="Start Coding" />
+                        <FeatureCard title="Community" description="Get support from the community and connect with other developers." icon={<Users size={24} />} link="/problems" linkText="Join Now" />
+                        <FeatureCard title="Self Learning" description="Learn at your own pace with our curated collection of problems and tutorials." icon={<BookOpen size={24} />} link="/problems" linkText="Start Learning" />
+                        <FeatureCard title="Achievements" description="Earn badges and build a public portfolio you can proudly share with employers." icon={<Award size={24} />} link="/profile" linkText="View Profile" />
                     </div>
                 </div>
             </section>
@@ -230,17 +163,17 @@ const LandingPage = () => {
             {/* CTA Section */}
             <section className="py-20">
                 <div className="container mx-auto px-6">
-                    <div className="bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-blue-500/20 rounded-3xl p-12 text-center border border-gray-200 dark:border-gray-800">
-                        <Zap className="text-orange-500 mx-auto mb-6" size={48} />
-                        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                    <div className="bg-gray-100 dark:bg-neutral-900 rounded-3xl p-12 text-center border border-gray-200 dark:border-neutral-800">
+                        <Zap className="text-gray-400 dark:text-gray-500 mx-auto mb-6" size={48} />
+                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                             Ready to level up your coding skills?
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-xl mx-auto">
+                        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto">
                             Join thousands of developers who are mastering algorithms and data structures every day.
                         </p>
                         <button
                             onClick={handleStartJourney}
-                            className="btn btn-lg bg-orange-500 hover:bg-orange-600 text-white border-none gap-2 px-8"
+                            className="btn btn-lg bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 border-none gap-2 px-8"
                         >
                             Get Started for Free
                             <ArrowRight size={20} />
@@ -250,24 +183,22 @@ const LandingPage = () => {
             </section>
 
             {/* Footer */}
-            <footer className="py-8 border-t border-gray-200 dark:border-gray-800">
+            <footer className="py-8 border-t border-gray-200 dark:border-neutral-800">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-4">
-                            <Link to="#" className="text-gray-500 hover:text-gray-300 text-sm">Help & Support</Link>
-                            <Link to="#" className="text-gray-500 hover:text-gray-300 text-sm">Report an Issue</Link>
+                            <Link to="#" className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm">Help & Support</Link>
+                            <Link to="#" className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm">Report an Issue</Link>
                         </div>
-                        <p className="text-gray-500 text-sm">
-                            © 2025 AlgoForge. All rights reserved.
-                        </p>
+                        <p className="text-gray-500 text-sm">© 2025 AlgoForge. All rights reserved.</p>
                         <div className="flex items-center gap-4">
-                            <a href="https://github.com/GauharAlam" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300">
+                            <a href="https://github.com/GauharAlam" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
                             </a>
-                            <a href="https://www.linkedin.com/in/gauhar-alam/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300">
+                            <a href="https://www.linkedin.com/in/gauhar-alam/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                             </a>
-                            <a href="https://x.com/NawazCodex" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300">
+                            <a href="https://x.com/NawazCodex" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                             </a>
                         </div>
@@ -278,22 +209,20 @@ const LandingPage = () => {
     );
 };
 
-// Feature Card Component
-const FeatureCard = ({ title, description, icon, gradient, link, linkText }) => {
+// Feature Card Component — Monochrome
+const FeatureCard = ({ title, description, icon, link, linkText }) => {
     return (
-        <div className={`bg-gradient-to-br ${gradient} bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:border-gray-700 transition-all hover:transform hover:scale-[1.02]`}>
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-200 dark:border-neutral-800 hover:border-gray-400 dark:hover:border-neutral-600 transition-all hover:transform hover:scale-[1.02]">
             <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gray-100/50 dark:bg-gray-800/50 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-neutral-800 rounded-lg text-gray-600 dark:text-gray-400">
                     {icon}
                 </div>
-                <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                <span className="px-3 py-1 text-xs font-medium rounded-full border border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-gray-300">
                     {title}
                 </span>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                {description}
-            </p>
-            <Link to={link} className="text-gray-500 hover:text-white text-sm flex items-center gap-1 group">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">{description}</p>
+            <Link to={link} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm flex items-center gap-1 group">
                 {linkText}
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>

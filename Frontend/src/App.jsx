@@ -17,8 +17,12 @@ import Profile from "./pages/Profile";
 import BookmarksPage from "./pages/BookmarksPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import StudyPlansPage from "./pages/StudyPlansPage";
+import StudyPlanDetail from "./pages/StudyPlanDetail";
+import CreateStudyPlan from "./pages/CreateStudyPlan";
 import ContestsPage from "./pages/ContestsPage";
 import CreateContest from "./pages/CreateContest";
+import CommunityPage from "./pages/CommunityPage";
+import DiscussionDetail from "./pages/DiscussionDetail";
 
 // Guard Component for Admin Routes
 const AdminRoute = () => {
@@ -61,7 +65,11 @@ function App() {
       <Route path="/bookmarks" element={isAuthenticated ? <BookmarksPage /> : <Navigate to="/login" />} />
       <Route path="/leaderboard" element={isAuthenticated ? <LeaderboardPage /> : <Navigate to="/login" />} />
       <Route path="/study-plans" element={isAuthenticated ? <StudyPlansPage /> : <Navigate to="/login" />} />
+      <Route path="/study-plans/create" element={isAuthenticated ? <CreateStudyPlan /> : <Navigate to="/login" />} />
+      <Route path="/study-plans/:planId" element={isAuthenticated ? <StudyPlanDetail /> : <Navigate to="/login" />} />
       <Route path="/contests" element={isAuthenticated ? <ContestsPage /> : <Navigate to="/login" />} />
+      <Route path="/community" element={isAuthenticated ? <CommunityPage /> : <Navigate to="/login" />} />
+      <Route path="/community/post/:id" element={isAuthenticated ? <DiscussionDetail /> : <Navigate to="/login" />} />
 
       {/* Protected Admin Routes */}
       <Route path="/admin" element={<AdminRoute />}>

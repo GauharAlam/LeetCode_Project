@@ -1,14 +1,14 @@
 const express = require("express")
 const problemRouter = express.Router();
 const adminMiddleware = require("../middleware/adminMiddleware")
-const { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem } = require("../controllers/userProblem");
+const { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem, getNote, saveNote } = require("../controllers/userProblem");
 const { getUserDashboard, getUserProfile, updateUserProfile, getGlobalStats } = require("../controllers/dashboardController");
 const { addBookmark, removeBookmark, getBookmarks, isBookmarked } = require("../controllers/bookmarkController");
 const { getLeaderboard, getUserRank } = require("../controllers/leaderboardController");
 const { getDailyChallenge } = require("../controllers/dailyChallengeController");
 const { createDiscussion, getDiscussions, addReply, toggleUpvote } = require("../controllers/discussionController");
 const { getContests, getContest, joinContest, getContestLeaderboard, createContest } = require("../controllers/contestController");
-const { getAIHint } = require("../controllers/aiController");
+const { getAIHint, getAIRecommendation, createPlanFromRecommendation, getAIFix, chatWithAI } = require("../controllers/aiController");
 const userMiddleware = require("../middleware/userMiddleware");
 
 // Only admin can operate on these 
@@ -48,8 +48,12 @@ problemRouter.post("/contest/:contestId/join", userMiddleware, joinContest);
 problemRouter.get("/contest/:contestId/leaderboard", userMiddleware, getContestLeaderboard);
 problemRouter.post("/contest", adminMiddleware, createContest);
 
-// AI Hints route
+// AI routes
 problemRouter.post("/ai-hint", userMiddleware, getAIHint);
+problemRouter.post("/ai-fix", userMiddleware, getAIFix);
+problemRouter.post("/ai-chat", userMiddleware, chatWithAI);
+problemRouter.get("/ai-recommend", userMiddleware, getAIRecommendation);
+problemRouter.post("/ai-recommend/create", userMiddleware, createPlanFromRecommendation);
 
 // Problem routes for user 
 problemRouter.get("/problemById/:id", userMiddleware, getProblemById);
@@ -57,5 +61,8 @@ problemRouter.get("/getAllProblem", userMiddleware, getAllProblem);
 problemRouter.get("/problemSolvedByUser", userMiddleware, solvedAllProblemByUser);
 problemRouter.get("/submittedProblem/:pid", userMiddleware, submittedProblem);
 
-module.exports = problemRouter;
+// Note routes
+problemRouter.get("/:id/note", userMiddleware, getNote);
+problemRouter.post("/:id/note", userMiddleware, saveNote);
 
+module.exports = problemRouter;

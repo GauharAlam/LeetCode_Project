@@ -13,6 +13,9 @@ const ProblemSchema = z.object({
   description: z.string().min(10, "Description too short"),
   difficulty: z.enum(["easy", "medium", "hard"]),
   tags: z.string().transform(val => val.split(',').map(t => t.trim()).filter(Boolean)),
+  companies: z.string().transform(val => val.split(',').map(t => t.trim()).filter(Boolean)),
+  constraints: z.string().optional(),
+  hints: z.array(z.string()).optional(),
   visibleTestCases: z.array(z.object({
     input: z.string(),
     output: z.string(),
@@ -44,7 +47,10 @@ const ProblemForm = () => {
     resolver: zodResolver(ProblemSchema),
     defaultValues: {
       difficulty: 'easy',
-      tags: '', // handled as string in UI
+      tags: '',
+      companies: '',
+      constraints: '',
+      hints: [''],
       visibleTestCases: [{ input: '', output: '', explanation: '' }],
       hiddenTestCases: [{ input: '', output: '', explanation: '' }],
       startCode: DEFAULT_LANGUAGES.map(lang => ({ language: lang, initialCode: '' })),
@@ -54,6 +60,7 @@ const ProblemForm = () => {
 
   const { fields: visibleFields, append: appendVisible, remove: removeVisible } = useFieldArray({ control, name: "visibleTestCases" });
   const { fields: hiddenFields, append: appendHidden, remove: removeHidden } = useFieldArray({ control, name: "hiddenTestCases" });
+  const { fields: hintFields, append: appendHint, remove: removeHint } = useFieldArray({ control, name: "hints" });
   
   // Note: We won't use FieldArray for code/reference for now to keep UI simple, 
   // assume fixed 3 languages or handled via controlled inputs mapped to DEFAULT_LANGUAGES
@@ -65,7 +72,9 @@ const ProblemForm = () => {
           // Flatten tags array to string for input
           reset({
             ...data,
-            tags: data.tags.join(', ')
+            tags: data.tags.join(', '),
+            companies: (data.companies || []).join(', '),
+            hints: data.hints || ['']
           });
         })
         .catch(err => console.error(err));
@@ -106,13 +115,13 @@ const ProblemForm = () => {
           
           {/* Section 1: Basic Info */}
           <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md space-y-4">
-            <h2 className="text-xl font-semibold text-blue-400">Basic Information</h2>
+            <h2 className="text-xl font-semibold text-gray-400">Basic Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label text-gray-600 dark:text-gray-400">Title</label>
                 <input {...register("title")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="e.g. Two Sum" />
-                {errors.title && <span className="text-red-400 text-sm">{errors.title.message}</span>}
+                {errors.title && <span className="text-gray-400 text-sm">{errors.title.message}</span>}
               </div>
 
               <div className="form-control">
@@ -125,15 +134,47 @@ const ProblemForm = () => {
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label text-gray-600 dark:text-gray-400">Tags (comma separated)</label>
-              <input {...register("tags")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="Array, Hash Table" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label text-gray-600 dark:text-gray-400">Tags (comma separated)</label>
+                <input {...register("tags")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="Array, Hash Table" />
+              </div>
+              <div className="form-control">
+                <label className="label text-gray-600 dark:text-gray-400">Companies (comma separated)</label>
+                <input {...register("companies")} className="input input-bordered bg-gray-100 dark:bg-gray-800" placeholder="Google, Meta, Amazon" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="form-control">
+                 <label className="label text-gray-600 dark:text-gray-400">Constraints</label>
+                 <textarea {...register("constraints")} className="textarea textarea-bordered bg-gray-100 dark:bg-gray-800 h-32" placeholder="e.g. 1 <= nums.length <= 10^4" />
+               </div>
+
+               <div className="form-control flex flex-col gap-2">
+                 <div className="flex justify-between items-center">
+                   <label className="label text-gray-600 dark:text-gray-400">Hints</label>
+                   <button type="button" onClick={() => appendHint('')} className="btn btn-xs btn-ghost text-success gap-1">
+                     <PlusCircle size={14} /> Add Hint
+                   </button>
+                 </div>
+                 <div className="space-y-2 overflow-y-auto max-h-32 pr-2">
+                   {hintFields.map((field, index) => (
+                     <div key={field.id} className="flex gap-2">
+                        <input {...register(`hints.${index}`)} className="input input-sm input-bordered flex-1 bg-gray-100 dark:bg-gray-800" placeholder={`Hint ${index + 1}`} />
+                        <button type="button" onClick={() => removeHint(index)} className="btn btn-sm btn-ghost text-error">
+                          <Trash2 size={14} />
+                        </button>
+                     </div>
+                   ))}
+                 </div>
+               </div>
             </div>
 
             <div className="form-control">
               <label className="label text-gray-600 dark:text-gray-400">Description (Markdown)</label>
               <textarea {...register("description")} className="textarea textarea-bordered bg-gray-100 dark:bg-gray-800 h-32" placeholder="Problem description..." />
-              {errors.description && <span className="text-red-400 text-sm">{errors.description.message}</span>}
+              {errors.description && <span className="text-gray-400 text-sm">{errors.description.message}</span>}
             </div>
           </div>
 
@@ -145,7 +186,7 @@ const ProblemForm = () => {
 
           {/* Section 3: Code Logic */}
           <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
-            <h2 className="text-xl font-semibold text-green-400 mb-4">Solution & Boilerplate</h2>
+            <h2 className="text-xl font-semibold text-gray-400 mb-4">Solution & Boilerplate</h2>
             <div className="space-y-6">
               {DEFAULT_LANGUAGES.map((lang, index) => (
                 <div key={lang} className="collapse collapse-arrow border border-gray-300 dark:border-gray-700 bg-gray-100/50 dark:bg-gray-800/50">
@@ -170,7 +211,7 @@ const ProblemForm = () => {
                       <label className="label text-xs uppercase tracking-wide text-gray-500">Reference Solution (Used for validation)</label>
                       <textarea 
                         {...register(`referenceSolution.${index}.completeCode`)} 
-                        className="textarea textarea-bordered font-mono text-sm h-32 bg-gray-50 dark:bg-gray-950 border-green-900/50" 
+                        className="textarea textarea-bordered font-mono text-sm h-32 bg-gray-50 dark:bg-gray-950 border-gray-600/50" 
                          placeholder={`// Complete working solution`}
                       />
                     </div>
@@ -226,9 +267,9 @@ const TestCaseSection = ({ title, fields, append, remove, register, name }) => (
 );
 
 const CodeIcon = ({ lang }) => {
-  if (lang.includes('script')) return <span className="text-yellow-400">JS</span>;
-  if (lang.includes('java')) return <span className="text-red-400">☕</span>;
-  return <span className="text-blue-400">C++</span>;
+  if (lang.includes('script')) return <span className="text-gray-400">JS</span>;
+  if (lang.includes('java')) return <span className="text-gray-400">☕</span>;
+  return <span className="text-gray-400">C++</span>;
 };
 
 export default ProblemForm;

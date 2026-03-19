@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRouter = require("./routes/userAuth");
 const problemRouter = require("./routes/problemCreator");
 const submitRouter = require("./routes/submit");
+const studyPlanRouter = require("./routes/studyPlan");
 const cors = require("cors");
 
 const corsOptions = {
@@ -36,6 +37,7 @@ app.use(cookieParser());
 app.use("/user", authRouter);
 app.use("/problem", problemRouter);
 app.use("/submission", submitRouter);
+app.use("/study-plan", studyPlanRouter);
 
 const InitializeConnection = async () => {
     try {

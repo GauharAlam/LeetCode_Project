@@ -6,6 +6,7 @@ const {
 const Problem = require("../models/problems");
 const User = require("../models/user");
 const Submission = require("../models/submission");
+const Note = require("../models/note");
 
 
 const createProblem = async (req, res) => {
@@ -147,7 +148,7 @@ const getProblemById = async (req, res) => {
       return res.status(400).send("ID is Missing");
     }
 
-    const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution');
+    const getProblem = await Problem.findById(id).select('_id title description difficulty tags visibleTestCases startCode referenceSolution hints acceptedCount submissionCount constraints');
 
     if (!getProblem) {
       return res.status(404).send("Problem is Missing");
@@ -214,4 +215,54 @@ const submittedProblem = async (req, res) => {
   }
 }
 
-module.exports = { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem };
+// @desc Get user's note for a specific problem
+// @route GET /problem/:id/note
+// @access Private
+const getNote = async (req, res) => {
+    try {
+        const userId = req.result._id;
+        const problemId = req.params.id;
+
+        const note = await Note.findOne({ userId, problemId });
+        
+        if (!note) {
+            return res.status(200).json({ content: "" });
+        }
+
+        res.status(200).json({ content: note.content });
+    } catch (error) {
+        console.error("Get note error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// @desc Save user's note for a specific problem
+// @route POST /problem/:id/note
+// @access Private
+const saveNote = async (req, res) => {
+    try {
+        const userId = req.result._id;
+        const problemId = req.params.id;
+        const { content } = req.body;
+
+        let note = await Note.findOne({ userId, problemId });
+
+        if (note) {
+            note.content = content || "";
+            await note.save();
+        } else {
+            note = await Note.create({
+                userId,
+                problemId,
+                content: content || ""
+            });
+        }
+
+        res.status(200).json({ message: "Note saved successfully", content: note.content });
+    } catch (error) {
+        console.error("Save note error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+module.exports = { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem, getNote, saveNote };

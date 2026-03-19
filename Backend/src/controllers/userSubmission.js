@@ -1,5 +1,7 @@
 const Problem = require("../models/problems");
 const Submission = require("../models/submission");
+const UserStudyPlan = require("../models/userStudyPlan");
+const StudyPlan = require("../models/studyPlan");
 const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility");
 
 const submitCode = async (req, res) => {
@@ -28,6 +30,10 @@ const submitCode = async (req, res) => {
       status: "pending",
       testCasesTotal: problem.hiddenTestCases.length,
     });
+
+    // Increment submission count
+    problem.submissionCount = (problem.submissionCount || 0) + 1;
+    await problem.save();
 
     const languageId = getLanguageById(language);
     const submissions = problem.hiddenTestCases.map((testcase) => ({
@@ -73,6 +79,10 @@ const submitCode = async (req, res) => {
     submittedResult.memory = maxMemory;
     await submittedResult.save();
 
+    // Increment accepted count
+    problem.acceptedCount = (problem.acceptedCount || 0) + 1;
+    await problem.save();
+
     // problemId ko insert karenge userSchema ke problemSolved mein if it is not present there
 
     // req.result == user information
@@ -80,6 +90,51 @@ const submitCode = async (req, res) => {
     if(!req.result.problemSolved.includes(problemId)){
       req.result.problemSolved.push(problemId);
       await req.result.save();
+    }
+
+    // Auto-update study plan progress
+    try {
+      const enrollments = await UserStudyPlan.find({ userId, status: 'active' });
+      for (const enrollment of enrollments) {
+        const plan = await StudyPlan.findById(enrollment.studyPlanId);
+        if (!plan) continue;
+
+        // Check if this problem is in this plan
+        const problemInPlan = plan.days.some(day =>
+          day.problems.some(pid => pid.toString() === problemId)
+        );
+        if (!problemInPlan) continue;
+
+        // Check if already marked solved
+        const alreadySolved = enrollment.solvedProblems.some(
+          sp => sp.problemId.toString() === problemId
+        );
+        if (alreadySolved) continue;
+
+        // Mark as solved
+        enrollment.solvedProblems.push({ problemId, solvedAt: new Date() });
+
+        // Update current day
+        for (const day of plan.days) {
+          if (day.problems.some(pid => pid.toString() === problemId)) {
+            if (day.dayNumber > enrollment.currentDay) {
+              enrollment.currentDay = day.dayNumber;
+            }
+            break;
+          }
+        }
+
+        // Check if plan is completed
+        const totalProblems = plan.days.reduce((sum, day) => sum + day.problems.length, 0);
+        if (enrollment.solvedProblems.length >= totalProblems) {
+          enrollment.status = 'completed';
+          enrollment.completedAt = new Date();
+        }
+
+        await enrollment.save();
+      }
+    } catch (planErr) {
+      console.error("Study plan progress update error (non-blocking):", planErr);
     }
 
     res.status(201).send(submittedResult);

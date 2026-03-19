@@ -24,7 +24,7 @@ const contestSchema = new mongoose.Schema({
     },
     problems: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'problem'
+        ref: 'Problem'
     }],
     participants: [{
         userId: {
@@ -38,7 +38,7 @@ const contestSchema = new mongoose.Schema({
         solvedProblems: [{
             problemId: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'problem'
+                ref: 'Problem'
             },
             solvedAt: Date,
             timeTaken: Number // in seconds

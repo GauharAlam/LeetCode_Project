@@ -4,18 +4,20 @@ const Discussion = require('../models/discussion');
 const createDiscussion = async (req, res) => {
     try {
         const userId = req.result._id;
-        const { problemId, title, content, tags } = req.body;
+        const { problemId, title, content, tags, category, isGlobal } = req.body;
 
-        if (!problemId || !title || !content) {
-            return res.status(400).json({ message: "Problem ID, title, and content are required" });
+        if (!title || !content) {
+            return res.status(400).json({ message: "Title and content are required" });
         }
 
         const discussion = await Discussion.create({
-            problemId,
+            problemId: problemId || null,
             userId,
             title,
             content,
-            tags: tags || ['other']
+            tags: tags || ['other'],
+            category: category || 'General',
+            isGlobal: isGlobal || !problemId
         });
 
         await discussion.populate('userId', 'firstName');
@@ -26,18 +28,29 @@ const createDiscussion = async (req, res) => {
     }
 };
 
-// Get discussions for a problem
+// Get discussions for a problem or global
 const getDiscussions = async (req, res) => {
     try {
         const { problemId } = req.params;
-        const { sort = 'newest' } = req.query;
+        const { sort = 'newest', category } = req.query;
+
+        let query = {};
+        if (problemId && problemId !== 'global') {
+            query.problemId = problemId;
+        } else {
+            query.isGlobal = true;
+        }
+
+        if (category) {
+            query.category = category;
+        }
 
         let sortOption = { createdAt: -1 };
         if (sort === 'popular') {
             sortOption = { upvotes: -1, createdAt: -1 };
         }
 
-        const discussions = await Discussion.find({ problemId })
+        const discussions = await Discussion.find(query)
             .populate('userId', 'firstName')
             .populate('replies.userId', 'firstName')
             .sort(sortOption)

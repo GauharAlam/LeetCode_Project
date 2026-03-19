@@ -35,9 +35,9 @@ const BookmarksPage = () => {
 
     const getDifficultyColor = (diff) => {
         switch (diff) {
-            case 'easy': return 'text-green-400 bg-green-400/10 border-green-400/20';
-            case 'medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-            case 'hard': return 'text-red-400 bg-red-400/10 border-red-400/20';
+            case 'easy': return 'text-gray-400 bg-gray-200 border-gray-400';
+            case 'medium': return 'text-gray-400 bg-gray-200 border-gray-400';
+            case 'hard': return 'text-gray-400 bg-gray-200 border-gray-400';
             default: return 'text-gray-600 dark:text-gray-400';
         }
     };
@@ -48,13 +48,13 @@ const BookmarksPage = () => {
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-3 mb-8">
-                    <Bookmark className="text-orange-500" size={32} />
+                    <Bookmark className="text-gray-500" size={32} />
                     <h1 className="text-3xl font-bold text-white">Saved Problems</h1>
                 </div>
 
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
                     </div>
                 ) : bookmarks.length === 0 ? (
                     <div className="text-center py-20">
@@ -63,7 +63,7 @@ const BookmarksPage = () => {
                         <p className="text-gray-500 mb-6">Save problems you want to solve later</p>
                         <button
                             onClick={() => navigate('/problems')}
-                            className="btn bg-orange-500 hover:bg-orange-600 text-white"
+                            className="btn bg-gray-700 hover:bg-gray-800 text-white"
                         >
                             Browse Problems
                         </button>
@@ -83,7 +83,7 @@ const BookmarksPage = () => {
                                         <div className="flex-1">
                                             <button
                                                 onClick={() => navigate(`/problem/${problem._id}`)}
-                                                className="text-lg font-medium text-white hover:text-orange-400 transition-colors"
+                                                className="text-lg font-medium text-white hover:text-gray-400 transition-colors"
                                             >
                                                 {problem.title}
                                             </button>
@@ -111,7 +111,7 @@ const BookmarksPage = () => {
                                         </button>
                                         <button
                                             onClick={() => removeBookmark(problem._id)}
-                                            className="btn btn-sm btn-ghost text-red-400 hover:bg-red-900/20"
+                                            className="btn btn-sm btn-ghost text-gray-400 hover:bg-gray-200"
                                             title="Remove bookmark"
                                         >
                                             <BookmarkX size={18} />

@@ -29,11 +29,11 @@ const ContestsPage = () => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'live':
-                return <span className="badge badge-error gap-1"><span className="animate-pulse">●</span> Live</span>;
+                return <span className="badge bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-none gap-1"><span className="animate-pulse">●</span> Live</span>;
             case 'upcoming':
-                return <span className="badge badge-info gap-1"><Clock size={12} /> Upcoming</span>;
+                return <span className="badge bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-none gap-1"><Clock size={12} /> Upcoming</span>;
             case 'ended':
-                return <span className="badge badge-ghost gap-1"><CheckCircle size={12} /> Ended</span>;
+                return <span className="badge bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-500 border border-gray-300 dark:border-gray-800 gap-1"><CheckCircle size={12} /> Ended</span>;
             default:
                 return null;
         }
@@ -64,8 +64,8 @@ const ContestsPage = () => {
             <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-red-500/20 rounded-xl">
-                        <Trophy className="text-red-400" size={32} />
+                    <div className="p-3 bg-gray-500/20 rounded-xl">
+                        <Trophy className="text-gray-400" size={32} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold text-white">Contests</h1>
@@ -80,7 +80,7 @@ const ContestsPage = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab
-                                    ? 'bg-orange-500 text-white'
+                                    ? 'bg-gray-700 text-white'
                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-700'
                                 }`}
                         >
@@ -92,7 +92,7 @@ const ContestsPage = () => {
                 {/* Contests Grid */}
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
                     </div>
                 ) : contests.length === 0 ? (
                     <div className="text-center py-20">
@@ -105,7 +105,7 @@ const ContestsPage = () => {
                         {contests.map((contest) => (
                             <div
                                 key={contest._id}
-                                className={`bg-white dark:bg-gray-900 border rounded-2xl p-6 transition-all hover:scale-[1.01] ${contest.status === 'live' ? 'border-red-500/50' : 'border-gray-200 dark:border-gray-800 hover:border-gray-700'
+                                className={`bg-white dark:bg-gray-900 border rounded-2xl p-6 transition-all hover:scale-[1.01] ${contest.status === 'live' ? 'border-gray-400/50' : 'border-gray-200 dark:border-gray-800 hover:border-gray-700'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-4">
@@ -114,7 +114,7 @@ const ContestsPage = () => {
                                         {getStatusBadge(contest.status)}
                                     </div>
                                     {contest.status === 'live' && (
-                                        <div className="text-red-400 animate-pulse">
+                                        <div className="text-gray-400 animate-pulse">
                                             <Timer size={24} />
                                         </div>
                                     )}
@@ -146,7 +146,7 @@ const ContestsPage = () => {
                                     {contest.status === 'live' ? (
                                         <button
                                             onClick={() => handleJoinContest(contest._id)}
-                                            className="btn btn-sm bg-red-500 hover:bg-red-600 text-white border-none gap-1"
+                                            className="btn btn-sm bg-gray-500 hover:bg-gray-700 text-white border-none gap-1"
                                         >
                                             <PlayCircle size={16} />
                                             Join Now
@@ -154,7 +154,7 @@ const ContestsPage = () => {
                                     ) : contest.status === 'upcoming' ? (
                                         <button
                                             onClick={() => handleJoinContest(contest._id)}
-                                            className="btn btn-sm btn-outline btn-info gap-1"
+                                            className="btn btn-sm btn-outline border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 gap-1"
                                         >
                                             Register
                                         </button>

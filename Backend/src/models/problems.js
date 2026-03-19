@@ -116,13 +116,28 @@ const problemSchema = new Schema({
       },
     },
   ],
-
+  hints: [
+    {
+      type: String,
+    },
+  ],
+  acceptedCount: {
+    type: Number,
+    default: 0,
+  },
+  submissionCount: {
+    type: Number,
+    default: 0,
+  },
+  constraints: {
+    type: String,
+  },
   problemCreator: {
     type: Schema.Types.ObjectId,
     ref: "user",
     required: true,
   },
-});
+}, { timestamps: true });
 
-const Problem = mongoose.model("problem", problemSchema);
+const Problem = mongoose.model("Problem", problemSchema);
 module.exports = Problem;

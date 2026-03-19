@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../authSlice';
 import { useTheme } from '../contexts/ThemeContext';
-import { LogOut, Code2, ShieldAlert, LayoutDashboard, UserCircle, ListChecks, Home, Sun, Moon, Bookmark, Trophy, BookOpen, Swords } from 'lucide-react';
+import {
+  LogOut, ShieldAlert, LayoutDashboard, UserCircle,
+  ListChecks, Sun, Moon, Bookmark, Trophy, BookOpen,
+  Swords, Menu, X, ChevronDown
+} from 'lucide-react';
 
 const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -11,166 +15,205 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
     navigate('/login');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
+
+  const navLinks = [
+    { path: '/problems', label: 'Problems' },
+    { path: '/community', label: 'Community' },
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/study-plans', label: 'Study Plans' },
+    { path: '/contests', label: 'Contests' },
+  ];
 
   return (
-    <div className="navbar bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-800 text-white px-4 md:px-8 sticky top-4 z-50 mx-4 md:mx-8 mb-4 rounded-2xl shadow-sm transition-all">
-      <div className="flex-1">
-        <Link to="/" className="btn btn-ghost text-xl normal-case gap-2 text-white hover:bg-gray-800">
-          <img src="/algoforge-logo.png" alt="AlgoForge Logo" className="h-9 w-9 object-cover rounded-full shadow-lg border border-gray-300 dark:border-gray-700" />
-          <span className="font-bold">Algo<span className="text-orange-500">Forge</span></span>
+    <nav className="sticky top-4 z-50 mx-4 md:mx-8 mb-4">
+      <div className="bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-full px-4 md:px-6 py-2 shadow-sm flex items-center justify-between transition-colors duration-300">
+
+        {/* Left — Logo */}
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+          <img
+            src="/algoforge-logo.png"
+            alt="AlgoForge"
+            className="h-8 w-8 rounded-full object-cover"
+          />
+          <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight hidden sm:inline">
+            Algo<span className="text-gray-900 dark:text-white">Forge</span>
+          </span>
         </Link>
+
+        {/* Center — Nav Links (desktop) */}
+        {isAuthenticated && (
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map(({ path, label }) => (
+              <Link
+                key={path}
+                to={path}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  isActive(path)
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Right — Actions */}
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle — half-circle icon like masterji */}
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-full flex items-center justify-center border border-gray-200 dark:border-neutral-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-neutral-500 transition-all duration-200"
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {isAuthenticated ? (
+            <>
+              {/* Admin badge */}
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-1000/10 transition-colors"
+                >
+                  <ShieldAlert size={14} />
+                  Admin
+                </Link>
+              )}
+
+              {/* User dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  onBlur={() => setTimeout(() => setDropdownOpen(false), 200)}
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
+                    <span className="text-sm font-bold text-white dark:text-gray-900">
+                      {user?.firstName?.[0]?.toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                  <ChevronDown size={14} className={`text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-2xl shadow-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    {/* User info */}
+                    <div className="px-4 py-2 border-b border-gray-100 dark:border-neutral-800">
+                      <p className="text-xs text-gray-500 dark:text-gray-500">Signed in as</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {user?.emailId || 'user@email.com'}
+                      </p>
+                    </div>
+
+                    {/* Links */}
+                    <div className="py-1">
+                      {[
+                        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+                        { to: '/problems', icon: ListChecks, label: 'Problems' },
+                        { to: '/bookmarks', icon: Bookmark, label: 'Saved Problems' },
+                        { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+                        { to: '/contests', icon: Swords, label: 'Contests' },
+                        { to: '/study-plans', icon: BookOpen, label: 'Study Plans' },
+                        { to: '/profile', icon: UserCircle, label: 'Profile' },
+                      ].map(({ to, icon: Icon, label }) => (
+                        <Link
+                          key={to}
+                          to={to}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+                        >
+                          <Icon size={16} className="text-gray-400 dark:text-gray-500" />
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Logout */}
+                    <div className="border-t border-gray-100 dark:border-neutral-800 pt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-500/10 w-full transition-colors"
+                      >
+                        <LogOut size={16} />
+                        Log Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile menu toggle */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+              >
+                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </>
+          ) : (
+            /* Not authenticated */
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/signup"
+                className="px-5 py-2 rounded-full text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                Start
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
-      {isAuthenticated ? (
-        <div className="flex-none flex items-center gap-4 md:gap-8">
-          {/* Navigation Links */}
-          <div className="flex items-center gap-1 md:gap-2">
-          <Link
-            to="/"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
-          >
-            <Home size={16} />
-            <span className="hidden sm:inline">Home</span>
-          </Link>
-
-          <Link
-            to="/problems"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/problems') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
-          >
-            <ListChecks size={16} />
-            <span className="hidden sm:inline">Problems</span>
-          </Link>
-
-          <Link
-            to="/dashboard"
-            className={`btn btn-sm btn-ghost gap-2 ${isActive('/dashboard') ? 'text-orange-500' : 'text-gray-700 dark:text-gray-300 hover:text-white'}`}
-          >
-            <LayoutDashboard size={16} />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Link>
-
-          {user?.role === 'admin' && (
-            <Link to="/admin" className="btn btn-sm btn-outline btn-warning gap-2">
-              <ShieldAlert size={16} />
-              <span className="hidden sm:inline">Admin</span>
-            </Link>
-          )}
-          </div>
-
-          {/* Theme & User Actions */}
-          <div className="flex items-center gap-2 md:gap-4">
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="btn btn-sm btn-ghost btn-circle"
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? (
-              <Sun size={18} className="text-yellow-400" />
-            ) : (
-              <Moon size={18} className="text-blue-400" />
+      {/* Mobile nav — slides down */}
+      {isAuthenticated && mobileOpen && (
+        <div className="md:hidden mt-2 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-2xl px-4 py-3 shadow-sm transition-colors duration-300">
+          <div className="flex flex-col gap-1">
+            {navLinks.map(({ path, label }) => (
+              <Link
+                key={path}
+                to={path}
+                onClick={() => setMobileOpen(false)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                  isActive(path)
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-800'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+            {user?.role === 'admin' && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-1000/10 transition-colors"
+              >
+                <ShieldAlert size={14} />
+                Admin Panel
+              </Link>
             )}
-          </button>
-
-          {/* User Dropdown */}
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle hover:bg-transparent">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-purple-500 flex items-center justify-center text-white shadow-md border border-gray-200 dark:border-gray-700 hover:scale-105 transition-transform">
-                <span className="text-xl font-bold">{user?.firstName?.[0]?.toUpperCase() || 'U'}</span>
-              </div>
-            </label>
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-gray-100 dark:bg-gray-800 rounded-box w-56 border border-gray-300 dark:border-gray-700">
-              <li className="menu-title px-4 py-2">
-                <span className="text-gray-600 dark:text-gray-400 text-xs">Signed in as</span>
-                <span className="text-white font-medium truncate">{user?.emailId || 'user@email.com'}</span>
-              </li>
-              <div className="divider my-1"></div>
-              <li>
-                <Link to="/dashboard" className="hover:bg-gray-700">
-                  <LayoutDashboard size={16} />
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/problems" className="hover:bg-gray-700">
-                  <ListChecks size={16} />
-                  Problems
-                </Link>
-              </li>
-              <li>
-                <Link to="/bookmarks" className="hover:bg-gray-700">
-                  <Bookmark size={16} />
-                  Saved Problems
-                </Link>
-              </li>
-              <li>
-                <Link to="/leaderboard" className="hover:bg-gray-700">
-                  <Trophy size={16} />
-                  Leaderboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/contests" className="hover:bg-gray-700">
-                  <Swords size={16} />
-                  Contests
-                </Link>
-              </li>
-              <li>
-                <Link to="/study-plans" className="hover:bg-gray-700">
-                  <BookOpen size={16} />
-                  Study Plans
-                </Link>
-              </li>
-              <li>
-                <Link to="/profile" className="justify-between hover:bg-gray-700">
-                  <span className="flex items-center gap-2">
-                    <UserCircle size={16} />
-                    Profile
-                  </span>
-                  <span className="badge badge-sm badge-primary">{user?.role}</span>
-                </Link>
-              </li>
-              <div className="divider my-1"></div>
-              <li>
-                <a onClick={handleLogout} className="text-red-400 hover:bg-gray-700 hover:text-red-300">
-                  <LogOut size={16} />
-                  Log Out
-                </a>
-              </li>
-            </ul>
           </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex-none flex items-center gap-3 md:gap-4">
-          {/* Theme Toggle for non-auth users */}
-          <button
-            onClick={toggleTheme}
-            className="btn btn-sm btn-ghost btn-circle"
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? (
-              <Sun size={18} className="text-yellow-400" />
-            ) : (
-              <Moon size={18} className="text-blue-400" />
-            )}
-          </button>
-          <Link to="/login" className="btn btn-sm btn-ghost text-gray-700 dark:text-gray-300 hover:text-white">
-            Log In
-          </Link>
-          <Link to="/signup" className="btn btn-sm bg-orange-500 hover:bg-orange-600 text-white border-none">
-            Sign Up
-          </Link>
         </div>
       )}
-    </div>
+    </nav>
   );
 };
 

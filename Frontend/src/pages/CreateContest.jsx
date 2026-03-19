@@ -98,7 +98,7 @@ const CreateContest = () => {
               <button 
                 type="submit"
                 disabled={loading}
-                className="btn bg-orange-500 hover:bg-orange-600 text-white border-none gap-2"
+                className="btn bg-gray-700 hover:bg-gray-800 text-white border-none gap-2"
               >
                 {loading ? <span className="loading loading-spinner"></span> : <Save size={18} />}
                 Create Contest
@@ -113,10 +113,10 @@ const CreateContest = () => {
                 </label>
                 <input 
                   {...register("title", { required: "Title is required" })}
-                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500" 
+                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-gray-400 focus:ring-1 focus:ring-gray-500" 
                   placeholder="e.g. Weekly Weekly Coding Challenge #1" 
                 />
-                {errors.title && <span className="text-red-400 text-sm mt-1">{errors.title.message}</span>}
+                {errors.title && <span className="text-gray-400 text-sm mt-1">{errors.title.message}</span>}
               </div>
 
               {/* Description */}
@@ -126,7 +126,7 @@ const CreateContest = () => {
                 </label>
                 <textarea 
                   {...register("description")}
-                  className="textarea textarea-bordered w-full h-24 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-1 focus:ring-orange-500" 
+                  className="textarea textarea-bordered w-full h-24 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-gray-400 focus:ring-1 focus:ring-gray-500" 
                   placeholder="Describe the rules or theme..."
                 />
               </div>
@@ -139,9 +139,9 @@ const CreateContest = () => {
                 <input 
                   type="datetime-local"
                   {...register("startTime", { required: "Start time is required" })}
-                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-orange-500" 
+                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-gray-400" 
                 />
-                {errors.startTime && <span className="text-red-400 text-sm mt-1">{errors.startTime.message}</span>}
+                {errors.startTime && <span className="text-gray-400 text-sm mt-1">{errors.startTime.message}</span>}
               </div>
 
               {/* End Time */}
@@ -152,9 +152,9 @@ const CreateContest = () => {
                 <input 
                   type="datetime-local"
                   {...register("endTime", { required: "End time is required" })}
-                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-orange-500" 
+                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-gray-400" 
                 />
-                {errors.endTime && <span className="text-red-400 text-sm mt-1">{errors.endTime.message}</span>}
+                {errors.endTime && <span className="text-gray-400 text-sm mt-1">{errors.endTime.message}</span>}
               </div>
 
               {/* Duration */}
@@ -166,10 +166,10 @@ const CreateContest = () => {
                   type="number"
                   min="1"
                   {...register("duration", { required: "Duration is required", min: 1 })}
-                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-orange-500" 
+                  className="input input-bordered w-full bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 focus:border-gray-400" 
                   placeholder="120"
                 />
-                {errors.duration && <span className="text-red-400 text-sm mt-1">{errors.duration.message}</span>}
+                {errors.duration && <span className="text-gray-400 text-sm mt-1">{errors.duration.message}</span>}
               </div>
             </div>
 
@@ -189,7 +189,7 @@ const CreateContest = () => {
                         key={prob._id} 
                         className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors border ${
                           selectedProblems.includes(prob._id) 
-                            ? 'bg-orange-500/10 border-orange-500/50 dark:bg-orange-500/20' 
+                            ? 'bg-gray-200 border-gray-500 dark:bg-gray-200' 
                             : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       >

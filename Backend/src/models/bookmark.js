@@ -8,7 +8,7 @@ const bookmarkSchema = new mongoose.Schema({
     },
     problemId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'problem',
+        ref: 'Problem',
         required: true
     }
 }, {

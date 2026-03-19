@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const discussionSchema = new mongoose.Schema({
     problemId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'problem',
-        required: true
+        ref: 'Problem',
+        required: false
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,6 +25,15 @@ const discussionSchema = new mongoose.Schema({
         type: String,
         enum: ['solution', 'question', 'approach', 'optimization', 'bug', 'other']
     }],
+    category: {
+        type: String,
+        enum: ['General', 'Interview Experience', 'Career Advice', 'Feedback', 'Problem Solving'],
+        default: 'General'
+    },
+    isGlobal: {
+        type: Boolean,
+        default: false
+    },
     upvotes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'

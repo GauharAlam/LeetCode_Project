@@ -66,7 +66,7 @@ const AdminDashboard = () => {
               <Plus size={20} /> Create Problem
             </Link>
           ) : (
-            <Link to="/admin/contest/create" className="btn bg-orange-500 hover:bg-orange-600 text-white border-none gap-2">
+            <Link to="/admin/contest/create" className="btn bg-gray-700 hover:bg-gray-800 text-white border-none gap-2">
               <Plus size={20} /> Create Contest
             </Link>
           )}
@@ -132,14 +132,14 @@ const AdminDashboard = () => {
                     <td className="flex justify-end gap-2">
                       <button 
                         onClick={() => navigate(`/admin/edit/${prob._id}`)}
-                        className="btn btn-sm btn-ghost text-blue-400 hover:bg-blue-900/20"
+                        className="btn btn-sm btn-ghost text-gray-400 hover:bg-gray-200 dark:bg-neutral-800"
                         title="Edit Problem"
                       >
                         <Edit size={18} />
                       </button>
                       <button 
                         onClick={() => handleDelete(prob._id)}
-                        className="btn btn-sm btn-ghost text-red-400 hover:bg-red-900/20"
+                        className="btn btn-sm btn-ghost text-gray-400 hover:bg-gray-200"
                         title="Delete Problem"
                       >
                         <Trash2 size={18} />
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden mb-8">
             <div className="p-4 bg-gray-100/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                <span className="badge bg-orange-500 text-white border-none">{contests.length}</span> Total Contests
+                <span className="badge bg-gray-700 text-white border-none">{contests.length}</span> Total Contests
               </h2>
             </div>
             <div className="overflow-x-auto">
