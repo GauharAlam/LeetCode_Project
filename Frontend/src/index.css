@@ -1,3 +1,38 @@
 @import "tailwindcss";
 @plugin "daisyui";
 @custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-primary: #000000;
+    --color-secondary: #4b5563;
+    --color-accent: #000000;
+    --color-neutral: #374151;
+    --color-base-100: #ffffff;
+    --color-info: #3b82f6;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+  }
+
+  .dark {
+    --color-base-100: #000000;
+    --color-base-content: #ffffff;
+    --color-neutral: #171717;
+  }
+}
+
+/* Global Monochrome Overrides */
+* {
+    border-color: rgba(128, 128, 128, 0.2) !important;
+}
+
+::selection {
+    background: #000000;
+    color: #ffffff;
+}
+
+.dark ::selection {
+    background: #ffffff;
+    color: #000000;
+}
