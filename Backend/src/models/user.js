@@ -43,7 +43,19 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: function() {
+            return !this.googleId && !this.githubId;
+        }
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    githubId: {
+        type: String,
+        unique: true,
+        sparse: true
     },
     // Verification
     isVerified: {
