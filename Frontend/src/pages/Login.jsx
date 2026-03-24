@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser, clearError } from "../authSlice";
+import { BASE_URL } from '../utils/axiosClient';
 
 const LoginSchema = z.object({
     emailId: z.email("Invalid email address"),
@@ -119,7 +120,7 @@ function Login() {
                     <div className="flex gap-4">
                         <button
                             type="button"
-                            onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL || 'https://algoforge-30zk.onrender.com'}/user/auth/google`}
+                            onClick={() => window.location.href = `${BASE_URL}/user/auth/google`}
                             className="btn flex-1 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -132,7 +133,7 @@ function Login() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL || 'https://algoforge-30zk.onrender.com'}/user/auth/github`}
+                            onClick={() => window.location.href = `${BASE_URL}/user/auth/github`}
                             className="btn flex-1 bg-gray-900 hover:bg-black border-none text-white"
                         >
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

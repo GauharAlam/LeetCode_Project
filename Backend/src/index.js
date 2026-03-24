@@ -39,13 +39,13 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(passport.initialize());
+
 app.use("/user", authRouter);
 app.use("/problem", problemRouter);
 app.use("/submission", submitRouter);
 app.use("/study-plan", studyPlanRouter);
 app.use("/user/auth", socialAuthRouter);
-
-app.use(passport.initialize());
 
 // Keep-alive ping endpoint for cron-job.org
 app.get("/ping", (req, res) => {
