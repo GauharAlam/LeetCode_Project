@@ -10,8 +10,21 @@ const studyPlanRouter = require("./routes/studyPlan");
 const socialAuthRouter = require("./routes/socialAuth");
 const passport = require('./config/passport');
 const cors = require("cors");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const rateLimit = require("express-rate-limit");
 
-app.use(cookieParser());
+// Security headers
+app.use(helmet());
+
+// Rate limiter for auth routes (15 requests per 15 minutes)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    message: { message: "Too many requests, please try again after 15 minutes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 const corsOptions = {
     origin: (origin, callback) => {
@@ -36,12 +49,13 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use(cookieParser());
+app.use(mongoSanitize());
 app.use(passport.initialize());
 
-app.use("/user", authRouter);
+// Apply rate limiter to auth routes
+app.use("/user", authLimiter, authRouter);
 app.use("/problem", problemRouter);
 app.use("/submission", submitRouter);
 app.use("/study-plan", studyPlanRouter);
@@ -50,6 +64,17 @@ app.use("/user/auth", socialAuthRouter);
 // Keep-alive ping endpoint for cron-job.org
 app.get("/ping", (req, res) => {
     res.status(200).send("pong");
+});
+
+// 404 handler for unknown routes
+app.use((req, res) => {
+    res.status(404).json({ message: "Route not found" });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error("Unhandled error:", err.message);
+    res.status(500).json({ message: "Internal server error" });
 });
 
 const InitializeConnection = async () => {

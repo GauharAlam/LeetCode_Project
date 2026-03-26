@@ -73,7 +73,7 @@ const CreateContest = () => {
         <div className="flex items-center gap-4 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
           <button 
             onClick={() => navigate('/admin')}
-            className="btn btn-circle btn-ghost text-gray-500 hover:text-white hover:bg-gray-800"
+            className="btn btn-circle btn-ghost text-gray-500 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeft size={24} />
           </button>
@@ -98,7 +98,7 @@ const CreateContest = () => {
               <button 
                 type="submit"
                 disabled={loading}
-                className="btn bg-gray-700 hover:bg-gray-800 text-white border-none gap-2"
+                className="btn bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 border-none gap-2"
               >
                 {loading ? <span className="loading loading-spinner"></span> : <Save size={18} />}
                 Create Contest
@@ -189,7 +189,7 @@ const CreateContest = () => {
                         key={prob._id} 
                         className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors border ${
                           selectedProblems.includes(prob._id) 
-                            ? 'bg-gray-200 border-gray-500 dark:bg-gray-200' 
+                            ? 'bg-gray-100 border-gray-400 dark:bg-neutral-800 dark:border-neutral-600' 
                             : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       >

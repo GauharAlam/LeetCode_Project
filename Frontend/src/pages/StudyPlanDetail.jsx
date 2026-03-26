@@ -103,7 +103,7 @@ const StudyPlanDetail = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#0d1117]">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117]">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
                     <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
@@ -114,7 +114,7 @@ const StudyPlanDetail = () => {
 
     if (error || !plan) {
         return (
-            <div className="min-h-screen bg-[#0d1117]">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117]">
                 <Navbar />
                 <div className="flex flex-col items-center justify-center h-[80vh] gap-4">
                     <p className="text-gray-400 text-lg">{error || "Plan not found"}</p>
@@ -130,29 +130,29 @@ const StudyPlanDetail = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-gray-300">
+        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
             <Navbar />
 
             <main className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/study-plans')}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
+                    className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:text-white transition-colors mb-6"
                 >
                     <ArrowLeft size={18} />
                     <span>Back to Study Plans</span>
                 </button>
 
                 {/* Plan Header */}
-                <div className="bg-[#161b22] rounded-2xl border border-gray-800 p-8 mb-6">
+                <div className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-800 p-8 mb-6">
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                         <div className="flex-1">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className={`p-3 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800`}>
-                                    <BookOpen className="text-gray-900 dark:text-white" size={28} />
+                                    <BookOpen className="text-gray-900 dark:text-gray-900 dark:text-white" size={28} />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-white">{plan.name}</h1>
+                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{plan.name}</h1>
                                     {plan.isOfficial && (
                                         <span className="text-xs bg-gray-200 text-gray-400 px-2 py-0.5 rounded-full border border-gray-300/30">
                                             Official
@@ -195,7 +195,7 @@ const StudyPlanDetail = () => {
                         {/* Enrollment / Progress Section */}
                         <div className="md:w-64 shrink-0">
                             {plan.isEnrolled ? (
-                                <div className="bg-[#0d1117] rounded-xl p-5 border border-gray-800">
+                                <div className="bg-gray-50 dark:bg-[#0d1117] rounded-xl p-5 border border-gray-800">
                                     {/* Progress circle */}
                                     <div className="flex items-center justify-center mb-4">
                                         <div className="relative w-28 h-28">
@@ -219,7 +219,7 @@ const StudyPlanDetail = () => {
                                                 </defs>
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-2xl font-bold text-white">{progressPercent}%</span>
+                                                <span className="text-2xl font-bold text-gray-900 dark:text-white">{progressPercent}%</span>
                                                 <span className="text-xs text-gray-500">complete</span>
                                             </div>
                                         </div>
@@ -227,7 +227,7 @@ const StudyPlanDetail = () => {
 
                                     <div className="text-center mb-3">
                                         <p className="text-sm text-gray-400">
-                                            <span className="text-white font-semibold">{plan.solvedCount}</span> / {plan.totalProblems} solved
+                                            <span className="text-gray-900 dark:text-white font-semibold">{plan.solvedCount}</span> / {plan.totalProblems} solved
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
                                             Day {plan.currentDay} of {plan.duration}
@@ -254,7 +254,7 @@ const StudyPlanDetail = () => {
                                 <button
                                     onClick={handleEnroll}
                                     disabled={enrolling}
-                                    className="w-full btn bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-none text-lg py-3 hover:bg-black dark:hover:bg-gray-200 transition-all font-semibold rounded-xl"
+                                    className="w-full btn bg-gray-900 dark:bg-white text-gray-900 dark:text-white dark:text-gray-900 border-none text-lg py-3 hover:bg-black dark:hover:bg-gray-200 transition-all font-semibold rounded-xl"
                                 >
                                     {enrolling ? (
                                         <Loader2 className="animate-spin" size={20} />
@@ -271,7 +271,7 @@ const StudyPlanDetail = () => {
 
                 {/* Day-wise Problem List */}
                 <div className="space-y-3">
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <BookOpen size={20} className="text-gray-400" /> 
                         Plan Schedule
                     </h2>
@@ -287,7 +287,7 @@ const StudyPlanDetail = () => {
                             return (
                                 <div
                                     key={dayIndex}
-                                    className={`bg-[#161b22] rounded-xl border transition-all ${
+                                    className={`bg-white dark:bg-[#161b22] rounded-xl border transition-all ${
                                         isCurrentDay
                                             ? 'border-gray-400 dark:border-gray-500 shadow-md'
                                             : isDayComplete
@@ -305,13 +305,13 @@ const StudyPlanDetail = () => {
                                                 <CheckCircle2 className="text-gray-400 shrink-0" size={22} />
                                             ) : isCurrentDay ? (
                                                 <div className="w-[22px] h-[22px] rounded-full bg-gray-700 flex items-center justify-center shrink-0">
-                                                    <Play className="text-white" size={12} />
+                                                    <Play className="text-gray-900 dark:text-white" size={12} />
                                                 </div>
                                             ) : (
                                                 <Circle className="text-gray-600 shrink-0" size={22} />
                                             )}
                                             <div className="text-left">
-                                                <span className="font-semibold text-white">
+                                                <span className="font-semibold text-gray-900 dark:text-white">
                                                     Day {day.dayNumber}
                                                 </span>
                                                 {day.title && (
@@ -356,7 +356,7 @@ const StudyPlanDetail = () => {
                                                                 ) : (
                                                                     <Circle className="text-gray-600 shrink-0" size={18} />
                                                                 )}
-                                                                <span className={`font-medium ${solved ? 'text-gray-400 line-through' : 'text-white'}`}>
+                                                                <span className={`font-medium ${solved ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
                                                                     {problem.title || 'Untitled Problem'}
                                                                 </span>
                                                             </div>
@@ -387,7 +387,7 @@ const StudyPlanDetail = () => {
                             );
                         })
                     ) : (
-                        <div className="bg-[#161b22] rounded-xl border border-gray-800 p-8 text-center">
+                        <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-8 text-center">
                             <BookOpen className="mx-auto text-gray-600 mb-3" size={40} />
                             <p className="text-gray-500">No schedule has been created for this plan yet.</p>
                             <p className="text-gray-600 text-sm mt-1">Problems will be added by the plan creator.</p>

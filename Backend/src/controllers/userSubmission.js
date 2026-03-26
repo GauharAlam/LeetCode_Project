@@ -187,4 +187,18 @@ const runCode = async(req, res)=>{
   }
 }
 
-module.exports = {submitCode,runCode};
+const getAllSubmissions = async (req, res) => {
+  try {
+    const userId = req.result._id;
+
+    const submissions = await Submission.find({ userId })
+      .populate('problemId', 'title difficulty')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(submissions);
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
+};
+
+module.exports = { submitCode, runCode, getAllSubmissions };

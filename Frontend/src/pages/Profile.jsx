@@ -81,7 +81,7 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
                     <span className="loading loading-spinner loading-lg text-gray-500"></span>
@@ -92,7 +92,7 @@ const Profile = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
                     <p className="text-gray-400">{error}</p>
@@ -113,16 +113,16 @@ const Profile = () => {
                     value={editData[field] || ''}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                     placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-                    className="w-full bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-gray-400 transition-colors"
+                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 transition-colors"
                 />
             ) : (
-                <p className="text-white">{value || 'N/A'}</p>
+                <p className="text-gray-900 dark:text-white">{value || 'N/A'}</p>
             )}
         </div>
     );
 
     const SocialField = ({ label, value, icon: Icon, field, placeholder }) => (
-        <div className="flex items-center gap-4 p-3 bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
+        <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                 <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
@@ -134,30 +134,30 @@ const Profile = () => {
                         value={editData[field] || ''}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         placeholder={placeholder || `Enter ${label} URL`}
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-1 text-white focus:outline-none focus:border-gray-400 transition-colors text-sm"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-1 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 transition-colors text-sm"
                     />
                 ) : (
-                    <p className="text-white text-sm truncate">{value || 'N/A'}</p>
+                    <p className="text-gray-900 dark:text-white text-sm truncate">{value || 'N/A'}</p>
                 )}
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
+        <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">My Profile</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Profile</h1>
                         <p className="text-gray-500 mt-1">Manage your account and settings</p>
                     </div>
                     {!isEditing ? (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
                         >
                             <Edit3 className="w-4 h-4" />
                             Edit
@@ -166,7 +166,7 @@ const Profile = () => {
                         <div className="flex gap-2">
                             <button
                                 onClick={handleCancel}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
                             >
                                 <X className="w-4 h-4" />
                                 Cancel
@@ -174,7 +174,7 @@ const Profile = () => {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
                             >
                                 {saving ? (
                                     <span className="loading loading-spinner loading-sm"></span>
@@ -188,10 +188,10 @@ const Profile = () => {
                 </div>
 
                 {/* Profile Card */}
-                <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
+                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
                     <div className="flex items-center gap-6">
                         {/* Avatar */}
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-gray-900 dark:text-white text-4xl font-bold">
                             {profile?.firstName?.[0]?.toUpperCase() || 'U'}
                         </div>
 
@@ -205,18 +205,18 @@ const Profile = () => {
                                             value={editData.firstName || ''}
                                             onChange={(e) => handleInputChange('firstName', e.target.value)}
                                             placeholder="First Name"
-                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-gray-400"
+                                            className="bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-gray-900 dark:text-white text-xl font-bold focus:outline-none focus:border-gray-400"
                                         />
                                         <input
                                             type="text"
                                             value={editData.lastName || ''}
                                             onChange={(e) => handleInputChange('lastName', e.target.value)}
                                             placeholder="Last Name"
-                                            className="bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-white text-xl font-bold focus:outline-none focus:border-gray-400"
+                                            className="bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-gray-900 dark:text-white text-xl font-bold focus:outline-none focus:border-gray-400"
                                         />
                                     </div>
                                 ) : (
-                                    <h2 className="text-2xl font-bold text-white">
+                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                                         {profile?.firstName} {profile?.lastName}
                                     </h2>
                                 )}
@@ -234,8 +234,8 @@ const Profile = () => {
                 </div>
 
                 {/* Personal Information */}
-                <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
-                    <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                         <User className="w-5 h-5 text-gray-400" />
                         Personal Information
                     </h3>
@@ -277,8 +277,8 @@ const Profile = () => {
                 </div>
 
                 {/* Social Information */}
-                <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                         <Globe className="w-5 h-5 text-gray-400" />
                         Social Information
                     </h3>

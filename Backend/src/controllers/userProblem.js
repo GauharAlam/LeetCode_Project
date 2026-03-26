@@ -165,13 +165,26 @@ const getProblemById = async (req, res) => {
 const getAllProblem = async (req, res) => {
 
   try {
-    const allProbem = await Problem.find({}).select('_id title difficulty tags');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
-    if (allProbem.length === 0) {
+    const total = await Problem.countDocuments({});
+    const problems = await Problem.find({})
+      .select('_id title difficulty tags companies')
+      .skip(skip)
+      .limit(limit);
+
+    if (problems.length === 0 && page === 1) {
       return res.status(404).send("Problems is Missing");
     }
 
-    res.status(200).send(allProbem);
+    res.status(200).json({
+      problems,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
   }
   catch (err) {
     res.status(500).send("Error" + err);

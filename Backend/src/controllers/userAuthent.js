@@ -3,7 +3,7 @@ const User = require("../models/user")
 const Validate = require("../utils/Validator")
 const bcrypt = require("bcrypt")
 const jwt = require('jsonwebtoken');
-const { blockToken } = require("../utils/tokenBlocklist");
+const { blockToken, isTokenBlocked } = require("../utils/tokenBlocklist");
 const Submission = require("../models/submission");
 const sendEmail = require("../utils/sendEmail");
 
@@ -135,14 +135,26 @@ const login = async (req, res) => {
             role: user.role
         }
 
-        const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        // Access token - 1 hour
+        const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '1h' });
+
+        // Refresh token - 7 days
+        const refreshToken = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '7d' });
 
         res.cookie('token', token, {
             maxAge: 60 * 60 * 1000,
             httpOnly: true,
-            secure: true, // Required for sameSite: 'none'
-            sameSite: 'none' // Allows cross-site cookie sharing between Netlify and Render
+            secure: true,
+            sameSite: 'none'
         });
+
+        res.cookie('refreshToken', refreshToken, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+
         res.status(200).json({
             user: reply,
             message: "Login Succesfully"
@@ -153,17 +165,82 @@ const login = async (req, res) => {
     }
 }
 
+// Refresh Token - issues a new access token using the refresh token
+const refreshAccessToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.cookies;
+
+        if (!refreshToken) {
+            return res.status(401).json({ message: "No refresh token provided" });
+        }
+
+        // Check if refresh token is blocked
+        const isBlocked = await isTokenBlocked(refreshToken);
+        if (isBlocked) {
+            return res.status(401).json({ message: "Refresh token is invalid" });
+        }
+
+        const payload = jwt.verify(refreshToken, process.env.JWT_KEY);
+
+        const user = await User.findById(payload._id);
+        if (!user) {
+            return res.status(401).json({ message: "User not found" });
+        }
+
+        // Issue new access token
+        const newToken = jwt.sign(
+            { _id: user._id, emailId: user.emailId, role: user.role },
+            process.env.JWT_KEY,
+            { expiresIn: '1h' }
+        );
+
+        res.cookie('token', newToken, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+
+        res.status(200).json({
+            user: {
+                firstName: user.firstName,
+                emailId: user.emailId,
+                _id: user._id,
+                role: user.role
+            },
+            message: "Token refreshed"
+        });
+    } catch (err) {
+        res.status(401).json({ message: "Invalid or expired refresh token" });
+    }
+}
+
+
 // Logout api
 
 const logout = async (req, res) => {
 
     try {
-        const { token } = req.cookies;
+        const { token, refreshToken } = req.cookies;
         const payload = jwt.decode(token);
 
         await blockToken(token, payload.exp);
 
+        // Also block the refresh token
+        if (refreshToken) {
+            const refreshPayload = jwt.decode(refreshToken);
+            if (refreshPayload) {
+                await blockToken(refreshToken, refreshPayload.exp);
+            }
+        }
+
         res.cookie("token", null, { 
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+        res.cookie("refreshToken", null, { 
             expires: new Date(Date.now()),
             httpOnly: true,
             secure: true,
@@ -242,7 +319,7 @@ const verifyOtp = async (req, res) => {
             return res.status(400).json({ message: "Email is already verified" });
         }
 
-        if (user.otp !== otp && otp !== '000000') {
+        if (user.otp !== otp) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
 
@@ -358,7 +435,7 @@ const resetPassword = async (req, res) => {
         const user = await User.findOne({ emailId });
         if (!user) throw new Error("Invalid details");
 
-        if (user.otp !== otp && otp !== '000000') {
+        if (user.otp !== otp) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
 
@@ -378,4 +455,4 @@ const resetPassword = async (req, res) => {
     }
 };
 
-module.exports = { register, login, logout, adminRegister, deleteProfile, verifyOtp, resendOtp, forgotPassword, resetPassword };
+module.exports = { register, login, logout, adminRegister, deleteProfile, verifyOtp, resendOtp, forgotPassword, resetPassword, refreshAccessToken };

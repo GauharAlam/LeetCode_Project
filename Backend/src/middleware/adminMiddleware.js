@@ -37,7 +37,7 @@ const adminMiddleware = async(req , res , next)=>{
 
     }
     catch(err){
-        res.send("Error"+err);
+        res.status(401).json({ message: "Unauthorized: " + err.message });
     }
 }
 

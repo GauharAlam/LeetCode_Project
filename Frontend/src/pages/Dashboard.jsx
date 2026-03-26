@@ -111,7 +111,7 @@ const Dashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
                     <span className="loading loading-spinner loading-lg text-gray-500"></span>
@@ -122,7 +122,7 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
                     <p className="text-gray-400">{error}</p>
@@ -135,19 +135,19 @@ const Dashboard = () => {
     const heatmapData = generateHeatmapData();
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
+        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
             <Navbar />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
                         <p className="text-gray-500 mt-1">Track your coding progress</p>
                     </div>
-                    <div className="flex items-center gap-2 bg-[#161b22] px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center gap-2 bg-white dark:bg-[#161b22] px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
                         <Trophy className="w-5 h-5 text-gray-500" />
-                        <span className="text-white font-semibold">{stats.solved.total}</span>
+                        <span className="text-gray-900 dark:text-white font-semibold">{stats.solved.total}</span>
                         <span className="text-gray-500">problems solved</span>
                     </div>
                 </div>
@@ -159,8 +159,8 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
                     {/* Problem Solving Overview - Circular Progress */}
-                    <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <TrendingUp className="w-5 h-5 text-gray-400" />
                             Problem Solving Overview
                         </h2>
@@ -197,7 +197,7 @@ const Dashboard = () => {
                                     </defs>
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-bold text-white">{stats.solved.total}</span>
+                                    <span className="text-3xl font-bold text-gray-900 dark:text-white">{stats.solved.total}</span>
                                     <span className="text-sm text-gray-500">/ {stats.total.count}</span>
                                     <span className="text-xs text-gray-500">Solved</span>
                                 </div>
@@ -230,8 +230,8 @@ const Dashboard = () => {
                     </div>
 
                     {/* Languages Used */}
-                    <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <Code2 className="w-5 h-5 text-gray-400" />
                             Languages
                         </h2>
@@ -239,12 +239,12 @@ const Dashboard = () => {
                         {languageStats && languageStats.length > 0 ? (
                             <div className="space-y-4">
                                 {languageStats.map((lang) => (
-                                    <div key={lang._id} className="flex items-center justify-between p-3 bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
+                                    <div key={lang._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
                                                 <Code2 className="w-5 h-5 text-gray-400" />
                                             </div>
-                                            <span className="font-medium text-white capitalize">{lang._id}</span>
+                                            <span className="font-medium text-gray-900 dark:text-white capitalize">{lang._id}</span>
                                         </div>
                                         <span className="text-gray-600 dark:text-gray-400">{lang.count} submissions</span>
                                     </div>
@@ -259,26 +259,26 @@ const Dashboard = () => {
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <Flame className="w-5 h-5 text-gray-400" />
                             Quick Stats
                         </h2>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
                                 <div className="text-2xl font-bold text-gray-400">{stats.solved.easy}</div>
                                 <div className="text-sm text-gray-500">Easy Solved</div>
                             </div>
-                            <div className="bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
                                 <div className="text-2xl font-bold text-gray-400">{stats.solved.medium}</div>
                                 <div className="text-sm text-gray-500">Medium Solved</div>
                             </div>
-                            <div className="bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
                                 <div className="text-2xl font-bold text-gray-400">{stats.solved.hard}</div>
                                 <div className="text-sm text-gray-500">Hard Solved</div>
                             </div>
-                            <div className="bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
                                 <div className="text-2xl font-bold text-gray-400">{getProgress()}%</div>
                                 <div className="text-sm text-gray-500">Completion</div>
                             </div>
@@ -287,9 +287,9 @@ const Dashboard = () => {
                 </div>
 
                 {/* Submissions Heatmap */}
-                <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-8">
+                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-8">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-gray-400" />
                             {new Date().getFullYear()} Submissions
                         </h2>
@@ -327,8 +327,8 @@ const Dashboard = () => {
                 </div>
 
                 {/* Recent Submissions */}
-                <div className="bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                    <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                         <Clock className="w-5 h-5 text-gray-400" />
                         Recent Submissions
                     </h2>
@@ -347,7 +347,7 @@ const Dashboard = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-800">
                                     {recentSubmissions.map((sub) => (
-                                        <tr key={sub._id} className="hover:bg-[#0d1117] transition-colors">
+                                        <tr key={sub._id} className="hover:bg-gray-50 dark:bg-[#0d1117] transition-colors">
                                             <td className="py-3">
                                                 <button
                                                     onClick={() => navigate(`/problem/${sub.problem?._id}`)}

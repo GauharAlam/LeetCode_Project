@@ -6,7 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   LogOut, ShieldAlert, LayoutDashboard, UserCircle,
   ListChecks, Sun, Moon, Bookmark, Trophy, BookOpen,
-  Swords, Menu, X, ChevronDown
+  Swords, Menu, X, ChevronDown, FileCode2
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -85,7 +85,7 @@ const Navbar = () => {
               {user?.role === 'admin' && (
                 <Link
                   to="/admin"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-1000/10 transition-colors"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800/20 transition-colors"
                 >
                   <ShieldAlert size={14} />
                   Admin
@@ -100,7 +100,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
-                    <span className="text-sm font-bold text-white dark:text-gray-900">
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
                       {user?.firstName?.[0]?.toUpperCase() || 'U'}
                     </span>
                   </div>
@@ -126,6 +126,7 @@ const Navbar = () => {
                         { to: '/bookmarks', icon: Bookmark, label: 'Saved Problems' },
                         { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
                         { to: '/contests', icon: Swords, label: 'Contests' },
+                        { to: '/submissions', icon: FileCode2, label: 'Submissions' },
                         { to: '/study-plans', icon: BookOpen, label: 'Study Plans' },
                         { to: '/profile', icon: UserCircle, label: 'Profile' },
                       ].map(({ to, icon: Icon, label }) => (
@@ -204,7 +205,7 @@ const Navbar = () => {
               <Link
                 to="/admin"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-1000/10 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800/20 transition-colors"
               >
                 <ShieldAlert size={14} />
                 Admin Panel

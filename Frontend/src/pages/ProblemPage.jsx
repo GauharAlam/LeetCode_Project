@@ -348,9 +348,9 @@ const ProblemPage = () => {
 
   const getDifficultyColor = (diff) => {
     switch (diff) {
-      case 'easy': return 'text-gray-500 bg-gray-200 border-gray-300';
-      case 'medium': return 'text-gray-500 bg-gray-1000/10 border-gray-400';
-      case 'hard': return 'text-gray-500 bg-gray-1000/10 border-gray-400';
+      case 'easy': return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20';
+      case 'medium': return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20';
+      case 'hard': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20';
       default: return 'text-gray-500 bg-gray-500/10';
     }
   };
@@ -479,7 +479,7 @@ const ProblemPage = () => {
                       disabled={bookmarkLoading}
                       className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors border ${
                         isBookmarked
-                          ? 'bg-gray-100 dark:bg-gray-1000/10 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-400'
+                          ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/50'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                     >
@@ -970,7 +970,7 @@ const ProblemPage = () => {
                   ) : output ? (
                     <div className="space-y-3">
                       {output.type === 'error' && (
-                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-1000/10 border border-gray-300 dark:border-gray-400">
+                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-neutral-900/10 border border-gray-300 dark:border-gray-400">
                           <h3 className="font-semibold text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
                             <AlertCircle size={14} /> Error
                           </h3>
@@ -988,7 +988,7 @@ const ProblemPage = () => {
                                 className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                                   res.status.id === 3
                                     ? 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-200'
-                                    : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-1000/10'
+                                    : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-neutral-900/10'
                                 } ${activeCase === idx ? 'ring-1 ring-gray-300 dark:ring-gray-600' : ''}`}
                               >
                                 Case {idx + 1}

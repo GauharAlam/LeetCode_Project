@@ -90,7 +90,7 @@ function ForgotPassword() {
         {step === 1 && (
           <form
             onSubmit={handleEmailSubmit(onEmailSubmit)}
-            className="bg-gray-100 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-6 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-6 border border-gray-200 dark:border-gray-700"
           >
             <div className="text-center w-full">
               <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Reset Password</h2>
@@ -131,7 +131,7 @@ function ForgotPassword() {
         {step === 2 && (
           <form
             onSubmit={handleResetSubmit(onResetSubmit)}
-            className="bg-gray-100 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-5 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-5 border border-gray-200 dark:border-gray-700"
           >
             <div className="text-center w-full">
               <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">Create New Password</h2>

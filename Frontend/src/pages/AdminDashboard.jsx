@@ -58,7 +58,7 @@ const AdminDashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
             <p className="text-gray-500 mt-1">Manage coding problems and system settings</p>
           </div>
           {activeTab === 'problems' ? (
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                   <tr><td colSpan="4" className="text-center py-10 text-gray-500">No problems found. Create one!</td></tr>
                 ) : problems.map((prob) => (
                   <tr key={prob._id} className="hover:bg-gray-800/50 transition-colors">
-                    <td className="font-medium text-white text-lg">{prob.title}</td>
+                    <td className="font-medium text-gray-900 dark:text-white text-lg">{prob.title}</td>
                     <td>
                       <div className={`badge ${
                         prob.difficulty === 'hard' ? 'badge-error' : 
@@ -176,7 +176,7 @@ const AdminDashboard = () => {
                     <tr><td colSpan="5" className="text-center py-10 text-gray-500">No contests found. Create one!</td></tr>
                   ) : contests.map((contest) => (
                     <tr key={contest._id} className="hover:bg-gray-800/50 transition-colors">
-                      <td className="font-medium text-white text-lg">{contest.title}</td>
+                      <td className="font-medium text-gray-900 dark:text-white text-lg">{contest.title}</td>
                       <td>
                         <div className={`badge ${
                           contest.status === 'live' ? 'badge-error' : 

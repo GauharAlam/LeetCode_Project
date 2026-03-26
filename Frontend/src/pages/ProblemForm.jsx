@@ -106,7 +106,7 @@ const ProblemForm = () => {
           <button onClick={() => navigate('/admin')} className="btn btn-circle btn-ghost">
             <ArrowLeft />
           </button>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {isEditMode ? 'Edit Problem' : 'Create New Problem'}
           </h1>
         </div>

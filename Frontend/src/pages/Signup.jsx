@@ -81,7 +81,7 @@ function Signup() {
 
   if (requiresOtp) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-white p-4">
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white p-4">
         <form
           onSubmit={handleOtpSubmit(submittedOtp)}
           className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md flex flex-col items-center gap-6"
@@ -134,7 +134,7 @@ function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-gray-900 dark:text-white p-4">
       <form
         onSubmit={handleSignupSubmit(submittedData)}
         className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-sm flex flex-col items-center gap-6"

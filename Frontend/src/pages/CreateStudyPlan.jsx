@@ -156,14 +156,14 @@ const CreateStudyPlan = () => {
     const totalProblems = form.days.reduce((sum, d) => sum + d.problems.length, 0);
 
     return (
-        <div className="min-h-screen bg-[#0d1117] text-gray-300">
+        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/study-plans')}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
+                    className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:text-white transition-colors mb-6"
                 >
                     <ArrowLeft size={18} />
                     <span>Back to Study Plans</span>
@@ -175,15 +175,15 @@ const CreateStudyPlan = () => {
                         <BookOpen className="text-gray-400" size={28} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Create Study Plan</h1>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Study Plan</h1>
                         <p className="text-gray-500">Build a structured learning path</p>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Info Section */}
-                    <div className="bg-[#161b22] rounded-xl border border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-white mb-4">Basic Information</h2>
+                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
 
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
@@ -193,7 +193,7 @@ const CreateStudyPlan = () => {
                                     value={form.name}
                                     onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
                                     placeholder="e.g. 30 Days of Code"
-                                    className="w-full bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-gray-300 focus:outline-none transition-colors"
+                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none transition-colors"
                                     required
                                 />
                             </div>
@@ -205,7 +205,7 @@ const CreateStudyPlan = () => {
                                     onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
                                     placeholder="What will learners achieve with this plan?"
                                     rows={2}
-                                    className="w-full bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-gray-300 focus:outline-none transition-colors resize-none"
+                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none transition-colors resize-none"
                                     required
                                 />
                             </div>
@@ -215,7 +215,7 @@ const CreateStudyPlan = () => {
                                 <select
                                     value={form.difficulty}
                                     onChange={e => setForm(prev => ({ ...prev, difficulty: e.target.value }))}
-                                    className="w-full bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-gray-300 focus:outline-none"
+                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
                                 >
                                     <option value="easy">Easy</option>
                                     <option value="medium">Medium</option>
@@ -232,7 +232,7 @@ const CreateStudyPlan = () => {
                                     max="365"
                                     value={form.duration}
                                     onChange={e => setForm(prev => ({ ...prev, duration: e.target.value }))}
-                                    className="w-full bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-gray-300 focus:outline-none"
+                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
                                 />
                             </div>
 
@@ -243,7 +243,7 @@ const CreateStudyPlan = () => {
                                     value={form.topics}
                                     onChange={e => setForm(prev => ({ ...prev, topics: e.target.value }))}
                                     placeholder="e.g. Arrays, Strings, Dynamic Programming"
-                                    className="w-full bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-gray-300 focus:outline-none"
+                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
                                 />
                             </div>
 
@@ -279,10 +279,10 @@ const CreateStudyPlan = () => {
                     </div>
 
                     {/* Day Schedule Section */}
-                    <div className="bg-[#161b22] rounded-xl border border-gray-800 p-6">
+                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-6">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h2 className="text-lg font-semibold text-white">Schedule</h2>
+                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Schedule</h2>
                                 <p className="text-sm text-gray-500">{totalProblems} problems across {form.days.length} days</p>
                             </div>
                             <button
@@ -296,7 +296,7 @@ const CreateStudyPlan = () => {
 
                         <div className="space-y-4">
                             {form.days.map((day, dayIndex) => (
-                                <div key={dayIndex} className="bg-[#0d1117] rounded-xl border border-gray-800 p-4">
+                                <div key={dayIndex} className="bg-gray-50 dark:bg-[#0d1117] rounded-xl border border-gray-800 p-4">
                                     {/* Day Header */}
                                     <div className="flex items-center gap-3 mb-3">
                                         <span className="text-sm font-semibold text-gray-400 shrink-0">
@@ -307,7 +307,7 @@ const CreateStudyPlan = () => {
                                             value={day.title}
                                             onChange={e => updateDayTitle(dayIndex, e.target.value)}
                                             placeholder="Day title (optional)"
-                                            className="flex-1 bg-transparent border-b border-gray-800 px-2 py-1 text-white focus:border-gray-300 focus:outline-none text-sm"
+                                            className="flex-1 bg-transparent border-b border-gray-800 px-2 py-1 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none text-sm"
                                         />
                                         <button
                                             type="button"
@@ -334,7 +334,7 @@ const CreateStudyPlan = () => {
                                                 <div key={problem._id} className="flex items-center justify-between px-3 py-2 bg-gray-800/30 rounded-lg">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-xs text-gray-600">{pIdx + 1}.</span>
-                                                        <span className="text-sm text-white">{problem.title}</span>
+                                                        <span className="text-sm text-gray-900 dark:text-white">{problem.title}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-xs px-2 py-0.5 rounded border capitalize ${getDifficultyBadge(problem.difficulty)}`}>
@@ -366,13 +366,13 @@ const CreateStudyPlan = () => {
                                                         value={searchQuery}
                                                         onChange={e => setSearchQuery(e.target.value)}
                                                         placeholder="Search problems..."
-                                                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:border-gray-300 focus:outline-none"
+                                                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
                                                     />
                                                 </div>
                                                 <select
                                                     value={difficultyFilter}
                                                     onChange={e => setDifficultyFilter(e.target.value)}
-                                                    className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
+                                                    className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none"
                                                 >
                                                     <option value="all">All</option>
                                                     <option value="easy">Easy</option>
@@ -400,7 +400,7 @@ const CreateStudyPlan = () => {
                                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-colors ${
                                                                     isAdded
                                                                         ? 'bg-gray-600/5 text-gray-600 cursor-default'
-                                                                        : 'hover:bg-gray-800/50 text-white cursor-pointer'
+                                                                        : 'hover:bg-gray-800/50 text-gray-900 dark:text-white cursor-pointer'
                                                                 }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
@@ -445,7 +445,7 @@ const CreateStudyPlan = () => {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="btn bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none px-8 hover:opacity-90"
+                            className="btn bg-gradient-to-r from-purple-500 to-pink-500 text-gray-900 dark:text-white border-none px-8 hover:opacity-90"
                         >
                             {saving ? (
                                 <><Loader2 className="animate-spin" size={18} /> Creating...</>

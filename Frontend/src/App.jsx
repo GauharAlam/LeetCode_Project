@@ -23,6 +23,8 @@ import ContestsPage from "./pages/ContestsPage";
 import CreateContest from "./pages/CreateContest";
 import CommunityPage from "./pages/CommunityPage";
 import DiscussionDetail from "./pages/DiscussionDetail";
+import NotFound from "./pages/NotFound";
+import SubmissionsPage from "./pages/SubmissionsPage";
 
 // Guard Component for Admin Routes
 const AdminRoute = () => {
@@ -64,6 +66,7 @@ function App() {
       <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
       <Route path="/bookmarks" element={isAuthenticated ? <BookmarksPage /> : <Navigate to="/login" />} />
       <Route path="/leaderboard" element={isAuthenticated ? <LeaderboardPage /> : <Navigate to="/login" />} />
+      <Route path="/submissions" element={isAuthenticated ? <SubmissionsPage /> : <Navigate to="/login" />} />
       <Route path="/study-plans" element={isAuthenticated ? <StudyPlansPage /> : <Navigate to="/login" />} />
       <Route path="/study-plans/create" element={isAuthenticated ? <CreateStudyPlan /> : <Navigate to="/login" />} />
       <Route path="/study-plans/:planId" element={isAuthenticated ? <StudyPlanDetail /> : <Navigate to="/login" />} />
@@ -80,7 +83,7 @@ function App() {
       </Route>
 
       {/* Catch all - Redirects to Home */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

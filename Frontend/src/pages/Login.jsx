@@ -43,12 +43,12 @@ function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 text-white">
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">
             <form
                 onSubmit={handleSubmit(submittedData)}
                 className='bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96 flex flex-col items-center gap-6'
             >
-                <h2 className="text-3xl font-bold text-white">AlgoForge</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">AlgoForge</h2>
 
                 {/* Show Error Message if login fails */}
                 {error && <div className="alert alert-error text-sm py-2">{typeof error === 'string' ? error : 'Login failed'}</div>}
@@ -58,7 +58,7 @@ function Login() {
                     <input
                         type="email"
                         placeholder='nawaz@example.com'
-                        className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white'
+                        className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-white'
                         {...register('emailId', { onChange: handleInputChange })}
                     />
                     {errors.emailId && <span className="text-gray-400 text-sm">{errors.emailId.message}</span>}
@@ -70,7 +70,7 @@ function Login() {
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder='••••••••'
-                            className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-white pr-10'
+                            className='input input-bordered w-full bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-white pr-10'
                             {...register('password', { onChange: handleInputChange })}
                         />
                         <button
