@@ -8,16 +8,6 @@ const getContests = async (req, res) => {
 
         const now = new Date();
 
-        // Auto-update contest status
-        await Contest.updateMany(
-            { startTime: { $lte: now }, endTime: { $gt: now }, status: 'upcoming' },
-            { status: 'live' }
-        );
-        await Contest.updateMany(
-            { endTime: { $lte: now }, status: { $ne: 'ended' } },
-            { status: 'ended' }
-        );
-
         if (status) {
             filter.status = status;
         }
