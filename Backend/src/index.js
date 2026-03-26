@@ -76,11 +76,7 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err.message);
-    res.status(500).json({ 
-        message: "Internal server error", 
-        error: err.message,
-        stack: err.stack 
-    });
+    res.status(500).json({ message: "Internal server error" });
 });
 
 const InitializeConnection = async () => {
