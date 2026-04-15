@@ -7,6 +7,12 @@ const { blockToken, isTokenBlocked } = require("../utils/tokenBlocklist");
 const Submission = require("../models/submission");
 const sendEmail = require("../utils/sendEmail");
 
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+};
+
 // Register api
 
 const register = async (req, res) => {
@@ -104,6 +110,7 @@ const login = async (req, res) => {
 
     try {
         const { emailId, password } = req.body;
+        console.log(`[Auth] Login attempt for: ${emailId}`);
 
         if (!emailId)
             throw new Error("Invalid Credentials");
@@ -112,15 +119,21 @@ const login = async (req, res) => {
             throw new Error("Invalid Credentials");
 
         const user = await User.findOne({ emailId });
-        if (!user) throw new Error("Invalid Credentials");
+        if (!user) {
+            console.log(`[Auth] User not found: ${emailId}`);
+            throw new Error("Invalid Credentials");
+        }
 
         const match = await bcrypt.compare(password, user.password);
 
-        if (!match)
+        if (!match) {
+            console.log(`[Auth] Password mismatch for: ${emailId}`);
             throw new Error("Wrong Password");
+        }
 
         // Check if verified
         if (!user.isVerified) {
+            console.log(`[Auth] User unverified: ${emailId}. Sending fresh OTP.`);
             // Generate a fresh OTP for login verification step
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             user.otp = otp;
@@ -162,18 +175,16 @@ const login = async (req, res) => {
         // Refresh token - 7 days
         const refreshToken = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '7d' });
 
+        console.log(`[Auth] Login success for: ${emailId}. Setting cookies (Secure: ${COOKIE_OPTIONS.secure})`);
+
         res.cookie('token', token, {
+            ...COOKIE_OPTIONS,
             maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none'
         });
 
         res.cookie('refreshToken', refreshToken, {
+            ...COOKIE_OPTIONS,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none'
         });
 
         res.status(200).json({
@@ -216,10 +227,8 @@ const refreshAccessToken = async (req, res) => {
         );
 
         res.cookie('token', newToken, {
+            ...COOKIE_OPTIONS,
             maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none'
         });
 
         res.status(200).json({
@@ -256,16 +265,12 @@ const logout = async (req, res) => {
         }
 
         res.cookie("token", null, { 
-            expires: new Date(Date.now()),
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none'
+            ...COOKIE_OPTIONS,
+            expires: new Date(0),
         });
         res.cookie("refreshToken", null, { 
-            expires: new Date(Date.now()),
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none'
+            ...COOKIE_OPTIONS,
+            expires: new Date(0),
         });
         res.send("Logged out Succesfully");
     }
@@ -358,10 +363,8 @@ const verifyOtp = async (req, res) => {
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         
         res.cookie('token', token, {
+            ...COOKIE_OPTIONS,
             maxAge: 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none' 
         });
 
         res.status(200).json({
