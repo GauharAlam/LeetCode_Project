@@ -8,7 +8,6 @@ const problemRouter = require("./routes/problemCreator");
 const submitRouter = require("./routes/submit");
 const studyPlanRouter = require("./routes/studyPlan");
 const socialAuthRouter = require("./routes/socialAuth");
-const cronRouter = require("./routes/cron");
 const passport = require('./config/passport');
 const cors = require("cors");
 const helmet = require("helmet");
@@ -61,12 +60,7 @@ app.use("/problem", problemRouter);
 app.use("/submission", submitRouter);
 app.use("/study-plan", studyPlanRouter);
 app.use("/user/auth", socialAuthRouter);
-app.use("/cron", cronRouter);
 
-// Keep-alive ping endpoint for cron-job.org
-app.get("/ping", (req, res) => {
-    res.status(200).send("pong");
-});
 
 // 404 handler for unknown routes
 app.use((req, res) => {
