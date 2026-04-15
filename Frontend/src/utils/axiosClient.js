@@ -37,7 +37,8 @@ axiosClient.interceptors.response.use(
             !originalRequest._retry &&
             !originalRequest.url.includes('/refresh-token') &&
             !originalRequest.url.includes('/login') &&
-            !originalRequest.url.includes('/register')
+            !originalRequest.url.includes('/register') &&
+            !originalRequest.url.includes('/check')
         ) {
             if (isRefreshing) {
                 // Queue the request until refresh completes
