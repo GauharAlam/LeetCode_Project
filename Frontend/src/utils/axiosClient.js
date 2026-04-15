@@ -31,17 +31,12 @@ axiosClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If 401 and not already retried and not a refresh/login/register request
-        if (
-            error.response?.status === 401 &&
-            !originalRequest._retry &&
-            !originalRequest.url.includes('/refresh-token') &&
-            !originalRequest.url.includes('/login') &&
-            !originalRequest.url.includes('/register') &&
-            !originalRequest.url.includes('/check')
-        ) {
+        // Don't try to refresh for these endpoints
+        const authEndpoints = ['/login', '/register', '/check', '/refresh-token', '/verify-otp'];
+        const isAuthRequest = authEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
             if (isRefreshing) {
-                // Queue the request until refresh completes
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 }).then(() => axiosClient(originalRequest));
@@ -56,8 +51,7 @@ axiosClient.interceptors.response.use(
                 return axiosClient(originalRequest);
             } catch (refreshError) {
                 processQueue(refreshError);
-                // Refresh failed — redirect to login
-                window.location.href = '/login';
+                // No redirect here — let the React app handle unauthorized state via Redux
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
