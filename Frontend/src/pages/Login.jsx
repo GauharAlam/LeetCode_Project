@@ -4,22 +4,36 @@ import { z } from 'zod';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from "react-router-dom";
-import { loginUser, clearError } from "../authSlice";
-import { BASE_URL } from '../utils/axiosClient';
+import { loginUser, clearError, verifyOtp } from "../authSlice";
+import axiosClient, { BASE_URL } from '../utils/axiosClient';
 
 const LoginSchema = z.object({
     emailId: z.email("Invalid email address"),
     password: z.string().min(8, "Password should contain at least 8 characters"),
 });
 
+const OtpSchema = z.object({
+  otp: z.string().length(6, "OTP must be exactly 6 characters")
+});
+
 function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+    const { isAuthenticated, loading, error, requiresOtp, pendingEmail } = useSelector((state) => state.auth);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendMessage, setResendMessage] = useState("");
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(LoginSchema)
+    });
+
+    const {
+        register: registerOtp,
+        handleSubmit: handleOtpSubmit,
+        formState: { errors: otpErrors },
+    } = useForm({
+        resolver: zodResolver(OtpSchema),
     });
 
     // Clear error on mount and unmount
@@ -41,6 +55,77 @@ function Login() {
     const submittedData = (data) => {
         dispatch(loginUser(data));
     };
+
+    const submittedOtp = (data) => {
+        dispatch(verifyOtp({ emailId: pendingEmail, otp: data.otp }));
+    };
+
+    const handleResendOtp = async () => {
+        setResendLoading(true);
+        setResendMessage("");
+        try {
+            await axiosClient.post('/user/resend-otp', { emailId: pendingEmail });
+            setResendMessage("A new OTP has been sent to your email!");
+        } catch (err) {
+            setResendMessage(err.response?.data?.message || "Failed to resend OTP");
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    if (requiresOtp) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white p-4">
+                <form
+                    onSubmit={handleOtpSubmit(submittedOtp)}
+                    className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md flex flex-col items-center gap-6"
+                >
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Verify Email</h2>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">We sent a 6-digit code to <strong className="text-gray-900 dark:text-white">{pendingEmail}</strong></p>
+                    </div>
+
+                    {error && <div className="alert alert-error text-sm py-2 w-full">{typeof error === 'string' ? error : 'Verification failed'}</div>}
+                    {resendMessage && <div className={`alert text-sm py-2 w-full ${resendMessage.includes('Failed') ? 'alert-error' : 'alert-success'}`}>{resendMessage}</div>}
+
+                    <div className="form-control w-full mt-2">
+                        <input
+                            type="text"
+                            placeholder="000000"
+                            maxLength={6}
+                            className="input input-bordered w-full text-center text-3xl tracking-[1em] pl-[1em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300 font-mono h-16"
+                            {...registerOtp("otp")}
+                        />
+                        {otpErrors.otp && (
+                            <span className="text-gray-500 mt-2 text-center text-sm font-medium">
+                                {otpErrors.otp.message}
+                            </span>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="btn w-full mt-2 bg-gray-900 hover:bg-black border-none text-white text-lg h-12"
+                        disabled={loading}
+                    >
+                        {loading ? <span className="loading loading-spinner"></span> : "Verify & Login"}
+                    </button>
+
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-4 flex flex-col items-center gap-2">
+                        <span>Didn't receive the code?</span>
+                        <button 
+                            type="button" 
+                            onClick={handleResendOtp}
+                            disabled={resendLoading}
+                            className="text-gray-700 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 font-semibold hover:underline border-none bg-transparent"
+                        >
+                            {resendLoading ? "Sending..." : "Resend OTP"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white">

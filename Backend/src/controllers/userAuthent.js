@@ -121,8 +121,29 @@ const login = async (req, res) => {
 
         // Check if verified
         if (!user.isVerified) {
+            // Generate a fresh OTP for login verification step
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            user.otp = otp;
+            user.otpExpiry = Date.now() + 10 * 60 * 1000;
+            await user.save();
+
+            await sendEmail({
+                email: user.emailId,
+                subject: "Verify your email - AlgoForge",
+                message: `
+                    <div style="font-family: sans-serif; max-w-width: 600px; margin: 0 auto; background: #fafafa; padding: 20px; border-radius: 10px;">
+                        <h2 style="color: #ff6b00;">Welcome to AlgoForge!</h2>
+                        <p>Hi ${user.firstName},</p>
+                        <p>Your account requires email verification. Please use the following One-Time Password (OTP) to verify your email address. This code will expire in 10 minutes.</p>
+                        <div style="background: #e2e8f0; font-size: 28px; font-weight: bold; letter-spacing: 5px; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                            ${otp}
+                        </div>
+                    </div>
+                `
+            });
+
             return res.status(403).json({ 
-                message: "Please verify your email to align with security policies.", 
+                message: "Please check your email. A new verification OTP has been sent to align with security policies.", 
                 requiresOtp: true,
                 emailId: user.emailId
             });
@@ -161,7 +182,7 @@ const login = async (req, res) => {
         })
     }
     catch (err) {
-        res.status(401).send("Error:" + err);
+        res.status(401).json({ message: err.message || "Login Failed" });
     }
 }
 
