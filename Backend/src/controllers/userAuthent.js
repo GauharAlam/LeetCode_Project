@@ -15,7 +15,7 @@ const COOKIE_OPTIONS = {
 
 // Register api
 
-const register = async (req, res) => {
+const register = async (req, res) => {  
 
     try {
         // validate the data

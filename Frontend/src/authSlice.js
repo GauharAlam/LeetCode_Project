@@ -86,6 +86,12 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
       state.requiresOtp = false;
+    },
+    setUnauthenticated: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
@@ -189,5 +195,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, setUnauthenticated } = authSlice.actions;
 export default authSlice.reducer;

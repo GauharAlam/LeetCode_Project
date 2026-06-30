@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../authSlice';
 import { useTheme } from '../contexts/ThemeContext';
+import { useClerk } from '@clerk/clerk-react';
 import {
   LogOut, ShieldAlert, LayoutDashboard, UserCircle,
   ListChecks, Sun, Moon, Bookmark, Trophy, BookOpen,
@@ -17,9 +17,10 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { signOut } = useClerk();
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
+    await signOut();
     navigate('/login');
   };
 
@@ -34,8 +35,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-4 z-50 mx-4 md:mx-8 mb-4">
-      <div className="bg-white/30 dark:bg-neutral-900/30 backdrop-blur-xl border border-white/20 dark:border-neutral-800/20 rounded-full px-4 md:px-6 py-2 shadow-lg flex items-center justify-between transition-all duration-500">
+    <nav className="sticky top-4 z-50 mx-auto max-w-4xl px-4 mb-4 w-full">
+      <div className="bg-transparent border border-transparent rounded-full px-4 md:px-6 py-2 flex items-center justify-between transition-all duration-500">
 
         {/* Left — Logo */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0">

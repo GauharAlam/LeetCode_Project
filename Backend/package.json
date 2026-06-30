@@ -7,6 +7,7 @@
     "dev": "node --watch src/index.js"
   },
   "dependencies": {
+    "@clerk/backend": "^3.4.6",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",

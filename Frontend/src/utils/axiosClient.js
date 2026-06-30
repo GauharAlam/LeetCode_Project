@@ -10,54 +10,36 @@ const axiosClient = axios.create({
     }
 });
 
-// Flag to prevent multiple refresh requests simultaneously
-let isRefreshing = false;
-let failedQueue = [];
+// Clerk token injection — set from React context via setClerkGetToken()
+let _clerkGetToken = null;
 
-const processQueue = (error) => {
-    failedQueue.forEach(prom => {
-        if (error) {
-            prom.reject(error);
-        } else {
-            prom.resolve();
-        }
-    });
-    failedQueue = [];
+export const setClerkGetToken = (fn) => {
+    _clerkGetToken = fn;
 };
 
-// Response interceptor — auto-refresh on 401
-axiosClient.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
-
-        // Don't try to refresh for these endpoints
-        const authEndpoints = ['/login', '/register', '/check', '/refresh-token', '/verify-otp'];
-        const isAuthRequest = authEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
-
-        if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
-            if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
-                }).then(() => axiosClient(originalRequest));
-            }
-
-            originalRequest._retry = true;
-            isRefreshing = true;
-
+// Request interceptor — inject Clerk JWT token
+axiosClient.interceptors.request.use(
+    async (config) => {
+        if (_clerkGetToken) {
             try {
-                await axiosClient.post('/user/refresh-token');
-                processQueue(null);
-                return axiosClient(originalRequest);
-            } catch (refreshError) {
-                processQueue(refreshError);
-                // No redirect here — let the React app handle unauthorized state via Redux
-                return Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false;
+                const token = await _clerkGetToken();
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
+            } catch (e) {
+                console.error("Failed to fetch Clerk token", e);
             }
         }
-
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+// Response interceptor — just pass through errors (Clerk handles token refresh)
+axiosClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
         return Promise.reject(error);
     }
 );

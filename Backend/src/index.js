@@ -8,7 +8,6 @@ const problemRouter = require("./routes/problemCreator");
 const submitRouter = require("./routes/submit");
 const studyPlanRouter = require("./routes/studyPlan");
 const socialAuthRouter = require("./routes/socialAuth");
-const passport = require('./config/passport');
 const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
@@ -20,7 +19,7 @@ app.use(helmet());
 // Rate limiter for auth routes (15 requests per 15 minutes)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 15,
+    max: 100, // Temporarily increased for testing (was 15)
     message: { message: "Too many requests, please try again after 15 minutes." },
     standardHeaders: true,
     legacyHeaders: false,
@@ -52,7 +51,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitize());
-app.use(passport.initialize());
 
 // Apply rate limiter to auth routes
 app.use("/user", authLimiter, authRouter);

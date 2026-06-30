@@ -44,7 +44,7 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: function() {
-            return !this.googleId && !this.githubId;
+            return !this.googleId && !this.githubId && !this.clerkId;
         }
     },
     googleId: {
@@ -53,6 +53,11 @@ const userSchema = new Schema({
         sparse: true
     },
     githubId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    clerkId: {
         type: String,
         unique: true,
         sparse: true

@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { checkAuth } from "./authSlice";
+import { checkAuth, setUnauthenticated } from "./authSlice";
+import { useAuth } from "@clerk/clerk-react";
+import { setClerkGetToken } from "./utils/axiosClient";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -43,18 +45,28 @@ const AdminRoute = () => {
 
 function App() {
   const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { isSignedIn, isLoaded, getToken } = useAuth();
   const dispatch = useDispatch();
 
+  // Sync Clerk auth state → axios token → Redux state
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+    if (isLoaded) {
+      if (isSignedIn) {
+        setClerkGetToken(getToken);
+        dispatch(checkAuth());
+      } else {
+        setClerkGetToken(null);
+        dispatch(setUnauthenticated());
+      }
+    }
+  }, [isLoaded, isSignedIn, getToken, dispatch]);
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><span className="loading loading-ring loading-lg text-primary"></span></div>;
+  if (!isLoaded || (isSignedIn && loading)) return <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><span className="loading loading-ring loading-lg text-primary"></span></div>;
 
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/problems" /> : <LandingPage />} />
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
       <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/" />} />
       <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" />} />
