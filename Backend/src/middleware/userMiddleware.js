@@ -1,4 +1,4 @@
-const { createClerkClient } = require("@clerk/backend");
+const { createClerkClient, verifyToken } = require("@clerk/backend");
 const User = require("../models/user");
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
@@ -18,7 +18,9 @@ const userMiddleware = async (req, res, next) => {
         // Verify Clerk JWT token
         let verified;
         try {
-            verified = await clerkClient.verifyToken(token);
+            verified = await verifyToken(token, {
+                secretKey: process.env.CLERK_SECRET_KEY
+            });
             console.log("[Clerk Auth] Token verified, sub:", verified.sub);
         } catch (e) {
             console.error("[Clerk Auth] Token verification failed:", e.message);
@@ -65,7 +67,7 @@ const userMiddleware = async (req, res, next) => {
                     clerkId,
                     emailId,
                     firstName: clerkUser.firstName || clerkUser.username || "User",
-                    lastName: clerkUser.lastName || "",
+                    lastName: clerkUser.lastName || undefined,
                     role: "user",
                     isVerified: true
                 });

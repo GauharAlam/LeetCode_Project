@@ -63,6 +63,10 @@ const ProblemPage = () => {
   const [fixResult, setFixResult] = useState(null);
   const [fixLoading, setFixLoading] = useState(false);
 
+  // AI Complexity Critique State
+  const [critique, setCritique] = useState('');
+  const [critiqueLoading, setCritiqueLoading] = useState(false);
+
   // Resizable panels
   const [leftWidth, setLeftWidth] = useState(40); // percentage
   const [bottomHeight, setBottomHeight] = useState(35); // percentage
@@ -120,8 +124,13 @@ const ProblemPage = () => {
       try {
         const { data } = await axiosClient.get(`/problem/problemById/${id}`);
         setProblem(data);
-        const defaultStartCode = data.startCode?.find(sc => sc.language === language);
-        setCode(defaultStartCode ? defaultStartCode.initialCode : '// Write your solution here\n\nfunction solution() {\n  // Your code\n}');
+        const savedDraft = localStorage.getItem(`algoforge_draft_${id}_${language}`);
+        if (savedDraft) {
+          setCode(savedDraft);
+        } else {
+          const defaultStartCode = data.startCode?.find(sc => sc.language === language);
+          setCode(defaultStartCode ? defaultStartCode.initialCode : '// Write your solution here\n\nfunction solution() {\n  // Your code\n}');
+        }
         try {
           const bookmarkRes = await axiosClient.get(`/problem/bookmark/${id}`);
           setIsBookmarked(bookmarkRes.data.isBookmarked);
@@ -298,8 +307,69 @@ const ProblemPage = () => {
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
     setLanguage(newLang);
-    const langCode = problem.startCode?.find(sc => sc.language === newLang);
-    setCode(langCode ? langCode.initialCode : '// Write your solution here');
+    setCritique('');
+    const savedDraft = localStorage.getItem(`algoforge_draft_${id}_${newLang}`);
+    if (savedDraft) {
+      setCode(savedDraft);
+    } else {
+      const langCode = problem.startCode?.find(sc => sc.language === newLang);
+      setCode(langCode ? langCode.initialCode : '// Write your solution here');
+    }
+  };
+
+  const handleCodeChange = (value) => {
+    setCode(value);
+    setCritique('');
+    if (problem) {
+      localStorage.setItem(`algoforge_draft_${id}_${language}`, value);
+    }
+  };
+
+  const handleResetCode = () => {
+    if (!problem) return;
+    const initial = problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here';
+    setCode(initial);
+    setCritique('');
+    localStorage.removeItem(`algoforge_draft_${id}_${language}`);
+  };
+
+  const handleGetCritique = async () => {
+    if (critique || critiqueLoading) return;
+    setCritiqueLoading(true);
+    try {
+      const { data } = await axiosClient.post('/problem/ai-chat', {
+        problemTitle: problem.title,
+        problemDescription: problem.description,
+        userCode: code,
+        language: language,
+        chatHistory: [],
+        userMessage: "Analyze the time and space complexity of my code, and point out any inefficiencies or complexity bottlenecks. Suggest optimizations if possible."
+      });
+      setCritique(data.reply);
+    } catch (error) {
+      setCritique('Failed to generate complexity analysis. Please try again.');
+    } finally {
+      setCritiqueLoading(false);
+    }
+  };
+
+  const handleEditorBeforeMount = (monaco) => {
+    monaco.editor.defineTheme('algoforge-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '8E929E', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'E8722C' },
+        { token: 'string', foreground: '3FB68C' },
+        { token: 'number', foreground: 'FF9E2C' },
+      ],
+      colors: {
+        'editor.background': '#060709',
+        'editor.lineHighlightBackground': '#1B1C22',
+        'editor.selectionBackground': '#E8722C33',
+        'editorCursor.foreground': '#E8722C',
+      }
+    });
   };
 
   const handleCopyCode = () => {
@@ -336,6 +406,25 @@ const ProblemPage = () => {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modifier && e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmit();
+      } else if (modifier && e.key === "'") {
+        e.preventDefault();
+        handleRun();
+      } else if (e.key === 'Escape') {
+        setBottomHeight(0);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [code, language, id, isRunning]);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -348,10 +437,10 @@ const ProblemPage = () => {
 
   const getDifficultyColor = (diff) => {
     switch (diff) {
-      case 'easy': return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20';
-      case 'medium': return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20';
-      case 'hard': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20';
-      default: return 'text-gray-500 bg-gray-500/10';
+      case 'easy': return 'badge-easy';
+      case 'medium': return 'badge-medium';
+      case 'hard': return 'badge-hard';
+      default: return 'text-text-muted bg-elevated border border-border-subtle rounded-full text-[10px] font-mono font-bold px-2 py-0.5';
     }
   };
 
@@ -367,24 +456,24 @@ const ProblemPage = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-[#1e1e1e] text-gray-900 dark:text-gray-100 overflow-hidden">
+    <div className="h-screen flex flex-col bg-canvas text-text-primary overflow-hidden">
 
       {/* ═══════════════ TOP TOOLBAR ═══════════════ */}
-      <div className="h-11 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex items-center px-3 gap-2 shrink-0">
+      <div className="h-11 bg-surface border-b border-border-subtle flex items-center px-3 gap-2 shrink-0">
         {/* Left: Back + Nav */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => navigate('/problems')}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-elevated transition-colors"
           >
             <ArrowLeft size={15} />
             <span className="hidden sm:inline">Problem List</span>
           </button>
-          <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1" />
-          <button className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <div className="w-px h-5 bg-border-subtle mx-1" />
+          <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-elevated transition-colors">
             <ChevronLeft size={16} />
           </button>
-          <button className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <button className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-elevated transition-colors">
             <ChevronRight size={16} />
           </button>
         </div>
@@ -395,20 +484,20 @@ const ProblemPage = () => {
             onClick={() => setShowChatPanel(!showChatPanel)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors border ${
               showChatPanel 
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' 
-                : 'bg-gray-100 dark:bg-[#2a2a2a] hover:bg-gray-200 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+                ? 'bg-steel-500/10 text-steel-300 border-steel-700/50' 
+                : 'bg-elevated hover:bg-surface text-text-secondary hover:text-text-primary border-border-subtle'
             }`}
           >
-            <Sparkles size={14} className={showChatPanel ? 'text-blue-500' : 'text-gray-500'} />
+            <Sparkles size={14} className={showChatPanel ? 'text-steel-300' : 'text-text-muted'} />
             Agent
           </button>
 
           <button
             onClick={handleSubmit}
             disabled={isRunning}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-semibold bg-gray-800 hover:bg-gray-900 text-white transition-colors disabled:opacity-50"
+            className="btn-ember flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-semibold disabled:opacity-50"
           >
-            {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="white" />}
+            {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} fill="currentColor" />}
             Submit
           </button>
         </div>
@@ -416,14 +505,8 @@ const ProblemPage = () => {
         {/* Right: Actions */}
         <div className="flex items-center gap-1.5">
           <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
-          <button
             onClick={toggleFullscreen}
-            className="p-1.5 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-elevated transition-colors"
           >
             {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
@@ -434,10 +517,10 @@ const ProblemPage = () => {
       <div ref={containerRef} className="flex-1 flex overflow-hidden">
 
         {/* ─── LEFT PANEL: Description ─── */}
-        <div style={{ width: `${leftWidth}%` }} className="flex flex-col min-w-0 bg-white dark:bg-[#252525] overflow-hidden">
+        <div style={{ width: `${leftWidth}%` }} className="flex flex-col min-w-0 bg-surface overflow-hidden">
 
           {/* Description Tabs */}
-          <div className="h-10 flex items-center gap-0 px-1 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#2d2d2d] shrink-0">
+          <div className="h-10 flex items-center gap-0 px-1 border-b border-border-subtle bg-elevated shrink-0">
             {[
               { id: 'description', icon: FileText, label: 'Description' },
               { id: 'solutions', icon: Code2, label: 'Solutions' },
@@ -450,8 +533,8 @@ const ProblemPage = () => {
                 onClick={() => setActiveTab(id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors mx-0.5 ${
                   activeTab === id
-                    ? 'bg-white dark:bg-[#252525] text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                    ? 'bg-surface text-text-primary border border-border-subtle shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <Icon size={13} />
@@ -466,10 +549,10 @@ const ProblemPage = () => {
               <div className="p-5 space-y-5">
                 {/* Title + Actions */}
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{problem.title}</h1>
+                  <h1 className="text-xl font-bold text-text-primary mb-3 font-display">{problem.title}</h1>
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Difficulty badge */}
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getDifficultyColor(problem.difficulty)}`}>
+                    <span className={getDifficultyColor(problem.difficulty)}>
                       {problem.difficulty?.charAt(0).toUpperCase() + problem.difficulty?.slice(1)}
                     </span>
 
@@ -789,9 +872,10 @@ const ProblemPage = () => {
         {/* ─── HORIZONTAL DRAG HANDLE ─── */}
         <div
           onMouseDown={() => setIsDraggingH(true)}
-          className={`w-1.5 cursor-col-resize flex items-center justify-center group hover:bg-gray-600/20 transition-colors ${isDraggingH ? 'bg-gray-600/30' : 'bg-gray-200 dark:bg-gray-800'}`}
+          onDoubleClick={() => setLeftWidth(45)}
+          className={`w-1.5 cursor-col-resize flex items-center justify-center group hover:bg-gray-600/20 transition-colors ${isDraggingH ? 'bg-gray-600/30' : 'bg-border-subtle bg-surface'}`}
         >
-          <div className="w-0.5 h-8 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-gray-600 transition-colors" />
+          <div className="w-0.5 h-8 rounded-full bg-border-subtle group-hover:bg-ember-400 transition-colors" />
         </div>
 
         {/* ─── RIGHT CONTAINER ─── */}
@@ -801,41 +885,41 @@ const ProblemPage = () => {
           <div style={{ width: showChatPanel ? `${100 - chatWidth}%` : '100%' }} className="flex flex-col min-w-0 overflow-hidden">
 
             {/* Editor Header */}
-            <div className="h-10 bg-gray-50 dark:bg-[#2d2d2d] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-3 shrink-0">
+            <div className="h-10 bg-elevated border-b border-border-subtle flex items-center justify-between px-3 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <select
                     value={language}
                     onChange={handleLanguageChange}
-                    className="bg-white dark:bg-[#252525] text-gray-900 dark:text-gray-200 text-xs font-medium pl-2.5 pr-7 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 appearance-none cursor-pointer"
+                    className="bg-inset text-text-primary text-xs font-medium pl-2.5 pr-7 py-1.5 rounded-md border border-border-subtle focus:outline-none focus:ring-1 focus:ring-ember-400 appearance-none cursor-pointer"
                   >
                     <option value="javascript">JavaScript</option>
                     <option value="c++">C++</option>
                     <option value="java">Java</option>
                   </select>
-                  <ChevronDown size={12} className="absolute right-2 top-2 text-gray-400 pointer-events-none" />
+                  <ChevronDown size={12} className="absolute right-2 top-2.5 text-text-muted pointer-events-none" />
                 </div>
               </div>
 
               <div className="flex items-center gap-0.5">
                 <button
                   onClick={handleCopyCode}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
                   title="Copy code"
                 >
-                  {copied ? <Check size={14} className="text-gray-500" /> : <Copy size={14} />}
+                  {copied ? <Check size={14} className="text-easy" /> : <Copy size={14} />}
                 </button>
                 <button
                   onClick={handleGetFix}
                   disabled={fixLoading || !code.trim()}
-                  className="p-1.5 rounded-md text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  className="p-1.5 rounded-md text-steel-300 hover:text-steel-200 hover:bg-steel-500/10 transition-colors"
                   title="AI Code Fix"
                 >
                   {fixLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                 </button>
                 <button
-                  onClick={() => setCode(problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here')}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  onClick={handleResetCode}
+                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface transition-colors"
                   title="Reset code"
                 >
                   <RotateCcw size={14} />
@@ -844,18 +928,19 @@ const ProblemPage = () => {
             </div>
 
             {/* Code Editor */}
-            <div style={{ height: `${100 - bottomHeight}%` }} className="relative bg-white dark:bg-[#1e1e1e]">
+            <div style={{ height: `${100 - bottomHeight}%` }} className="relative bg-inset">
               <Editor
                 height="100%"
                 language={language === 'c++' ? 'cpp' : language}
-                theme={theme === 'dark' ? 'vs-dark' : 'light'}
+                theme="algoforge-dark"
                 value={code}
-                onChange={(value) => setCode(value)}
+                onChange={handleCodeChange}
+                beforeMount={handleEditorBeforeMount}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
                   scrollBeyondLastLine: false,
-                  automaticLayout: true,
+                          automaticLayout: true,
                   padding: { top: 12 },
                   lineHeight: 22,
                   fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -870,35 +955,46 @@ const ProblemPage = () => {
             {/* ─── VERTICAL DRAG HANDLE ─── */}
             <div
               onMouseDown={() => setIsDraggingV(true)}
-              className={`h-1.5 cursor-row-resize flex justify-center items-center group hover:bg-gray-600/20 transition-colors border-t border-gray-200 dark:border-gray-800 ${isDraggingV ? 'bg-gray-600/30' : 'bg-gray-50 dark:bg-[#2d2d2d]'}`}
+              onDoubleClick={() => setBottomHeight(35)}
+              className={`h-1.5 cursor-row-resize flex justify-center items-center group hover:bg-gray-600/20 transition-colors border-t border-border-subtle ${isDraggingV ? 'bg-gray-600/30' : 'bg-elevated'}`}
             >
-              <div className="w-8 h-0.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-gray-600 transition-colors" />
+              <div className="w-8 h-0.5 rounded-full bg-border-subtle group-hover:bg-ember-400 transition-colors" />
             </div>
 
             {/* ─── BOTTOM: Test Cases / Results ─── */}
-            <div style={{ height: `${bottomHeight}%` }} className="flex flex-col bg-white dark:bg-[#252525] overflow-hidden">
+            <div style={{ height: `${bottomHeight}%` }} className="flex flex-col bg-surface overflow-hidden">
               {/* Console Tabs */}
-              <div className="h-9 flex items-center px-2 gap-0 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#2d2d2d] shrink-0">
+              <div className="h-9 flex items-center px-2 gap-0 border-b border-border-subtle bg-elevated shrink-0">
                 <button
                   onClick={() => { setBottomTab('testcases'); }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors mx-0.5 ${
                     bottomTab === 'testcases'
-                      ? 'bg-white dark:bg-[#252525] text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? 'bg-surface text-text-primary border border-border-subtle shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
-                  <CheckCircle2 size={12} className="text-gray-500" /> Test Cases
+                  <CheckCircle2 size={12} className="text-text-muted" /> Test Cases
                 </button>
                 <button
                   onClick={() => setBottomTab('results')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors mx-0.5 ${
                     bottomTab === 'results'
-                      ? 'bg-white dark:bg-[#1e1e3a] text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? 'bg-surface text-text-primary border border-border-subtle shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
-                  <Cpu size={12} className={output?.type === 'error' ? 'text-gray-500' : 'text-gray-500'} />
+                  <Cpu size={12} className="text-text-muted" />
                   {output?.type === 'submit' ? 'Submission Results' : 'Run Results'}
+                </button>
+                <button
+                  onClick={() => { setBottomTab('critique'); handleGetCritique(); }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors mx-0.5 ${
+                    bottomTab === 'critique'
+                      ? 'bg-surface text-text-primary border border-border-subtle shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  <Sparkles size={12} className="text-steel-300" /> AI Critique
                 </button>
 
                 {/* Run & Submit */}
@@ -906,14 +1002,14 @@ const ProblemPage = () => {
                   <button
                     onClick={handleRun}
                     disabled={isRunning}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1e1e3a] border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="btn-secondary-af px-3 py-1 rounded-md text-xs font-medium flex items-center gap-1"
                   >
                     <Play size={12} /> Run
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={isRunning}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-gray-800 hover:bg-gray-900 text-white transition-colors disabled:opacity-50"
+                    className="btn-ember px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1"
                   >
                     {isRunning ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                     Submit
@@ -1045,6 +1141,30 @@ const ProblemPage = () => {
                     <div className="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500">
                       <Play size={28} className="mb-2 opacity-50" />
                       <span className="text-xs">Run your code to see results</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {bottomTab === 'critique' && (
+                <div className="space-y-3">
+                  {critiqueLoading ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-text-muted">
+                      <Loader2 size={28} className="animate-spin mb-2 text-ember-400" />
+                      <span className="text-xs font-mono">Analyzing code complexity...</span>
+                    </div>
+                  ) : critique ? (
+                    <div className="bg-inset border border-border-subtle rounded-lg p-4 font-sans text-sm text-text-secondary leading-relaxed max-h-[300px] overflow-y-auto">
+                      <h3 className="font-bold text-text-primary font-display flex items-center gap-1.5 mb-2">
+                        <Sparkles size={16} className="text-ember-400" /> Complexity Analysis & Review
+                      </h3>
+                      <ReactMarkdown className="prose dark:prose-invert max-w-none text-sm leading-relaxed">
+                        {critique}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-text-muted font-medium italic">
+                      No complexity analysis yet. Click this tab to automatically review your code complexity.
                     </div>
                   )}
                 </div>

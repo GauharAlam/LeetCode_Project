@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import TemperGauge from '../components/TemperGauge';
 import axiosClient from '../utils/axiosClient';
 import {
     BookOpen, ArrowLeft, ArrowRight, CheckCircle2, Circle, Loader2,
@@ -77,19 +78,19 @@ const StudyPlanDetail = () => {
 
     const getDifficultyColor = (diff) => {
         switch (diff) {
-            case 'easy': return 'text-gray-400';
-            case 'medium': return 'text-gray-400';
-            case 'hard': return 'text-gray-400';
-            default: return 'text-gray-400';
+            case 'easy': return 'text-easy';
+            case 'medium': return 'text-medium';
+            case 'hard': return 'text-hard';
+            default: return 'text-text-muted';
         }
     };
 
     const getDifficultyBadge = (diff) => {
         switch (diff) {
-            case 'easy': return 'bg-gray-600/15 text-gray-400 border-gray-400/30';
-            case 'medium': return 'bg-gray-200 text-gray-400 border-gray-400';
-            case 'hard': return 'bg-gray-500/15 text-gray-400 border-gray-400/30';
-            default: return 'bg-gray-500/15 text-gray-400 border-gray-500/30';
+            case 'easy': return 'badge-easy';
+            case 'medium': return 'badge-medium';
+            case 'hard': return 'badge-hard';
+            default: return 'text-text-muted bg-elevated border border-border-subtle rounded-full text-[10px] font-mono font-bold px-2 py-0.5';
         }
     };
 
@@ -103,10 +104,10 @@ const StudyPlanDetail = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117]">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                    <Loader2 className="w-8 h-8 animate-spin text-ember-400" />
                 </div>
             </div>
         );
@@ -114,13 +115,13 @@ const StudyPlanDetail = () => {
 
     if (error || !plan) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117]">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex flex-col items-center justify-center h-[80vh] gap-4">
-                    <p className="text-gray-400 text-lg">{error || "Plan not found"}</p>
+                    <p className="text-text-muted text-lg">{error || "Plan not found"}</p>
                     <button
                         onClick={() => navigate('/study-plans')}
-                        className="text-gray-400 hover:underline flex items-center gap-1"
+                        className="text-ember-400 hover:text-ember-300 flex items-center gap-1 font-medium transition-colors"
                     >
                         <ArrowLeft size={16} /> Back to Study Plans
                     </button>
@@ -130,53 +131,53 @@ const StudyPlanDetail = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
+        <div className="min-h-screen bg-canvas text-text-primary">
             <Navbar />
 
             <main className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/study-plans')}
-                    className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:text-white transition-colors mb-6"
+                    className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors mb-6 font-medium text-sm"
                 >
                     <ArrowLeft size={18} />
                     <span>Back to Study Plans</span>
                 </button>
 
                 {/* Plan Header */}
-                <div className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-800 p-8 mb-6">
+                <div className="card-af p-8 mb-6">
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                         <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className={`p-3 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800`}>
-                                    <BookOpen className="text-gray-900 dark:text-gray-900 dark:text-white" size={28} />
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-3 bg-elevated border border-border-subtle rounded-xl text-ember-400">
+                                    <BookOpen size={28} />
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{plan.name}</h1>
+                                    <h1 className="text-3xl font-bold text-text-primary font-display">{plan.name}</h1>
                                     {plan.isOfficial && (
-                                        <span className="text-xs bg-gray-200 text-gray-400 px-2 py-0.5 rounded-full border border-gray-300/30">
-                                            Official
+                                        <span className="text-[10px] bg-ember-400/10 text-ember-300 border border-ember-400/20 px-2 py-0.5 rounded font-mono font-bold">
+                                            OFFICIAL
                                         </span>
                                     )}
                                 </div>
                             </div>
-                            <p className="text-gray-400 mb-4 text-lg">{plan.description}</p>
+                            <p className="text-text-secondary mb-4 text-base leading-relaxed">{plan.description}</p>
 
-                            {/* Tags */}
-                            <div className="flex flex-wrap gap-2 mb-4">
+                            {/* Topics */}
+                            <div className="flex flex-wrap gap-1.5 mb-5">
                                 {plan.topics?.map((topic, idx) => (
                                     <span 
                                         key={idx} 
                                         onClick={() => navigate(`/problems?tag=${encodeURIComponent(topic)}`)}
-                                        className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        className="tag-chip cursor-pointer"
                                     >
-                                        {topic}
+                                        {topic === 'arary' ? 'Array' : topic}
                                     </span>
                                 ))}
                             </div>
 
                             {/* Meta info */}
-                            <div className="flex flex-wrap gap-6 text-sm text-gray-500">
+                            <div className="flex flex-wrap gap-6 text-xs font-mono text-text-muted">
                                 <span className="flex items-center gap-1.5">
                                     <Clock size={14} /> {plan.duration} days
                                 </span>
@@ -195,55 +196,34 @@ const StudyPlanDetail = () => {
                         {/* Enrollment / Progress Section */}
                         <div className="md:w-64 shrink-0">
                             {plan.isEnrolled ? (
-                                <div className="bg-gray-50 dark:bg-[#0d1117] rounded-xl p-5 border border-gray-800">
-                                    {/* Progress circle */}
+                                <div className="bg-inset rounded-xl p-5 border border-border-subtle">
+                                    {/* Progress circle using TemperGauge variant="ring" */}
                                     <div className="flex items-center justify-center mb-4">
-                                        <div className="relative w-28 h-28">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="56" cy="56" r="48" stroke="#374151" strokeWidth="8" fill="none" />
-                                                <circle
-                                                    cx="56" cy="56" r="48"
-                                                    stroke="url(#planGradient)"
-                                                    strokeWidth="8"
-                                                    fill="none"
-                                                    strokeLinecap="round"
-                                                    strokeDasharray={`${2 * Math.PI * 48}`}
-                                                    strokeDashoffset={`${2 * Math.PI * 48 * (1 - progressPercent / 100)}`}
-                                                    className="transition-all duration-700 ease-out"
-                                                />
-                                                <defs>
-                                                    <linearGradient id="planGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                        <stop offset="0%" stopColor="#9ca3af" />
-                                                        <stop offset="100%" stopColor="#4b5563" />
-                                                    </linearGradient>
-                                                </defs>
-                                            </svg>
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-2xl font-bold text-gray-900 dark:text-white">{progressPercent}%</span>
-                                                <span className="text-xs text-gray-500">complete</span>
-                                            </div>
-                                        </div>
+                                        <TemperGauge variant="ring" progress={progressPercent} size={112} strokeWidth={8}>
+                                            <span className="text-2xl font-bold text-text-primary font-mono">{progressPercent}%</span>
+                                            <span className="text-[10px] text-text-muted">complete</span>
+                                        </TemperGauge>
                                     </div>
 
-                                    <div className="text-center mb-3">
-                                        <p className="text-sm text-gray-400">
-                                            <span className="text-gray-900 dark:text-white font-semibold">{plan.solvedCount}</span> / {plan.totalProblems} solved
+                                    <div className="text-center mb-4">
+                                        <p className="text-sm text-text-secondary">
+                                            <span className="text-text-primary font-bold font-mono">{plan.solvedCount}</span> / {plan.totalProblems} solved
                                         </p>
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="text-xs text-text-muted mt-1 font-mono">
                                             Day {plan.currentDay} of {plan.duration}
                                         </p>
                                     </div>
 
                                     {plan.enrollmentStatus === 'completed' ? (
-                                        <div className="text-center py-2 bg-gray-600/10 rounded-lg border border-gray-400/30">
-                                            <Trophy className="inline text-gray-400 mr-1" size={16} />
-                                            <span className="text-gray-400 font-medium text-sm">Completed!</span>
+                                        <div className="text-center py-2 bg-easy/10 rounded-lg border border-easy/20">
+                                            <Trophy className="inline text-easy mr-1.5" size={15} />
+                                            <span className="text-easy font-semibold text-sm">Completed!</span>
                                         </div>
                                     ) : (
                                         <button
                                             onClick={handleUnenroll}
                                             disabled={enrolling}
-                                            className="w-full btn btn-sm bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-500/10 hover:text-gray-400 hover:border-gray-400/30 transition-all"
+                                            className="w-full btn-secondary-af py-2 text-xs flex items-center justify-center gap-1.5"
                                         >
                                             <LogOut size={14} />
                                             {enrolling ? 'Leaving...' : 'Leave Plan'}
@@ -254,13 +234,13 @@ const StudyPlanDetail = () => {
                                 <button
                                     onClick={handleEnroll}
                                     disabled={enrolling}
-                                    className="w-full btn bg-gray-900 dark:bg-white text-gray-900 dark:text-white dark:text-gray-900 border-none text-lg py-3 hover:bg-black dark:hover:bg-gray-200 transition-all font-semibold rounded-xl"
+                                    className="w-full btn-ember py-3 flex items-center justify-center gap-2 text-base font-semibold"
                                 >
                                     {enrolling ? (
                                         <Loader2 className="animate-spin" size={20} />
                                     ) : (
                                         <>
-                                            <Play size={20} /> Start This Plan
+                                            <Play size={18} /> Start This Plan
                                         </>
                                     )}
                                 </button>
@@ -271,8 +251,8 @@ const StudyPlanDetail = () => {
 
                 {/* Day-wise Problem List */}
                 <div className="space-y-3">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                        <BookOpen size={20} className="text-gray-400" /> 
+                    <h2 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2 font-display">
+                        <BookOpen size={20} className="text-ember-400" /> 
                         Plan Schedule
                     </h2>
 
@@ -287,89 +267,87 @@ const StudyPlanDetail = () => {
                             return (
                                 <div
                                     key={dayIndex}
-                                    className={`bg-white dark:bg-[#161b22] rounded-xl border transition-all ${
+                                    className={`bg-surface rounded-xl border transition-all overflow-hidden ${
                                         isCurrentDay
-                                            ? 'border-gray-400 dark:border-gray-500 shadow-md'
-                                            : isDayComplete
-                                                ? 'border-gray-200 dark:border-gray-800'
-                                                : 'border-gray-300 dark:border-gray-800'
+                                            ? 'border-ember-400/50 shadow-lg shadow-ember-400/5'
+                                            : 'border-border-subtle'
                                     }`}
                                 >
                                     {/* Day Header */}
                                     <button
                                         onClick={() => toggleDay(dayIndex)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-800/30 transition-colors rounded-xl"
+                                        className="w-full flex items-center justify-between p-4 hover:bg-elevated transition-colors"
                                     >
                                         <div className="flex items-center gap-3">
                                             {isDayComplete ? (
-                                                <CheckCircle2 className="text-gray-400 shrink-0" size={22} />
+                                                <CheckCircle2 className="text-easy shrink-0" size={22} />
                                             ) : isCurrentDay ? (
-                                                <div className="w-[22px] h-[22px] rounded-full bg-gray-700 flex items-center justify-center shrink-0">
-                                                    <Play className="text-gray-900 dark:text-white" size={12} />
+                                                <div className="w-[22px] h-[22px] rounded-lg bg-ember-600 flex items-center justify-center shrink-0">
+                                                    <Play className="text-text-primary fill-current" size={11} />
                                                 </div>
                                             ) : (
-                                                <Circle className="text-gray-600 shrink-0" size={22} />
+                                                <Circle className="text-text-muted shrink-0" size={22} />
                                             )}
-                                            <div className="text-left">
-                                                <span className="font-semibold text-gray-900 dark:text-white">
+                                            <div className="text-left flex items-center flex-wrap gap-2">
+                                                <span className="font-semibold text-text-primary">
                                                     Day {day.dayNumber}
                                                 </span>
                                                 {day.title && (
-                                                    <span className="text-gray-500 ml-2">— {day.title}</span>
+                                                    <span className="text-text-secondary">— {day.title}</span>
                                                 )}
                                                 {isCurrentDay && (
-                                                    <span className="ml-2 text-xs bg-gray-200 text-gray-400 px-2 py-0.5 rounded-full">
-                                                        Current
+                                                    <span className="text-[10px] bg-ember-400/10 text-ember-300 border border-ember-400/20 px-2 py-0.5 rounded-full font-mono font-bold">
+                                                        CURRENT
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-500">
-                                                {solvedInDay}/{dayProblems.length} problems
+                                            <span className="text-sm font-mono text-text-muted">
+                                                {solvedInDay}/{dayProblems.length} solved
                                             </span>
                                             {isExpanded ? (
-                                                <ChevronDown className="text-gray-500" size={18} />
+                                                <ChevronDown className="text-text-muted" size={18} />
                                             ) : (
-                                                <ChevronRight className="text-gray-500" size={18} />
+                                                <ChevronRight className="text-text-muted" size={18} />
                                             )}
                                         </div>
                                     </button>
 
                                     {/* Problem List (expanded) */}
                                     {isExpanded && dayProblems.length > 0 && (
-                                        <div className="px-4 pb-4 space-y-2">
-                                            <div className="border-t border-gray-800 pt-3">
+                                        <div className="px-4 pb-4">
+                                            <div className="border-t border-border-subtle pt-3 space-y-2">
                                                 {dayProblems.map((problem, pIdx) => {
                                                     const solved = isProblemSolved(problem._id);
                                                     return (
                                                         <div
                                                             key={problem._id || pIdx}
-                                                            className={`flex items-center justify-between p-3 rounded-lg transition-all cursor-pointer hover:bg-gray-800/50 ${
-                                                                solved ? 'bg-gray-600/5' : ''
+                                                            className={`flex items-center justify-between p-3 rounded-lg transition-all cursor-pointer hover:bg-elevated border border-transparent hover:border-border-subtle/50 ${
+                                                                solved ? 'bg-inset opacity-80' : 'bg-inset/40'
                                                             }`}
                                                             onClick={() => navigate(`/problem/${problem._id}`)}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 {solved ? (
-                                                                    <CheckCircle2 className="text-gray-400 shrink-0" size={18} />
+                                                                    <CheckCircle2 className="text-ember-400 shrink-0" size={18} />
                                                                 ) : (
-                                                                    <Circle className="text-gray-600 shrink-0" size={18} />
+                                                                    <Circle className="text-text-muted shrink-0" size={18} />
                                                                 )}
-                                                                <span className={`font-medium ${solved ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
+                                                                <span className={`font-medium text-sm ${solved ? 'text-text-muted line-through' : 'text-text-primary'}`}>
                                                                     {problem.title || 'Untitled Problem'}
                                                                 </span>
                                                             </div>
                                                             <div className="flex items-center gap-3">
                                                                 {problem.tags?.slice(0, 2).map((tag, tIdx) => (
-                                                                    <span key={tIdx} className="text-xs bg-gray-800 text-gray-500 px-2 py-0.5 rounded hidden sm:inline">
-                                                                        {tag}
+                                                                    <span key={tIdx} className="tag-chip hidden sm:inline py-0.5">
+                                                                        {tag === 'arary' ? 'Array' : tag}
                                                                     </span>
                                                                 ))}
-                                                                <span className={`text-xs px-2 py-1 rounded-lg border capitalize ${getDifficultyBadge(problem.difficulty)}`}>
+                                                                <span className={getDifficultyBadge(problem.difficulty)}>
                                                                     {problem.difficulty}
                                                                 </span>
-                                                                <ArrowRight className="text-gray-600" size={14} />
+                                                                <ArrowRight className="text-text-muted group-hover:text-text-secondary transition-colors" size={14} />
                                                             </div>
                                                         </div>
                                                     );
@@ -380,17 +358,17 @@ const StudyPlanDetail = () => {
 
                                     {isExpanded && dayProblems.length === 0 && (
                                         <div className="px-4 pb-4">
-                                            <p className="text-sm text-gray-600 italic">No problems assigned for this day yet.</p>
+                                            <p className="text-sm text-text-muted italic">No problems assigned for this day yet.</p>
                                         </div>
                                     )}
                                 </div>
                             );
                         })
                     ) : (
-                        <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-8 text-center">
-                            <BookOpen className="mx-auto text-gray-600 mb-3" size={40} />
-                            <p className="text-gray-500">No schedule has been created for this plan yet.</p>
-                            <p className="text-gray-600 text-sm mt-1">Problems will be added by the plan creator.</p>
+                        <div className="card-af p-8 text-center">
+                            <BookOpen className="mx-auto text-text-muted mb-3" size={40} />
+                            <p className="text-text-secondary">No schedule has been created for this plan yet.</p>
+                            <p className="text-text-muted text-sm mt-1">Problems will be added by the plan creator.</p>
                         </div>
                     )}
                 </div>

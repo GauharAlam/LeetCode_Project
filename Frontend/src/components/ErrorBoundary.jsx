@@ -22,31 +22,31 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white dark:from-gray-900 dark:via-gray-950 dark:to-black flex items-center justify-center px-6">
+        <div className="min-h-screen bg-canvas flex items-center justify-center px-6">
           <div className="text-center max-w-md">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center">
-              <AlertTriangle className="w-10 h-10 text-red-500 dark:text-red-400" />
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-hard/10 flex items-center justify-center">
+              <AlertTriangle className="w-10 h-10 text-hard" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Something went wrong</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
+            <h1 className="text-2xl font-bold text-text-primary mb-3 font-display">Something went wrong</h1>
+            <p className="text-text-secondary mb-6">
               An unexpected error occurred. Please try refreshing the page.
             </p>
             {this.state.error && (
-              <pre className="text-xs text-red-600 dark:text-red-400/70 bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-xl p-4 mb-6 text-left overflow-auto max-h-32">
+              <pre className="text-xs text-hard bg-hard/5 border border-hard/10 rounded-card p-4 mb-6 text-left overflow-auto max-h-32 font-mono">
                 {this.state.error.message}
               </pre>
             )}
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => window.location.reload()}
-                className="btn btn-primary btn-md px-6 rounded-xl gap-2"
+                className="btn-ember px-6 py-2.5 rounded-control gap-2 flex items-center text-sm"
               >
                 <RefreshCw size={16} />
                 Reload Page
               </button>
               <button
                 onClick={this.handleReset}
-                className="btn btn-outline btn-md px-6 rounded-xl border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                className="btn-secondary-af px-6 py-2.5 text-sm"
               >
                 Try Again
               </button>

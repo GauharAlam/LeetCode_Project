@@ -64,7 +64,6 @@ const Profile = () => {
             const { data } = await axiosClient.put('/problem/profile', editData);
             setProfile(data);
             setIsEditing(false);
-            // Refresh auth state to update navbar
             dispatch(checkAuth());
         } catch (err) {
             console.error("Failed to update profile", err);
@@ -81,10 +80,10 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <span className="loading loading-spinner loading-lg text-gray-500"></span>
+                    <span className="loading loading-spinner loading-lg text-ember-400"></span>
                 </div>
             </div>
         );
@@ -92,151 +91,157 @@ const Profile = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <p className="text-gray-400">{error}</p>
+                    <p className="text-text-muted">{error}</p>
                 </div>
             </div>
         );
     }
 
+    const getInitials = () => {
+        const first = profile?.firstName?.[0] || '';
+        const last = profile?.lastName?.[0] || '';
+        return (first + last).toUpperCase() || 'U';
+    };
+
     const InfoField = ({ label, value, icon: Icon, field, placeholder }) => (
-        <div className="space-y-1">
-            <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <Icon className="w-4 h-4" />
+        <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-text-muted text-xs font-mono uppercase tracking-wide">
+                <Icon className="w-3.5 h-3.5" />
                 <span>{label}</span>
             </div>
-            {isEditing ? (
+            {isEditing && field !== 'username' && field !== 'role' && field !== 'emailId' ? (
                 <input
                     type="text"
                     value={editData[field] || ''}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                     placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 transition-colors"
+                    className="input-af py-2 px-3 text-sm"
                 />
             ) : (
-                <p className="text-gray-900 dark:text-white">{value || 'N/A'}</p>
+                <p className="text-text-primary text-sm font-medium pl-1">{value || 'N/A'}</p>
             )}
         </div>
     );
 
     const SocialField = ({ label, value, icon: Icon, field, placeholder }) => (
-        <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
-            <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <div className="flex items-center gap-4 p-3 bg-inset rounded-control border border-border-subtle">
+            <div className="w-10 h-10 rounded-lg bg-surface border border-border-subtle flex items-center justify-center text-text-muted">
+                <Icon className="w-5 h-5" />
             </div>
-            <div className="flex-1">
-                <p className="text-xs text-gray-500">{label}</p>
+            <div className="flex-1 min-w-0">
+                <p className="text-[10px] micro-label text-text-muted">{label}</p>
                 {isEditing ? (
                     <input
                         type="text"
                         value={editData[field] || ''}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         placeholder={placeholder || `Enter ${label} URL`}
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-1 text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 transition-colors text-sm"
+                        className="w-full bg-transparent border-b border-border-subtle/50 py-1 text-text-primary focus:outline-none focus:border-ember-400 transition-colors text-sm"
                     />
                 ) : (
-                    <p className="text-gray-900 dark:text-white text-sm truncate">{value || 'N/A'}</p>
+                    <p className="text-text-primary text-sm font-medium truncate">{value || 'N/A'}</p>
                 )}
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
+        <div className="min-h-screen bg-canvas text-text-primary">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Profile</h1>
-                        <p className="text-gray-500 mt-1">Manage your account and settings</p>
+                        <h1 className="text-3xl font-bold font-display text-text-primary">My Profile</h1>
+                        <p className="text-text-secondary text-sm">Manage your account and settings</p>
                     </div>
                     {!isEditing ? (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                            className="btn-secondary-af px-4 py-2 text-sm flex items-center gap-2"
                         >
-                            <Edit3 className="w-4 h-4" />
-                            Edit
+                            <Edit3 className="w-4 h-4 text-text-muted" />
+                            Edit Profile
                         </button>
                     ) : (
                         <div className="flex gap-2">
                             <button
                                 onClick={handleCancel}
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                                className="btn-secondary-af px-4 py-2 text-sm flex items-center gap-2"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-4 h-4 text-text-muted" />
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
+                                className="btn-ember px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"
                             >
                                 {saving ? (
                                     <span className="loading loading-spinner loading-sm"></span>
                                 ) : (
                                     <Save className="w-4 h-4" />
                                 )}
-                                Save
+                                Save Changes
                             </button>
                         </div>
                     )}
                 </div>
 
                 {/* Profile Card */}
-                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
-                    <div className="flex items-center gap-6">
+                <div className="card-af p-6 mb-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
                         {/* Avatar */}
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-gray-900 dark:text-white text-4xl font-bold">
-                            {profile?.firstName?.[0]?.toUpperCase() || 'U'}
+                        <div className="w-24 h-24 rounded-2xl bg-ember-600 border border-border-default flex items-center justify-center text-text-primary text-4xl font-bold font-display">
+                            {getInitials()}
                         </div>
 
                         {/* User Info */}
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
+                        <div className="text-center sm:text-left">
+                            <div className="flex items-center gap-3 mb-2 justify-center sm:justify-start">
                                 {isEditing ? (
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col sm:flex-row gap-2">
                                         <input
                                             type="text"
                                             value={editData.firstName || ''}
                                             onChange={(e) => handleInputChange('firstName', e.target.value)}
                                             placeholder="First Name"
-                                            className="bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-gray-900 dark:text-white text-xl font-bold focus:outline-none focus:border-gray-400"
+                                            className="input-af py-1 px-3 text-base"
                                         />
                                         <input
                                             type="text"
                                             value={editData.lastName || ''}
                                             onChange={(e) => handleInputChange('lastName', e.target.value)}
                                             placeholder="Last Name"
-                                            className="bg-gray-50 dark:bg-[#0d1117] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1 text-gray-900 dark:text-white text-xl font-bold focus:outline-none focus:border-gray-400"
+                                            className="input-af py-1 px-3 text-base"
                                         />
                                     </div>
                                 ) : (
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    <h2 className="text-2xl font-bold text-text-primary font-display">
                                         {profile?.firstName} {profile?.lastName}
                                     </h2>
                                 )}
                             </div>
-                            <p className="text-gray-500 text-sm mb-1">@{profile?.emailId?.split('@')[0]}</p>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm">{profile?.emailId}</p>
+                            <p className="text-text-muted text-xs font-mono mb-1">@{profile?.emailId?.split('@')[0]}</p>
+                            <p className="text-text-secondary text-sm font-mono">{profile?.emailId}</p>
                         </div>
+                    </div>
 
-                        {/* Role Badge */}
-                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-600/10 border border-gray-400/30">
-                            <Shield className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-400 text-sm font-medium uppercase">{profile?.role}</span>
-                        </div>
+                    {/* Role Badge */}
+                    <div className="badge-steel text-[10px] px-2.5 py-1 font-mono font-bold flex items-center gap-1.5 self-center sm:self-start">
+                        <Shield className="w-3.5 h-3.5" />
+                        {profile?.role?.toUpperCase()}
                     </div>
                 </div>
 
                 {/* Personal Information */}
-                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <User className="w-5 h-5 text-gray-400" />
+                <div className="card-af p-6 mb-6">
+                    <h3 className="text-lg font-bold text-text-primary mb-6 flex items-center gap-2 font-display">
+                        <User className="w-5 h-5 text-ember-400" />
                         Personal Information
                     </h3>
 
@@ -266,20 +271,22 @@ const Profile = () => {
                             icon={Shield}
                             field="role"
                         />
-                        <InfoField
-                            label="Bio"
-                            value={profile?.bio}
-                            icon={FileText}
-                            field="bio"
-                            placeholder="Tell us about yourself"
-                        />
+                        <div className="md:col-span-2">
+                            <InfoField
+                                label="Bio"
+                                value={profile?.bio}
+                                icon={FileText}
+                                field="bio"
+                                placeholder="Tell us about yourself"
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {/* Social Information */}
-                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <Globe className="w-5 h-5 text-gray-400" />
+                <div className="card-af p-6">
+                    <h3 className="text-lg font-bold text-text-primary mb-6 flex items-center gap-2 font-display">
+                        <Globe className="w-5 h-5 text-ember-400" />
                         Social Information
                     </h3>
 

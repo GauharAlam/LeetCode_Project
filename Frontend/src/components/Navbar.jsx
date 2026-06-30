@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '../contexts/ThemeContext';
 import { useClerk } from '@clerk/clerk-react';
 import {
   LogOut, ShieldAlert, LayoutDashboard, UserCircle,
-  ListChecks, Sun, Moon, Bookmark, Trophy, BookOpen,
-  Swords, Menu, X, ChevronDown, FileCode2
+  ListChecks, Bookmark, Trophy, BookOpen,
+  Swords, Menu, X, ChevronDown, FileCode2, HelpCircle
 } from 'lucide-react';
+
 
 const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { signOut } = useClerk();
@@ -34,170 +33,175 @@ const Navbar = () => {
     { path: '/contests', label: 'Contests' },
   ];
 
+  // Get user initials for avatar
+  const getInitials = () => {
+    const first = user?.firstName?.[0] || '';
+    const last = user?.lastName?.[0] || '';
+    return (first + last).toUpperCase() || 'U';
+  };
+
   return (
-    <nav className="sticky top-4 z-50 mx-auto max-w-4xl px-4 mb-4 w-full">
-      <div className="bg-transparent border border-transparent rounded-full px-4 md:px-6 py-2 flex items-center justify-between transition-all duration-500">
+    <nav className="sticky top-0 z-50 w-full bg-surface border-b border-border-subtle">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14">
 
-        {/* Left — Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <img
-            src="/algoforge-logo.png"
-            alt="AlgoForge"
-            className="h-8 w-8 rounded-full object-cover"
-          />
-          <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight hidden sm:inline">
-            Algo<span className="text-gray-900 dark:text-white">Forge</span>
-          </span>
-        </Link>
+          {/* Left — Logo */}
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <img
+              src="/algoforge-logo.png"
+              alt="AlgoForge"
+              className="h-7 w-7 rounded-lg object-cover"
+            />
+            <span className="text-base font-bold text-text-primary tracking-tight hidden sm:inline font-display">
+              Algo<span className="text-ember-400">Forge</span>
+            </span>
+          </Link>
 
-        {/* Center — Nav Links (desktop) */}
-        {isAuthenticated && (
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ path, label }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                  isActive(path)
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Right — Actions */}
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle — half-circle icon like masterji */}
-          <button
-            onClick={toggleTheme}
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-gray-200 dark:border-neutral-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-neutral-500 transition-all duration-200"
-            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {isAuthenticated ? (
-            <>
-              {/* Admin badge */}
-              {user?.role === 'admin' && (
+          {/* Center — Nav Links (desktop) */}
+          {isAuthenticated && (
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map(({ path, label }) => (
                 <Link
-                  to="/admin"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800/20 transition-colors"
+                  key={path}
+                  to={path}
+                  className={`relative px-4 py-4 text-sm font-medium transition-colors duration-200 ${isActive(path)
+                      ? 'text-text-primary'
+                      : 'text-text-secondary hover:text-text-primary'
+                    }`}
                 >
-                  <ShieldAlert size={14} />
-                  Admin
+                  {label}
+                  {/* Active indicator — 2px ember bottom border */}
+                  {isActive(path) && (
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-ember-400 rounded-full" />
+                  )}
                 </Link>
-              )}
-
-              {/* User dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  onBlur={() => setTimeout(() => setDropdownOpen(false), 200)}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
-                      {user?.firstName?.[0]?.toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <ChevronDown size={14} className={`text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Dropdown menu */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-2xl shadow-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* User info */}
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-neutral-800">
-                      <p className="text-xs text-gray-500 dark:text-gray-500">Signed in as</p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {user?.emailId || 'user@email.com'}
-                      </p>
-                    </div>
-
-                    {/* Links */}
-                    <div className="py-1">
-                      {[
-                        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-                        { to: '/problems', icon: ListChecks, label: 'Problems' },
-                        { to: '/bookmarks', icon: Bookmark, label: 'Saved Problems' },
-                        { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-                        { to: '/contests', icon: Swords, label: 'Contests' },
-                        { to: '/submissions', icon: FileCode2, label: 'Submissions' },
-                        { to: '/study-plans', icon: BookOpen, label: 'Study Plans' },
-                        { to: '/profile', icon: UserCircle, label: 'Profile' },
-                      ].map(({ to, icon: Icon, label }) => (
-                        <Link
-                          key={to}
-                          to={to}
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
-                        >
-                          <Icon size={16} className="text-gray-400 dark:text-gray-500" />
-                          {label}
-                        </Link>
-                      ))}
-                    </div>
-
-                    {/* Logout */}
-                    <div className="border-t border-gray-100 dark:border-neutral-800 pt-1">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-500/10 w-full transition-colors"
-                      >
-                        <LogOut size={16} />
-                        Log Out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile menu toggle */}
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-              >
-                {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-              </button>
-            </>
-          ) : (
-            /* Not authenticated */
-            <div className="flex items-center gap-2">
-              <Link
-                to="/login"
-                className="px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                Log In
-              </Link>
-              <Link
-                to="/signup"
-                className="px-5 py-2 rounded-full text-sm font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              >
-                Start
-              </Link>
+              ))}
             </div>
           )}
+
+          {/* Right — Actions */}
+          <div className="flex items-center gap-2">
+
+            {isAuthenticated ? (
+              <>
+                {/* Admin badge */}
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-steel-500/10 border border-steel-500/20 text-steel-300 hover:bg-steel-500/15 transition-colors"
+                  >
+                    <ShieldAlert size={13} />
+                    Admin
+                  </Link>
+                )}
+
+                {/* User dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    onBlur={() => setTimeout(() => setDropdownOpen(false), 200)}
+                    className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-elevated transition-colors"
+                  >
+                    {/* Avatar — initials on ember bg */}
+                    <div className="w-8 h-8 rounded-lg bg-ember-600 flex items-center justify-center">
+                      <span className="text-xs font-bold text-text-primary">
+                        {getInitials()}
+                      </span>
+                    </div>
+                    <ChevronDown size={14} className={`text-text-muted transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-surface border border-border-subtle rounded-xl shadow-lg shadow-black/20 py-2 animate-fade-in-up">
+                      {/* User info */}
+                      <div className="px-4 py-2 border-b border-border-subtle">
+                        <p className="text-xs text-text-muted">Signed in as</p>
+                        <p className="text-sm font-medium text-text-primary truncate">
+                          {user?.emailId || 'user@email.com'}
+                        </p>
+                      </div>
+
+                      {/* Links */}
+                      <div className="py-1">
+                        {[
+                          { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+                          { to: '/problems', icon: ListChecks, label: 'Problems' },
+                          { to: '/bookmarks', icon: Bookmark, label: 'Saved Problems' },
+                          { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+                          { to: '/contests', icon: Swords, label: 'Contests' },
+                          { to: '/submissions', icon: FileCode2, label: 'Submissions' },
+                          { to: '/study-plans', icon: BookOpen, label: 'Study Plans' },
+                          { to: '/profile', icon: UserCircle, label: 'Profile' },
+                          { to: '/support', icon: HelpCircle, label: 'Help & Support' },
+                        ].map(({ to, icon: Icon, label }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-elevated hover:text-text-primary transition-colors"
+                          >
+                            <Icon size={16} className="text-text-muted" />
+                            {label}
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* Logout */}
+                      <div className="border-t border-border-subtle pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-elevated hover:text-text-primary w-full transition-colors"
+                        >
+                          <LogOut size={16} className="text-text-muted" />
+                          Log Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile menu toggle */}
+                <button
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                  className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary hover:bg-elevated transition-colors"
+                >
+                  {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+                </button>
+              </>
+            ) : (
+              /* Not authenticated */
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/login"
+                  className="px-4 py-1.5 rounded-control text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Log In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="btn-ember px-5 py-2 text-sm font-semibold"
+                >
+                  Start Forging
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Mobile nav — slides down */}
+      {/* Mobile nav */}
       {isAuthenticated && mobileOpen && (
-        <div className="md:hidden mt-2 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md border border-gray-200/50 dark:border-neutral-800/50 rounded-2xl px-4 py-3 shadow-sm transition-colors duration-300">
-          <div className="flex flex-col gap-1">
+        <div className="md:hidden border-t border-border-subtle bg-surface">
+          <div className="px-4 py-3 space-y-1">
             {navLinks.map(({ path, label }) => (
               <Link
                 key={path}
                 to={path}
                 onClick={() => setMobileOpen(false)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  isActive(path)
-                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-800'
-                }`}
+                className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(path)
+                    ? 'bg-elevated text-ember-400'
+                    : 'text-text-secondary hover:bg-elevated hover:text-text-primary'
+                  }`}
               >
                 {label}
               </Link>
@@ -206,7 +210,7 @@ const Navbar = () => {
               <Link
                 to="/admin"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800/20 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-steel-300 hover:bg-elevated transition-colors"
               >
                 <ShieldAlert size={14} />
                 Admin Panel

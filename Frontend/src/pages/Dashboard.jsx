@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import TemperGauge from '../components/TemperGauge';
 import axiosClient from '../utils/axiosClient';
 import { useSelector } from 'react-redux';
 import {
@@ -37,33 +38,6 @@ const Dashboard = () => {
         fetchDashboard();
     }, []);
 
-    const getDifficultyColor = (diff) => {
-        switch (diff) {
-            case 'easy': return 'text-gray-400';
-            case 'medium': return 'text-gray-400';
-            case 'hard': return 'text-gray-400';
-            default: return 'text-gray-600 dark:text-gray-400';
-        }
-    };
-
-    const getDifficultyBgColor = (diff) => {
-        switch (diff) {
-            case 'easy': return 'bg-gray-600';
-            case 'medium': return 'bg-gray-500';
-            case 'hard': return 'bg-gray-500';
-            default: return 'bg-gray-500';
-        }
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'accepted': return 'text-gray-400 bg-gray-200';
-            case 'wrong': return 'text-gray-400 bg-gray-200';
-            case 'error': return 'text-gray-400 bg-gray-200';
-            default: return 'text-gray-600 dark:text-gray-400 bg-gray-200';
-        }
-    };
-
     // Calculate progress percentage
     const getProgress = () => {
         if (!dashboardData) return 0;
@@ -78,13 +52,11 @@ const Dashboard = () => {
         const currentYear = new Date().getFullYear();
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        // Create a map of date -> count from submissionActivity
         const activityMap = {};
         dashboardData.submissionActivity?.forEach(item => {
             activityMap[item._id] = item.count;
         });
 
-        // Generate grid data for each month
         return months.map((month, monthIndex) => {
             const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
             const days = [];
@@ -101,20 +73,30 @@ const Dashboard = () => {
         });
     };
 
+    // Temper Gauge heatmap colors
     const getHeatmapColor = (count) => {
-        if (count === 0) return 'bg-gray-100 dark:bg-gray-800';
-        if (count === 1) return 'bg-gray-700';
-        if (count <= 3) return 'bg-gray-600';
-        if (count <= 5) return 'bg-gray-600';
-        return 'bg-gray-400';
+        if (count === 0) return 'bg-elevated';
+        if (count === 1) return 'bg-[#2A1810]';
+        if (count <= 3) return 'bg-[#6B3A1C]';
+        if (count <= 5) return 'bg-ember-400';
+        return 'bg-[#FFD9A0]';
+    };
+
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case 'accepted': return 'text-easy bg-easy/10 border border-easy/20';
+            case 'wrong': return 'text-hard bg-hard/10 border border-hard/20';
+            case 'error': return 'text-medium bg-medium/10 border border-medium/20';
+            default: return 'text-text-muted bg-elevated border border-border-subtle';
+        }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <span className="loading loading-spinner loading-lg text-gray-500"></span>
+                    <span className="loading loading-spinner loading-lg text-ember-400"></span>
                 </div>
             </div>
         );
@@ -122,10 +104,10 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-50 dark:bg-[#0d1117] text-gray-700 dark:text-gray-300">
+            <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <p className="text-gray-400">{error}</p>
+                    <p className="text-text-muted">{error}</p>
                 </div>
             </div>
         );
@@ -135,20 +117,20 @@ const Dashboard = () => {
     const heatmapData = generateHeatmapData();
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-700 dark:text-gray-300 font-sans">
+        <div className="min-h-screen bg-canvas">
             <Navbar />
 
             <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-                        <p className="text-gray-500 mt-1">Track your coding progress</p>
+                        <h1 className="text-3xl font-bold text-text-primary font-display">Dashboard</h1>
+                        <p className="text-text-secondary mt-1">Track your forging progress</p>
                     </div>
-                    <div className="flex items-center gap-2 bg-white dark:bg-[#161b22] px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-800">
-                        <Trophy className="w-5 h-5 text-gray-500" />
-                        <span className="text-gray-900 dark:text-white font-semibold">{stats.solved.total}</span>
-                        <span className="text-gray-500">problems solved</span>
+                    <div className="flex items-center gap-2 card-af py-2 px-4">
+                        <Trophy className="w-5 h-5 text-ember-400" />
+                        <span className="text-text-primary font-semibold font-mono">{stats.solved.total}</span>
+                        <span className="text-text-secondary text-sm">problems solved</span>
                     </div>
                 </div>
 
@@ -158,100 +140,69 @@ const Dashboard = () => {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-                    {/* Problem Solving Overview - Circular Progress */}
-                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-gray-400" />
+                    {/* Problem Solving Overview - Temper Gauge Ring */}
+                    <div className="card-af">
+                        <h2 className="text-lg font-semibold text-text-primary mb-6 flex items-center gap-2 font-display">
+                            <TrendingUp className="w-5 h-5 text-ember-400" />
                             Problem Solving Overview
                         </h2>
 
                         <div className="flex items-center justify-center mb-6">
-                            {/* Circular Progress */}
-                            <div className="relative w-40 h-40">
-                                <svg className="w-full h-full transform -rotate-90">
-                                    <circle
-                                        cx="80"
-                                        cy="80"
-                                        r="70"
-                                        stroke="#374151"
-                                        strokeWidth="12"
-                                        fill="none"
-                                    />
-                                    <circle
-                                        cx="80"
-                                        cy="80"
-                                        r="70"
-                                        stroke="url(#gradient)"
-                                        strokeWidth="12"
-                                        fill="none"
-                                        strokeLinecap="round"
-                                        strokeDasharray={`${2 * Math.PI * 70}`}
-                                        strokeDashoffset={`${2 * Math.PI * 70 * (1 - getProgress() / 100)}`}
-                                        className="transition-all duration-1000 ease-out"
-                                    />
-                                    <defs>
-                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="#3b82f6" />
-                                            <stop offset="100%" stopColor="#8b5cf6" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-bold text-gray-900 dark:text-white">{stats.solved.total}</span>
-                                    <span className="text-sm text-gray-500">/ {stats.total.count}</span>
-                                    <span className="text-xs text-gray-500">Solved</span>
-                                </div>
-                            </div>
+                            <TemperGauge variant="ring" progress={getProgress()} size={160} strokeWidth={12}>
+                                <span className="text-3xl font-bold text-text-primary font-mono">{stats.solved.total}</span>
+                                <span className="text-sm text-text-muted font-mono">/ {stats.total.count}</span>
+                                <span className="text-xs text-text-muted mt-0.5">Solved</span>
+                            </TemperGauge>
                         </div>
 
-                        {/* Difficulty Breakdown */}
+                        {/* Difficulty Breakdown — Temper Gauge bars */}
                         <div className="space-y-4">
-                            {['easy', 'medium', 'hard'].map((diff) => (
-                                <div key={diff} className="space-y-1">
+                            {[
+                                { key: 'easy', color: 'text-easy', dot: 'bg-easy' },
+                                { key: 'medium', color: 'text-medium', dot: 'bg-medium' },
+                                { key: 'hard', color: 'text-hard', dot: 'bg-hard' }
+                            ].map(({ key, color, dot }) => (
+                                <div key={key} className="space-y-1.5">
                                     <div className="flex justify-between text-sm">
-                                        <span className={`capitalize ${getDifficultyColor(diff)}`}>{diff}</span>
-                                        <span className="text-gray-600 dark:text-gray-400">
-                                            {stats.solved[diff]} / {stats.total[diff]}
+                                        <span className={`capitalize flex items-center gap-2 ${color}`}>
+                                            <span className={`w-2 h-2 rounded-full ${dot}`} />
+                                            {key}
+                                        </span>
+                                        <span className="text-text-secondary font-mono">
+                                            {stats.solved[key]} / {stats.total[key]}
                                         </span>
                                     </div>
-                                    <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                                        <div
-                                            className={`h-full ${getDifficultyBgColor(diff)} transition-all duration-500`}
-                                            style={{
-                                                width: stats.total[diff] > 0
-                                                    ? `${(stats.solved[diff] / stats.total[diff]) * 100}%`
-                                                    : '0%'
-                                            }}
-                                        />
-                                    </div>
+                                    <TemperGauge
+                                        progress={stats.total[key] > 0 ? (stats.solved[key] / stats.total[key]) * 100 : 0}
+                                    />
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Languages Used */}
-                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <Code2 className="w-5 h-5 text-gray-400" />
+                    <div className="card-af">
+                        <h2 className="text-lg font-semibold text-text-primary mb-6 flex items-center gap-2 font-display">
+                            <Code2 className="w-5 h-5 text-steel-500" />
                             Languages
                         </h2>
 
                         {languageStats && languageStats.length > 0 ? (
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {languageStats.map((lang) => (
-                                    <div key={lang._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#0d1117] rounded-lg border border-gray-200 dark:border-gray-800">
+                                    <div key={lang._id} className="flex items-center justify-between p-3 bg-inset rounded-control border border-border-subtle">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                                                <Code2 className="w-5 h-5 text-gray-400" />
+                                            <div className="w-10 h-10 rounded-lg bg-steel-500/10 flex items-center justify-center">
+                                                <Code2 className="w-5 h-5 text-steel-500" />
                                             </div>
-                                            <span className="font-medium text-gray-900 dark:text-white capitalize">{lang._id}</span>
+                                            <span className="font-medium text-text-primary capitalize">{lang._id}</span>
                                         </div>
-                                        <span className="text-gray-600 dark:text-gray-400">{lang.count} submissions</span>
+                                        <span className="text-text-secondary font-mono text-sm">{lang.count} runs</span>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                            <div className="flex flex-col items-center justify-center py-8 text-text-muted">
                                 <Code2 className="w-12 h-12 mb-2 opacity-30" />
                                 <p>No submissions yet</p>
                             </div>
@@ -259,48 +210,60 @@ const Dashboard = () => {
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <Flame className="w-5 h-5 text-gray-400" />
+                    <div className="card-af">
+                        <h2 className="text-lg font-semibold text-text-primary mb-6 flex items-center gap-2 font-display">
+                            <Flame className="w-5 h-5 text-ember-400" />
                             Quick Stats
                         </h2>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                                <div className="text-2xl font-bold text-gray-400">{stats.solved.easy}</div>
-                                <div className="text-sm text-gray-500">Easy Solved</div>
+                            <div className="bg-inset rounded-control p-4 border border-border-subtle">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="w-2 h-2 rounded-full bg-easy" />
+                                    <div className="text-2xl font-bold text-text-primary font-mono">{stats.solved.easy}</div>
+                                </div>
+                                <div className="text-sm text-text-muted">Easy Solved</div>
                             </div>
-                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                                <div className="text-2xl font-bold text-gray-400">{stats.solved.medium}</div>
-                                <div className="text-sm text-gray-500">Medium Solved</div>
+                            <div className="bg-inset rounded-control p-4 border border-border-subtle">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="w-2 h-2 rounded-full bg-medium" />
+                                    <div className="text-2xl font-bold text-text-primary font-mono">{stats.solved.medium}</div>
+                                </div>
+                                <div className="text-sm text-text-muted">Medium Solved</div>
                             </div>
-                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                                <div className="text-2xl font-bold text-gray-400">{stats.solved.hard}</div>
-                                <div className="text-sm text-gray-500">Hard Solved</div>
+                            <div className="bg-inset rounded-control p-4 border border-border-subtle">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="w-2 h-2 rounded-full bg-hard" />
+                                    <div className="text-2xl font-bold text-text-primary font-mono">{stats.solved.hard}</div>
+                                </div>
+                                <div className="text-sm text-text-muted">Hard Solved</div>
                             </div>
-                            <div className="bg-gray-50 dark:bg-[#0d1117] rounded-lg p-4 border border-gray-200 dark:border-gray-800">
-                                <div className="text-2xl font-bold text-gray-400">{getProgress()}%</div>
-                                <div className="text-sm text-gray-500">Completion</div>
+                            <div className="bg-inset rounded-control p-4 border border-border-subtle">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="w-2 h-2 rounded-full bg-ember-400" />
+                                    <div className="text-2xl font-bold text-text-primary font-mono">{getProgress()}%</div>
+                                </div>
+                                <div className="text-sm text-text-muted">Completion</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Submissions Heatmap */}
-                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6 mb-8">
+                {/* Submissions Heatmap — Temper Gauge gradient */}
+                <div className="card-af mb-8">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-gray-400" />
+                        <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2 font-display">
+                            <Calendar className="w-5 h-5 text-ember-400" />
                             {new Date().getFullYear()} Submissions
                         </h2>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-text-muted">
                             <span>Less</span>
                             <div className="flex gap-1">
-                                <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800"></div>
-                                <div className="w-3 h-3 rounded-sm bg-gray-700"></div>
-                                <div className="w-3 h-3 rounded-sm bg-gray-600"></div>
-                                <div className="w-3 h-3 rounded-sm bg-gray-600"></div>
-                                <div className="w-3 h-3 rounded-sm bg-gray-400"></div>
+                                <div className="w-3 h-3 rounded-sm bg-elevated"></div>
+                                <div className="w-3 h-3 rounded-sm bg-[#2A1810]"></div>
+                                <div className="w-3 h-3 rounded-sm bg-[#6B3A1C]"></div>
+                                <div className="w-3 h-3 rounded-sm bg-ember-400"></div>
+                                <div className="w-3 h-3 rounded-sm bg-[#FFD9A0]"></div>
                             </div>
                             <span>More</span>
                         </div>
@@ -314,12 +277,12 @@ const Dashboard = () => {
                                         {monthData.days.map((day, dayIdx) => (
                                             <div
                                                 key={dayIdx}
-                                                className={`w-3 h-3 rounded-sm ${getHeatmapColor(day.count)} hover:ring-1 hover:ring-gray-600 transition-all cursor-pointer`}
+                                                className={`w-3 h-3 rounded-sm ${getHeatmapColor(day.count)} hover:ring-1 hover:ring-ember-400/50 transition-all cursor-pointer`}
                                                 title={`${day.date}: ${day.count} submissions`}
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-xs text-gray-500">{monthData.month}</span>
+                                    <span className="text-xs text-text-muted font-mono">{monthData.month}</span>
                                 </div>
                             ))}
                         </div>
@@ -327,43 +290,43 @@ const Dashboard = () => {
                 </div>
 
                 {/* Recent Submissions */}
-                <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-gray-400" />
+                <div className="card-af">
+                    <h2 className="text-lg font-semibold text-text-primary mb-6 flex items-center gap-2 font-display">
+                        <Clock className="w-5 h-5 text-steel-500" />
                         Recent Submissions
                     </h2>
 
                     {recentSubmissions && recentSubmissions.length > 0 ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full table-af">
                                 <thead>
-                                    <tr className="text-left text-gray-500 text-sm border-b border-gray-200 dark:border-gray-800">
-                                        <th className="pb-3 font-medium">Problem</th>
-                                        <th className="pb-3 font-medium">Status</th>
-                                        <th className="pb-3 font-medium">Language</th>
-                                        <th className="pb-3 font-medium">Runtime</th>
-                                        <th className="pb-3 font-medium">Time</th>
+                                    <tr>
+                                        <th>Problem</th>
+                                        <th>Status</th>
+                                        <th>Language</th>
+                                        <th>Runtime</th>
+                                        <th>Time</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-800">
+                                <tbody>
                                     {recentSubmissions.map((sub) => (
-                                        <tr key={sub._id} className="hover:bg-gray-50 dark:bg-[#0d1117] transition-colors">
-                                            <td className="py-3">
+                                        <tr key={sub._id}>
+                                            <td>
                                                 <button
                                                     onClick={() => navigate(`/problem/${sub.problem?._id}`)}
-                                                    className="text-gray-800 dark:text-gray-200 hover:text-gray-400 transition-colors"
+                                                    className="text-text-primary hover:text-ember-300 transition-colors"
                                                 >
                                                     {sub.problem?.title || 'Unknown Problem'}
                                                 </button>
                                             </td>
-                                            <td className="py-3">
-                                                <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(sub.status)}`}>
+                                            <td>
+                                                <span className={`px-2 py-1 rounded-md text-xs font-medium font-mono ${getStatusBadge(sub.status)}`}>
                                                     {sub.status}
                                                 </span>
                                             </td>
-                                            <td className="py-3 text-gray-600 dark:text-gray-400 capitalize">{sub.language}</td>
-                                            <td className="py-3 text-gray-600 dark:text-gray-400">{sub.runtime} ms</td>
-                                            <td className="py-3 text-gray-500 text-sm">
+                                            <td className="text-text-secondary capitalize font-mono text-sm">{sub.language}</td>
+                                            <td className="text-text-secondary font-mono text-sm">{sub.runtime} ms</td>
+                                            <td className="text-text-muted text-sm font-mono">
                                                 {new Date(sub.createdAt).toLocaleDateString()}
                                             </td>
                                         </tr>
@@ -372,12 +335,12 @@ const Dashboard = () => {
                             </table>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <div className="flex flex-col items-center justify-center py-12 text-text-muted">
                             <CheckCircle2 className="w-12 h-12 mb-2 opacity-30" />
                             <p>No submissions yet</p>
                             <button
-                                onClick={() => navigate('/')}
-                                className="mt-4 text-gray-400 hover:underline"
+                                onClick={() => navigate('/problems')}
+                                className="mt-4 text-ember-400 hover:text-ember-300 transition-colors text-sm"
                             >
                                 Start solving problems →
                             </button>

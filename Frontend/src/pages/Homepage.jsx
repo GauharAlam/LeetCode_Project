@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axiosClient from '../utils/axiosClient';
-import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronDown, Tag, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
+import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronLeft, ChevronRight, Building2, Tag } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import DailyChallenge from '../components/DailyChallenge';
 
@@ -74,7 +74,7 @@ const Homepage = () => {
 
   const uniqueTags = useMemo(() => {
     const tags = new Set();
-    problems.forEach(p => p.tags.forEach(t => tags.add(t)));
+    problems.forEach(p => p.tags?.forEach(t => tags.add(t)));
     return Array.from(tags).sort();
   }, [problems]);
 
@@ -82,10 +82,10 @@ const Homepage = () => {
     let result = [...problems];
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(p => p.title.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q)));
+      result = result.filter(p => p.title.toLowerCase().includes(q) || p.tags?.some(t => t.toLowerCase().includes(q)));
     }
     if (difficultyFilter !== 'All') result = result.filter(p => p.difficulty === difficultyFilter);
-    if (selectedTags.length > 0) result = result.filter(p => selectedTags.every(tag => p.tags.includes(tag)));
+    if (selectedTags.length > 0) result = result.filter(p => selectedTags.every(tag => p.tags?.includes(tag)));
     if (selectedCompany !== 'All') result = result.filter(p => p.companies?.includes(selectedCompany));
     if (sortConfig) {
       result.sort((a, b) => {
@@ -104,13 +104,13 @@ const Homepage = () => {
   const handleSort = (key) => { setSortConfig(c => c?.key === key ? { key, direction: c.direction === 'asc' ? 'desc' : 'asc' } : { key, direction: 'asc' }); setShowSortMenu(false); };
   const isSolved = (problemId) => user?.problemSolved?.includes(problemId);
 
-  const getDifficultyColor = (diff) => {
-    switch (diff) {
-      case 'easy': return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20';
-      case 'medium': return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20';
-      case 'hard': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20';
-      default: return 'text-gray-600 dark:text-gray-400';
-    }
+  const getDifficultyBadge = (diff) => {
+    const classes = {
+      easy: 'badge-easy',
+      medium: 'badge-medium',
+      hard: 'badge-hard',
+    };
+    return classes[diff] || '';
   };
 
   const getPageNumbers = () => {
@@ -124,7 +124,7 @@ const Homepage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300 font-sans">
+    <div className="min-h-screen bg-canvas">
       <Navbar />
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -136,12 +136,12 @@ const Homepage = () => {
           {/* Search */}
           <div className="relative w-full md:w-96 group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-gray-600 dark:group-focus-within:text-gray-400 transition-colors" />
+              <Search className="h-5 w-5 text-text-muted group-focus-within:text-ember-400 transition-colors" />
             </div>
             <input
               type="text"
               placeholder="Search problems or tags..."
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-[#161b22] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-gray-400 transition-all shadow-sm"
+              className="input-af pl-10 pr-3"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -150,14 +150,14 @@ const Homepage = () => {
           <div className="flex flex-wrap items-center gap-3">
 
             {/* Difficulty Tabs */}
-            <div className="bg-gray-100 dark:bg-[#161b22] p-1 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center">
+            <div className="bg-surface p-1 rounded-control border border-border-subtle flex items-center">
               {['All', 'easy', 'medium', 'hard'].map((diff) => (
                 <button
                   key={diff}
                   onClick={() => setDifficultyFilter(diff)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${difficultyFilter === diff
-                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${difficultyFilter === diff
+                      ? 'bg-elevated text-text-primary shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary'
                     }`}
                 >
                   {diff.charAt(0).toUpperCase() + diff.slice(1)}
@@ -169,27 +169,27 @@ const Homepage = () => {
             <div className="relative" ref={companyRef}>
               <button
                 onClick={() => setShowCompanyMenu(!showCompanyMenu)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${selectedCompany !== 'All'
-                    ? 'bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400'
-                    : 'bg-gray-50 dark:bg-[#161b22] border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                className={`flex items-center gap-2 px-3 py-2 rounded-control border transition-all text-sm ${selectedCompany !== 'All'
+                    ? 'bg-elevated border-border-default text-text-primary'
+                    : 'bg-surface border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary'
                   }`}
               >
-                <Building2 size={18} />
-                <span className="text-sm font-medium hidden sm:inline">
+                <Building2 size={16} />
+                <span className="font-medium hidden sm:inline">
                   {selectedCompany === 'All' ? 'Company' : selectedCompany.charAt(0).toUpperCase() + selectedCompany.slice(1)}
                 </span>
               </button>
 
               {showCompanyMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1e232a] border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden max-h-72 overflow-y-auto">
+                <div className="absolute right-0 mt-2 w-56 bg-surface border border-border-subtle rounded-card shadow-xl shadow-black/20 z-50 overflow-hidden max-h-72 overflow-y-auto animate-fade-in-up">
                   <div className="p-1">
                     {companies.map(company => (
                       <button
                         key={company}
                         onClick={() => { setSelectedCompany(company); setShowCompanyMenu(false); }}
                         className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${selectedCompany === company
-                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                            ? 'bg-elevated text-text-primary'
+                            : 'text-text-secondary hover:bg-elevated hover:text-text-primary'
                           }`}
                       >
                         {company === 'All' ? 'All Companies' : company.charAt(0).toUpperCase() + company.slice(1)}
@@ -204,30 +204,30 @@ const Homepage = () => {
             <div className="relative" ref={sortRef}>
               <button
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${sortConfig
-                    ? 'bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400'
-                    : 'bg-gray-50 dark:bg-[#161b22] border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                className={`flex items-center gap-2 px-3 py-2 rounded-control border transition-all text-sm ${sortConfig
+                    ? 'bg-elevated border-border-default text-text-primary'
+                    : 'bg-surface border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary'
                   }`}
               >
-                <ArrowUpDown size={18} />
-                <span className="text-sm font-medium hidden sm:inline">Sort</span>
+                <ArrowUpDown size={16} />
+                <span className="font-medium hidden sm:inline">Sort</span>
               </button>
 
               {showSortMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1e232a] border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-surface border border-border-subtle rounded-card shadow-xl shadow-black/20 z-50 overflow-hidden animate-fade-in-up">
                   <div className="p-1">
-                    <button onClick={() => handleSort('difficulty')} className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                    <button onClick={() => handleSort('difficulty')} className="w-full flex items-center justify-between px-3 py-2 text-sm text-text-secondary hover:bg-elevated hover:text-text-primary rounded-lg transition-colors">
                       <span>Difficulty</span>
-                      {sortConfig?.key === 'difficulty' && <span className="text-xs opacity-70">{sortConfig.direction === 'asc' ? 'Easy→Hard' : 'Hard→Easy'}</span>}
+                      {sortConfig?.key === 'difficulty' && <span className="text-xs text-text-muted">{sortConfig.direction === 'asc' ? 'Easy→Hard' : 'Hard→Easy'}</span>}
                     </button>
-                    <button onClick={() => handleSort('title')} className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors">
+                    <button onClick={() => handleSort('title')} className="w-full flex items-center justify-between px-3 py-2 text-sm text-text-secondary hover:bg-elevated hover:text-text-primary rounded-lg transition-colors">
                       <span>Title</span>
-                      {sortConfig?.key === 'title' && <span className="text-xs opacity-70">{sortConfig.direction === 'asc' ? 'A→Z' : 'Z→A'}</span>}
+                      {sortConfig?.key === 'title' && <span className="text-xs text-text-muted">{sortConfig.direction === 'asc' ? 'A→Z' : 'Z→A'}</span>}
                     </button>
                     {sortConfig && (
                       <>
-                        <div className="h-px bg-gray-200 dark:bg-gray-700 my-1 mx-2" />
-                        <button onClick={() => { setSortConfig(null); setShowSortMenu(false); }} className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2">
+                        <div className="h-px bg-border-subtle my-1 mx-2" />
+                        <button onClick={() => { setSortConfig(null); setShowSortMenu(false); }} className="w-full text-left px-3 py-2 text-sm text-text-muted hover:bg-elevated rounded-lg transition-colors flex items-center gap-2">
                           <X size={14} /> Reset Sort
                         </button>
                       </>
@@ -241,26 +241,26 @@ const Homepage = () => {
             <div className="relative" ref={filterRef}>
               <button
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${selectedTags.length > 0
-                    ? 'bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400'
-                    : 'bg-gray-50 dark:bg-[#161b22] border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                className={`flex items-center gap-2 px-3 py-2 rounded-control border transition-all text-sm ${selectedTags.length > 0
+                    ? 'bg-elevated border-border-default text-text-primary'
+                    : 'bg-surface border-border-subtle text-text-secondary hover:border-border-default hover:text-text-primary'
                   }`}
               >
-                <ListFilter size={18} />
-                <span className="text-sm font-medium hidden sm:inline">Tags</span>
+                <ListFilter size={16} />
+                <span className="font-medium hidden sm:inline">Tags</span>
                 {selectedTags.length > 0 && (
-                  <span className="bg-gray-900 dark:bg-gray-800 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  <span className="bg-ember-400 text-canvas text-[10px] px-1.5 py-0.5 rounded-full min-w-[20px] text-center font-bold">
                     {selectedTags.length}
                   </span>
                 )}
               </button>
 
               {showFilterMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1e232a] border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 p-3">
+                <div className="absolute right-0 mt-2 w-72 bg-surface border border-border-subtle rounded-card shadow-xl shadow-black/20 z-50 p-3 animate-fade-in-up">
                   <div className="flex justify-between items-center mb-3 px-1">
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Filter by Tags</span>
+                    <span className="micro-label">Filter by Tags</span>
                     {selectedTags.length > 0 && (
-                      <button onClick={() => setSelectedTags([])} className="text-xs text-gray-400 hover:underline">Clear All</button>
+                      <button onClick={() => setSelectedTags([])} className="text-xs text-ember-400 hover:text-ember-300 transition-colors">Clear All</button>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto p-1">
@@ -268,15 +268,15 @@ const Homepage = () => {
                       <button
                         key={tag}
                         onClick={() => toggleTag(tag)}
-                        className={`px-2.5 py-1 text-xs rounded-md border transition-all ${selectedTags.includes(tag)
-                            ? 'bg-gray-900 dark:bg-gray-800 border-gray-700 dark:border-gray-400 text-white shadow-sm'
-                            : 'bg-gray-50 dark:bg-[#161b22] border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-900 dark:hover:text-gray-200'
+                        className={`tag-chip transition-all ${selectedTags.includes(tag)
+                            ? '!bg-ember-400/15 !border-ember-400/30 !text-ember-300'
+                            : ''
                           }`}
                       >
                         {tag}
                       </button>
                     ))}
-                    {uniqueTags.length === 0 && <span className="text-sm text-gray-500 italic w-full text-center py-2">No tags found</span>}
+                    {uniqueTags.length === 0 && <span className="text-sm text-text-muted italic w-full text-center py-2">No tags found</span>}
                   </div>
                 </div>
               )}
@@ -289,80 +289,80 @@ const Homepage = () => {
         {selectedTags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {selectedTags.map(tag => (
-              <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-400 border border-gray-200 dark:border-gray-600/50">
+              <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-ember-400/10 text-ember-300 border border-ember-400/20">
                 <Tag size={12} />
                 {tag}
-                <button onClick={() => toggleTag(tag)} className="hover:text-red-500 transition-colors"><X size={12} /></button>
+                <button onClick={() => toggleTag(tag)} className="hover:text-hard transition-colors"><X size={12} /></button>
               </span>
             ))}
           </div>
         )}
 
         {/* Problems Table */}
-        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#161b22] shadow-sm">
+        <div className="overflow-hidden rounded-card border border-border-subtle bg-surface">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse table-af">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0d1117]/50 text-gray-500 dark:text-gray-400 text-sm">
-                  <th className="px-6 py-4 font-medium w-16 text-center">Status</th>
-                  <th className="px-6 py-4 font-medium">Title</th>
-                  <th className="px-6 py-4 font-medium w-32">Difficulty</th>
-                  <th className="px-6 py-4 font-medium">Tags</th>
-                  <th className="px-6 py-4 font-medium w-32 text-right">Action</th>
+                <tr className="bg-elevated/50">
+                  <th className="w-16 text-center">Status</th>
+                  <th>Title</th>
+                  <th className="w-32">Difficulty</th>
+                  <th>Tags</th>
+                  <th className="w-32 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <tbody>
                 {loading ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-20 text-center">
                       <div className="flex flex-col items-center justify-center gap-3">
-                        <span className="loading loading-spinner loading-lg text-gray-400"></span>
-                        <span className="text-gray-500 text-sm">Loading problems...</span>
+                        <span className="loading loading-spinner loading-lg text-ember-400"></span>
+                        <span className="text-text-muted text-sm">Loading problems...</span>
                       </div>
                     </td>
                   </tr>
                 ) : processedProblems.length > 0 ? (
-                  processedProblems.map((prob, index) => (
+                  processedProblems.map((prob) => (
                     <tr
                       key={prob._id}
-                      className="group transition-colors hover:bg-gray-50 dark:hover:bg-[#1c2128]"
+                      className="group"
                     >
-                      <td className="px-6 py-4 text-center">
+                      <td className="text-center">
                         {isSolved(prob._id) ? (
-                          <CheckCircle2 className="inline-block w-5 h-5 text-emerald-500" />
+                          <CheckCircle2 className="inline-block w-5 h-5 text-ember-400" />
                         ) : (
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-700 inline-block group-hover:border-gray-400 dark:group-hover:border-gray-500 transition-colors" />
+                          <div className="w-5 h-5 rounded-full border-2 border-border-default inline-block group-hover:border-text-muted transition-colors" />
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td>
                         <button
                           onClick={() => navigate(`/problem/${prob._id}`)}
-                          className="text-gray-900 dark:text-gray-200 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base text-left"
+                          className="text-text-primary font-medium hover:text-ember-300 transition-colors text-base text-left"
                         >
                           {prob.title}
                         </button>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getDifficultyColor(prob.difficulty)} uppercase tracking-wide`}>
+                      <td>
+                        <span className={getDifficultyBadge(prob.difficulty)}>
                           {prob.difficulty}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-2">
-                          {prob.tags.slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                      <td>
+                        <div className="flex flex-wrap gap-1.5">
+                          {prob.tags?.slice(0, 3).map((tag, idx) => (
+                            <span key={idx} className="tag-chip">
                               {tag}
                             </span>
                           ))}
-                          {prob.tags.length > 3 && (
-                            <span className="text-xs text-gray-400 self-center">+{prob.tags.length - 3}</span>
+                          {prob.tags?.length > 3 && (
+                            <span className="text-xs text-text-muted self-center font-mono">+{prob.tags.length - 3}</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="text-right">
                         <button
                           onClick={() => navigate(`/problem/${prob._id}`)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity btn btn-sm btn-outline btn-info h-8 min-h-0 font-normal"
+                          className="opacity-0 group-hover:opacity-100 transition-all btn-ember px-4 py-1.5 text-xs"
                         >
                           Solve
                         </button>
@@ -371,13 +371,13 @@ const Homepage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan="5" className="px-6 py-12 text-center text-text-muted">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Filter className="w-8 h-8 opacity-20" />
                         <p>No problems match your filters.</p>
                         <button
                           onClick={() => { setSearch(''); setDifficultyFilter('All'); setSelectedTags([]); setSelectedCompany('All'); setSortConfig(null); }}
-                          className="text-blue-500 hover:underline text-sm mt-2"
+                          className="text-ember-400 hover:text-ember-300 text-sm mt-2 transition-colors"
                         >
                           Clear all filters
                         </button>
@@ -393,14 +393,14 @@ const Homepage = () => {
         {/* Pagination Controls */}
         {!loading && totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-text-muted font-mono">
               Page {currentPage} of {totalPages} ({totalProblems} problems)
             </span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-lg text-text-muted hover:bg-elevated hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -408,9 +408,9 @@ const Homepage = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${currentPage === page
-                      ? 'bg-gray-900 dark:bg-gray-700 text-white'
-                      : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                  className={`w-9 h-9 rounded-lg text-sm font-medium font-mono transition-all ${currentPage === page
+                      ? 'bg-ember-400 text-canvas'
+                      : 'text-text-muted hover:bg-elevated hover:text-text-primary'
                     }`}
                 >
                   {page}
@@ -419,7 +419,7 @@ const Homepage = () => {
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-lg text-text-muted hover:bg-elevated hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronRight size={18} />
               </button>
@@ -428,7 +428,7 @@ const Homepage = () => {
         )}
 
         {!loading && totalPages <= 1 && (
-          <div className="mt-4 text-xs text-gray-500 text-right">
+          <div className="mt-4 text-xs text-text-muted text-right font-mono">
             Showing {processedProblems.length} of {totalProblems} problems
           </div>
         )}

@@ -31,29 +31,34 @@ const SubmissionsPage = () => {
     const getStatusIcon = (status) => {
         switch (status) {
             case 'accepted':
-                return <CheckCircle2 size={16} className="text-emerald-500" />;
+                return <CheckCircle2 size={15} className="text-easy" />;
             case 'wrong':
-                return <XCircle size={16} className="text-red-500 dark:text-red-400" />;
+                return <XCircle size={15} className="text-hard" />;
             case 'error':
-                return <AlertCircle size={16} className="text-amber-500 dark:text-amber-400" />;
+                return <AlertCircle size={15} className="text-medium" />;
             default:
-                return <Clock size={16} className="text-gray-400" />;
+                return <Clock size={15} className="text-text-muted" />;
         }
     };
 
     const getStatusBadge = (status) => {
         const styles = {
-            accepted: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20',
-            wrong: 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20',
-            error: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20',
-            pending: 'bg-gray-50 dark:bg-gray-500/10 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-500/20',
+            accepted: 'text-easy bg-easy/10 border border-easy/20',
+            wrong: 'text-hard bg-hard/10 border border-hard/20',
+            error: 'text-medium bg-medium/10 border border-medium/20',
+            pending: 'text-text-muted bg-inset border border-border-subtle',
         };
         return (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status] || styles.pending}`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold border ${styles[status] || styles.pending}`}>
                 {getStatusIcon(status)}
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status.toUpperCase()}
             </span>
         );
+    };
+
+    const getDifficultyBadge = (diff) => {
+        const classes = { easy: 'badge-easy', medium: 'badge-medium', hard: 'badge-hard' };
+        return classes[diff] || '';
     };
 
     const formatDate = (dateStr) => {
@@ -77,35 +82,36 @@ const SubmissionsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
+        <div className="min-h-screen bg-canvas text-text-primary">
             <Navbar />
 
             <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
-                        <FileCode2 className="text-blue-600 dark:text-blue-400" size={32} />
+                <div className="flex items-center gap-4 mb-8 border-b border-border-subtle pb-4">
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl">
+                        <FileCode2 className="text-ember-400" size={32} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Submissions</h1>
-                        <p className="text-gray-500">Your complete submission history</p>
+                        <h1 className="text-3xl font-bold font-display text-text-primary">Submissions</h1>
+                        <p className="text-text-secondary text-sm">Your complete submission history</p>
                     </div>
                 </div>
 
                 {/* Filter Tabs */}
-                <div className="flex gap-2 mb-6">
+                <div className="flex gap-1 bg-surface rounded-control p-1 mb-6 w-fit border border-border-subtle">
                     {['all', 'accepted', 'wrong', 'error'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setFilter(tab)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === tab
-                                ? 'bg-gray-900 dark:bg-gray-700 text-white'
-                                : 'bg-gray-100 dark:bg-[#161b22] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+                            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                                filter === tab
+                                    ? 'bg-elevated text-text-primary shadow-sm'
+                                    : 'text-text-secondary hover:text-text-primary'
                             }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
                             {tab !== 'all' && (
-                                <span className="ml-1.5 text-xs opacity-60">
+                                <span className="ml-1.5 text-xs opacity-60 font-mono">
                                     ({submissions.filter(s => s.status === tab).length})
                                 </span>
                             )}
@@ -114,26 +120,26 @@ const SubmissionsPage = () => {
                 </div>
 
                 {/* Submissions Table */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#161b22]">
+                <div className="overflow-hidden rounded-card border border-border-subtle bg-surface">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full table-af border-collapse">
                             <thead>
-                                <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0d1117]/50 text-gray-500 dark:text-gray-400 text-sm">
-                                    <th className="px-6 py-4 font-medium">Problem</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium">Language</th>
-                                    <th className="px-6 py-4 font-medium">Runtime</th>
-                                    <th className="px-6 py-4 font-medium">Memory</th>
-                                    <th className="px-6 py-4 font-medium text-right">Date</th>
+                                <tr>
+                                    <th>Problem</th>
+                                    <th>Status</th>
+                                    <th>Language</th>
+                                    <th>Runtime</th>
+                                    <th>Memory</th>
+                                    <th className="text-right">Date</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tbody>
                                 {loading ? (
                                     <tr>
                                         <td colSpan="6" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center gap-3">
-                                                <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
-                                                <span className="text-gray-500 text-sm">Loading submissions...</span>
+                                                <Loader2 className="w-8 h-8 text-ember-400 animate-spin" />
+                                                <span className="text-text-muted text-sm font-mono">Loading submissions...</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -141,47 +147,43 @@ const SubmissionsPage = () => {
                                     filteredSubmissions.map((sub) => (
                                         <tr
                                             key={sub._id}
-                                            className="group hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors cursor-pointer"
+                                            className="group hover:bg-elevated transition-colors cursor-pointer"
                                             onClick={() => sub.problemId?._id && navigate(`/problem/${sub.problemId._id}`)}
                                         >
-                                            <td className="px-6 py-4">
-                                                <div>
-                                                    <span className="text-gray-900 dark:text-gray-200 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                            <td>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-text-primary font-medium group-hover:text-ember-300 transition-colors text-base">
                                                         {sub.problemId?.title || 'Deleted Problem'}
                                                     </span>
                                                     {sub.problemId?.difficulty && (
-                                                        <span className={`ml-2 text-xs px-2 py-0.5 rounded-full border ${
-                                                            sub.problemId.difficulty === 'easy' ? 'text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' :
-                                                            sub.problemId.difficulty === 'medium' ? 'text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20' :
-                                                            'text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'
-                                                        }`}>
+                                                        <span className={getDifficultyBadge(sub.problemId.difficulty)}>
                                                             {sub.problemId.difficulty}
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td>
                                                 {getStatusBadge(sub.status)}
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                            <td>
+                                                <span className="tag-chip font-mono">
                                                     {sub.language}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            <td className="font-mono text-sm text-text-secondary">
                                                 {formatRuntime(sub.runtime)}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                            <td className="font-mono text-sm text-text-secondary">
                                                 {formatMemory(sub.memory)}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-400 dark:text-gray-500 text-right">
+                                            <td className="font-mono text-sm text-text-muted text-right">
                                                 {formatDate(sub.createdAt)}
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan="6" className="px-6 py-12 text-center text-text-muted">
                                             <FileCode2 className="w-10 h-10 mx-auto mb-3 opacity-20" />
                                             <p>No submissions found</p>
                                         </td>
@@ -193,7 +195,7 @@ const SubmissionsPage = () => {
                 </div>
 
                 {!loading && (
-                    <div className="mt-4 text-xs text-gray-500 text-right">
+                    <div className="mt-4 text-xs text-text-muted text-right font-mono">
                         Showing {filteredSubmissions.length} of {submissions.length} submissions
                     </div>
                 )}

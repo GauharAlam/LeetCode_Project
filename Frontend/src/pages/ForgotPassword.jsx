@@ -83,46 +83,44 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-canvas flex flex-col text-text-primary">
       <Navbar />
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         
         {step === 1 && (
           <form
             onSubmit={handleEmailSubmit(onEmailSubmit)}
-            className="bg-white dark:bg-gray-800 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-6 border border-gray-200 dark:border-gray-700"
+            className="card-af w-full max-w-md flex flex-col items-center gap-6"
           >
             <div className="text-center w-full">
-              <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Reset Password</h2>
-              <p className="text-gray-500 text-sm">Enter your email and we'll send a recovery code.</p>
+              <h2 className="text-3xl font-bold mb-2 text-text-primary font-display">Reset Password</h2>
+              <p className="text-text-secondary text-sm">Enter your email and we'll send a recovery code.</p>
             </div>
 
-            {errorMsg && <div className="alert alert-error text-sm py-2 w-full">{errorMsg}</div>}
+            {errorMsg && <div className="p-3 bg-hard/15 border border-hard/25 text-hard rounded-lg text-xs w-full font-mono">{errorMsg}</div>}
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text text-gray-700 dark:text-gray-300">Email Address</span>
-              </label>
+            <div className="w-full">
+              <label className="micro-label block mb-2">Email Address</label>
               <input
                 type="email"
                 placeholder="developer@example.com"
-                className="input input-bordered w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300"
+                className="input-af text-sm"
                 {...registerEmail("emailId")}
               />
               {emailErrors.emailId && (
-                <span className="text-gray-500 text-sm mt-1">{emailErrors.emailId.message}</span>
+                <span className="text-hard text-xs mt-1 block font-mono">{emailErrors.emailId.message}</span>
               )}
             </div>
 
             <button
               type="submit"
-              className="btn w-full bg-gray-900 hover:bg-black text-white border-none mt-2"
+              className="btn-ember w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading ? <span className="loading loading-spinner"></span> : "Send Reset Code"}
             </button>
 
-            <Link to="/login" className="text-sm text-gray-700 dark:text-gray-400 font-medium hover:underline">
+            <Link to="/login" className="text-sm text-text-muted hover:text-text-primary transition-colors font-medium">
               Back to Login
             </Link>
           </form>
@@ -131,44 +129,42 @@ function ForgotPassword() {
         {step === 2 && (
           <form
             onSubmit={handleResetSubmit(onResetSubmit)}
-            className="bg-white dark:bg-gray-800 dark:bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-md flex flex-col items-center gap-5 border border-gray-200 dark:border-gray-700"
+            className="card-af w-full max-w-md flex flex-col items-center gap-5"
           >
             <div className="text-center w-full">
-              <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">Create New Password</h2>
-              <p className="text-gray-500 text-sm">We sent a 6-digit code to <strong className="text-gray-900 dark:text-white">{emailId}</strong></p>
+              <h2 className="text-2xl font-bold mb-1 text-text-primary font-display">Create New Password</h2>
+              <p className="text-text-secondary text-sm">We sent a 6-digit code to <strong className="text-text-primary font-mono">{emailId}</strong></p>
             </div>
 
-            {successMsg && <div className="alert alert-success text-sm py-2 w-full">{successMsg}</div>}
-            {errorMsg && <div className="alert alert-error text-sm py-2 w-full">{errorMsg}</div>}
+            {successMsg && <div className="p-3 bg-easy/15 border border-easy/25 text-easy rounded-lg text-xs w-full font-mono">{successMsg}</div>}
+            {errorMsg && <div className="p-3 bg-hard/15 border border-hard/25 text-hard rounded-lg text-xs w-full font-mono">{errorMsg}</div>}
 
-            <div className="form-control w-full mt-2">
+            <div className="w-full mt-2">
               <input
                 type="text"
                 placeholder="OTP Code"
                 maxLength={6}
-                className="input input-bordered w-full text-center text-3xl tracking-[0.5em] pl-[0.5em] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-gray-300 font-mono h-16"
+                className="input-af text-center text-3xl tracking-[0.5em] pl-[0.5em] font-mono h-14"
                 {...registerReset("otp")}
               />
               {resetErrors.otp && (
-                <span className="text-gray-500 text-sm mt-1 text-center font-medium">{resetErrors.otp.message}</span>
+                <span className="text-hard text-xs mt-1 block text-center font-mono">{resetErrors.otp.message}</span>
               )}
             </div>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text text-gray-700 dark:text-gray-300">New Password</span>
-              </label>
+            <div className="w-full">
+              <label className="micro-label block mb-2">New Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="input input-bordered w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
+                  className="input-af text-sm pr-10"
                   {...registerReset("newPassword")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 dark:text-gray-400 hover:text-white focus:outline-none"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-text-primary focus:outline-none"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                     {showPassword ? (
@@ -180,28 +176,26 @@ function ForgotPassword() {
                 </button>
               </div>
               {resetErrors.newPassword && (
-                <span className="text-gray-500 text-sm mt-1">{resetErrors.newPassword.message}</span>
+                <span className="text-hard text-xs mt-1 block font-mono">{resetErrors.newPassword.message}</span>
               )}
             </div>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text text-gray-700 dark:text-gray-300">Confirm New Password</span>
-              </label>
+            <div className="w-full">
+              <label className="micro-label block mb-2">Confirm New Password</label>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className="input input-bordered w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                className="input-af text-sm"
                 {...registerReset("confirmPassword")}
               />
               {resetErrors.confirmPassword && (
-                <span className="text-gray-500 text-sm mt-1">{resetErrors.confirmPassword.message}</span>
+                <span className="text-hard text-xs mt-1 block font-mono">{resetErrors.confirmPassword.message}</span>
               )}
             </div>
 
             <button
               type="submit"
-              className="btn w-full bg-gray-900 hover:bg-black text-white border-none mt-4 h-12"
+              className="btn-ember w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading ? <span className="loading loading-spinner"></span> : "Reset Password"}
@@ -209,7 +203,7 @@ function ForgotPassword() {
 
             <button
                type="button"
-               className="text-sm bg-transparent border-none text-gray-700 dark:text-gray-400 hover:underline mt-2"
+               className="text-sm bg-transparent border-none text-text-muted hover:text-text-primary transition-colors font-medium cursor-pointer"
                onClick={() => setStep(1)}
             >
               Cancel

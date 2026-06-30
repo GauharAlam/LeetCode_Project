@@ -1,75 +1,429 @@
 @import "tailwindcss";
 @plugin "daisyui";
-@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════
+   ALGOFORGE DESIGN SYSTEM — Tailwind v4 Theme
+   ═══════════════════════════════════════════════════ */
+
+@theme {
+  /* ─── Surface Scale (graphite, not pure black) ─── */
+  --color-canvas: #0A0B0D;
+  --color-surface: #131519;
+  --color-elevated: #1B1E24;
+  --color-inset: #0D0F12;
+
+  /* ─── Border Scale ─── */
+  --color-border-subtle: #23262C;
+  --color-border-default: #2E323A;
+
+  /* ─── Text Scale ─── */
+  --color-text-primary: #F3F1EC;
+  --color-text-secondary: #9BA0AA;
+  --color-text-muted: #5C616B;
+
+  /* ─── Ember (warm — actions, progress, fire) ─── */
+  --color-ember-300: #FF8A3D;
+  --color-ember-400: #E8722C;
+  --color-ember-500: #D4631F;
+  --color-ember-600: #C25A1E;
+
+  /* ─── Steel (cool — info, AI, focus) ─── */
+  --color-steel-300: #7FB0FF;
+  --color-steel-500: #4F8FE8;
+  --color-steel-700: #2E5FA8;
+
+  /* ─── Semantic (difficulty + status) ─── */
+  --color-easy: #3FB68C;
+  --color-medium: #E0A93B;
+  --color-hard: #E14F4F;
+  --color-live: #F0473E;
+
+  /* ─── Fonts ─── */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ─── Border Radius ─── */
+  --radius-control: 10px;
+  --radius-card: 12px;
+}
+
+/* ═══════════════════════════════════════════════════
+   DaisyUI Theme Override
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Override DaisyUI theme tokens */
+  --color-primary: #E8722C;
+  --color-primary-content: #0A0B0D;
+  --color-secondary: #4F8FE8;
+  --color-secondary-content: #F3F1EC;
+  --color-accent: #FF8A3D;
+  --color-accent-content: #0A0B0D;
+  --color-neutral: #1B1E24;
+  --color-neutral-content: #9BA0AA;
+  --color-base-100: #0A0B0D;
+  --color-base-200: #131519;
+  --color-base-300: #1B1E24;
+  --color-base-content: #F3F1EC;
+  --color-info: #4F8FE8;
+  --color-info-content: #F3F1EC;
+  --color-success: #3FB68C;
+  --color-success-content: #0A0B0D;
+  --color-warning: #E0A93B;
+  --color-warning-content: #0A0B0D;
+  --color-error: #E14F4F;
+  --color-error-content: #F3F1EC;
+}
+
+/* ═══════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════ */
 
 @layer base {
-  :root {
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    
-    --color-primary: #10b981; /* Emerald Green */
-    --color-secondary: #6366f1; /* Indigo */
-    --color-base-100: #ffffff;
-    --color-base-content: #0f172a;
-  }
-
-  .dark {
-    --color-base-100: #09090b; /* Midnight Black */
-    --color-base-content: #f8fafc;
-    --color-neutral: #18181b;
-    --color-neutral-content: #d4d4d8;
-    
-    /* Premium Depth */
-    --color-surface: #121214;
-    --color-border: rgba(255, 255, 255, 0.08);
+  html {
+    color-scheme: dark;
   }
 
   body {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    background-color: #0A0B0D;
+    color: #F3F1EC;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
   }
 
-  code, pre {
+  code, pre, .font-mono {
     font-family: var(--font-mono);
   }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* Focus rings */
+  *:focus-visible {
+    outline: 2px solid #E8722C;
+    outline-offset: 2px;
+  }
 }
+
+/* ═══════════════════════════════════════════════════
+   COMPONENT UTILITIES
+   ═══════════════════════════════════════════════════ */
 
 @layer components {
-  .glass-premium {
-    @apply backdrop-blur-md bg-white/70 dark:bg-black/40 border border-white/20 dark:border-white/10;
+  /* ─── Cards ─── */
+  .card-af {
+    background-color: #131519;
+    border: 1px solid #23262C;
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  
-  .card-premium {
-    @apply bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300;
+
+  .card-af:hover {
+    border-color: #2E323A;
+  }
+
+  .card-af-interactive:hover {
+    border-color: #2E323A;
+    box-shadow: 0 8px 24px rgba(232, 114, 44, 0.06);
+  }
+
+  /* ─── Buttons ─── */
+  .btn-ember {
+    background-color: #E8722C;
+    color: #0A0B0D;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .btn-ember:hover {
+    background-color: #FF8A3D;
+    box-shadow: 0 8px 24px rgba(232, 114, 44, 0.12);
+  }
+
+  .btn-ember:active {
+    background-color: #C25A1E;
+  }
+
+  .btn-secondary-af {
+    background-color: #1B1E24;
+    color: #F3F1EC;
+    border: 1px solid #2E323A;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .btn-secondary-af:hover {
+    border-color: #3A3F4A;
+    background-color: #23262C;
+  }
+
+  .btn-ghost-af {
+    background: transparent;
+    color: #9BA0AA;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .btn-ghost-af:hover {
+    background-color: #1B1E24;
+    color: #F3F1EC;
+  }
+
+  .btn-destructive {
+    background-color: #E14F4F;
+    color: #F3F1EC;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .btn-destructive:hover {
+    background-color: #e85d5d;
+  }
+
+  /* ─── Difficulty Badges ─── */
+  .badge-easy {
+    color: #3FB68C;
+    background-color: rgba(63, 182, 140, 0.12);
+    border: 1px solid rgba(63, 182, 140, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 10px;
+    font-family: var(--font-mono);
+  }
+
+  .badge-medium {
+    color: #E0A93B;
+    background-color: rgba(224, 169, 59, 0.12);
+    border: 1px solid rgba(224, 169, 59, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 10px;
+    font-family: var(--font-mono);
+  }
+
+  .badge-hard {
+    color: #E14F4F;
+    background-color: rgba(225, 79, 79, 0.12);
+    border: 1px solid rgba(225, 79, 79, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 10px;
+    font-family: var(--font-mono);
+  }
+
+  /* ─── Tag Chips (not pills — 6px radius) ─── */
+  .tag-chip {
+    background-color: #1B1E24;
+    color: #9BA0AA;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #23262C;
+    transition: all 0.15s ease;
+  }
+
+  .tag-chip:hover {
+    border-color: #2E323A;
+    color: #F3F1EC;
+  }
+
+  /* ─── Status Badges ─── */
+  .badge-live {
+    color: #F0473E;
+    background-color: rgba(240, 71, 62, 0.12);
+    border: 1px solid rgba(240, 71, 62, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 2px 10px;
+  }
+
+  .badge-steel {
+    color: #4F8FE8;
+    background-color: rgba(79, 143, 232, 0.12);
+    border: 1px solid rgba(79, 143, 232, 0.3);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 2px 10px;
+  }
+
+  /* ─── Temper Gauge ─── */
+  .temper-gauge-track {
+    background-color: #1B1E24;
+    border-radius: 9999px;
+    overflow: hidden;
+    height: 8px;
+  }
+
+  .temper-gauge-fill {
+    background: linear-gradient(90deg, #2A1810, #6B3A1C, #E8722C, #FF8A3D, #FFD9A0);
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ─── Micro label (eyebrow text) ─── */
+  .micro-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9BA0AA;
+  }
+
+  /* ─── Input fields ─── */
+  .input-af {
+    background-color: #0D0F12;
+    border: 1px solid #23262C;
+    border-radius: 10px;
+    color: #F3F1EC;
+    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+    width: 100%;
+  }
+
+  .input-af::placeholder {
+    color: #5C616B;
+  }
+
+  .input-af:focus {
+    outline: none;
+    border-color: #E8722C;
+    box-shadow: 0 0 0 3px rgba(232, 114, 44, 0.1);
+  }
+
+  /* ─── Table styles ─── */
+  .table-af thead th {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9BA0AA;
+    padding: 12px 24px;
+    border-bottom: 1px solid #23262C;
+  }
+
+  .table-af tbody tr {
+    border-bottom: 1px solid #1B1E24;
+    transition: background-color 0.15s ease;
+  }
+
+  .table-af tbody tr:hover {
+    background-color: #1B1E24;
+  }
+
+  .table-af tbody td {
+    padding: 14px 24px;
   }
 }
 
-/* Custom selection */
+/* ═══════════════════════════════════════════════════
+   SELECTION & SCROLLBAR
+   ═══════════════════════════════════════════════════ */
+
 ::selection {
-    background: #10b981;
-    color: #ffffff;
+  background: #E8722C;
+  color: #0A0B0D;
 }
 
-.dark ::selection {
-    background: #10b981;
-    color: #000000;
-}
-
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-neutral-800 rounded-full;
+  background-color: #23262C;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-neutral-700;
+  background-color: #2E323A;
+}
+
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════ */
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+@keyframes typing-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-typing-cursor {
+  animation: typing-cursor 1s step-end infinite;
+}
+
+/* ═══════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

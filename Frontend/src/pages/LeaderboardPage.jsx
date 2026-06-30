@@ -31,55 +31,55 @@ const LeaderboardPage = () => {
 
     const getRankIcon = (rank) => {
         switch (rank) {
-            case 1: return <Trophy className="text-amber-500" size={24} />;
-            case 2: return <Medal className="text-slate-400 dark:text-slate-300" size={24} />;
-            case 3: return <Medal className="text-amber-700 dark:text-amber-600" size={24} />;
-            default: return <span className="text-gray-500 font-mono w-6 text-center">#{rank}</span>;
+            case 1: return <Trophy className="text-amber-300" size={24} />;
+            case 2: return <Medal className="text-slate-300" size={24} />;
+            case 3: return <Medal className="text-amber-600" size={24} />;
+            default: return <span className="text-text-muted font-mono w-6 text-center">#{rank}</span>;
         }
     };
 
     const getRankBg = (rank) => {
         switch (rank) {
-            case 1: return 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-500/20';
-            case 2: return 'bg-slate-50 dark:bg-slate-800/20 border-slate-200 dark:border-slate-700/50';
-            case 3: return 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20';
-            default: return 'bg-white dark:bg-[#161b22] border-gray-100 dark:border-gray-800';
+            case 1: return 'bg-amber-400/5 border-amber-400/20';
+            case 2: return 'bg-slate-300/5 border-slate-300/20';
+            case 3: return 'bg-amber-600/5 border-amber-600/20';
+            default: return 'bg-surface border-border-subtle hover:border-border-default';
         }
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
+        <div className="min-h-screen bg-canvas text-text-primary">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl">
-                        <Trophy className="text-amber-500 dark:text-amber-400" size={32} />
+                <div className="flex items-center gap-4 mb-8 border-b border-border-subtle pb-4">
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl">
+                        <Trophy className="text-ember-400" size={32} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Leaderboard</h1>
-                        <p className="text-gray-500">Top coders ranked by problems solved</p>
+                        <h1 className="text-3xl font-bold font-display text-text-primary">Leaderboard</h1>
+                        <p className="text-text-secondary text-sm">Top coders ranked by problems solved</p>
                     </div>
                 </div>
 
                 {/* User's Rank Card */}
                 {userRank && (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 mb-8 border border-blue-100 dark:border-blue-800/30">
-                        <div className="flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-steel-700/5 to-steel-500/5 rounded-card p-6 mb-8 border border-steel-500/20 text-steel-300">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
                             <div>
-                                <p className="text-blue-600 dark:text-blue-400 text-sm font-medium mb-1">Your Current Ranking</p>
+                                <p className="text-steel-300 text-xs font-mono uppercase tracking-wide mb-1">Your Current Ranking</p>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-4xl font-bold text-gray-900 dark:text-white">#{userRank.rank}</span>
-                                    <span className="text-gray-500">of {userRank.totalUsers} users</span>
+                                    <span className="text-4xl font-bold text-text-primary font-mono">#{userRank.rank}</span>
+                                    <span className="text-text-muted text-sm font-mono">of {userRank.totalUsers} users</span>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 justify-end">
+                            <div className="text-right sm:text-right text-left">
+                                <div className="flex items-center gap-2 text-steel-300 justify-start sm:justify-end">
                                     <TrendingUp size={20} />
-                                    <span className="text-2xl font-bold">Top {userRank.percentile}%</span>
+                                    <span className="text-2xl font-bold font-mono">Top {userRank.percentile}%</span>
                                 </div>
-                                <p className="text-gray-500 text-sm">Keep solving to climb up!</p>
+                                <p className="text-text-muted text-xs mt-0.5">Keep solving to climb up!</p>
                             </div>
                         </div>
                     </div>
@@ -88,44 +88,46 @@ const LeaderboardPage = () => {
                 {/* Leaderboard Table */}
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-ember-400 animate-spin" />
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {leaderboard.map((entry) => (
                             <div
                                 key={entry._id}
-                                className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01] ${getRankBg(entry.rank)} ${entry._id === user?._id ? 'ring-2 ring-amber-400 dark:ring-amber-500' : ''}`}
+                                className={`flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01] ${getRankBg(entry.rank)} ${
+                                    entry._id === user?._id ? 'ring-2 ring-ember-400 border-transparent' : ''
+                                }`}
                             >
                                 <div className="w-12 flex justify-center">
                                     {getRankIcon(entry.rank)}
                                 </div>
 
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                                <div className="w-12 h-12 rounded-lg bg-ember-600 border border-border-default flex items-center justify-center text-text-primary font-bold text-lg font-display">
                                     {entry.firstName?.[0]?.toUpperCase() || '?'}
                                 </div>
 
-                                <div className="flex-1">
-                                    <p className="font-bold text-gray-900 dark:text-white">
-                                        {entry.firstName}
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-text-primary truncate font-display">
+                                        {entry.firstName} {entry.lastName}
                                         {entry._id === user?._id && (
-                                            <span className="ml-2 text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider font-black">You</span>
+                                            <span className="ml-2.5 text-[9px] bg-ember-400 text-canvas px-2 py-0.5 rounded-full uppercase tracking-wider font-mono font-bold">You</span>
                                         )}
                                     </p>
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{entry.email}</p>
+                                    <p className="text-text-muted text-xs font-mono truncate">{entry.email}</p>
                                 </div>
 
                                 <div className="text-right">
-                                    <p className="text-2xl font-black text-gray-900 dark:text-white">{entry.problemsSolved}</p>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-tighter">Problems Solved</p>
+                                    <p className="text-2xl font-bold text-text-primary font-mono">{entry.problemsSolved}</p>
+                                    <p className="text-text-muted text-[10px] uppercase font-mono tracking-tighter">Solved</p>
                                 </div>
                             </div>
                         ))}
 
                         {leaderboard.length === 0 && (
-                            <div className="text-center py-12 text-gray-500">
-                                <Award className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                <p>No users on the leaderboard yet</p>
+                            <div className="text-center py-12 card-af">
+                                <Award className="w-12 h-12 mx-auto mb-3 text-text-muted" />
+                                <p className="text-text-secondary">No users on the leaderboard yet</p>
                             </div>
                         )}
                     </div>

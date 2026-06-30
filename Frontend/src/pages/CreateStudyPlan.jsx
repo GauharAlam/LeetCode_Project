@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import axiosClient from '../utils/axiosClient';
 import {
     BookOpen, ArrowLeft, Plus, Trash2, Search, ChevronDown, ChevronUp,
-    GripVertical, Loader2, X, Check
+    Loader2, X, Check
 } from 'lucide-react';
 
 const COLOR_OPTIONS = [
@@ -47,7 +47,7 @@ const CreateStudyPlan = () => {
     const fetchProblems = async () => {
         try {
             const { data } = await axiosClient.get('/problem/getAllProblem');
-            setAllProblems(Array.isArray(data) ? data : []);
+            setAllProblems(data.problems || data || []);
         } catch (err) {
             console.error("Failed to fetch problems:", err);
             setAllProblems([]);
@@ -102,17 +102,17 @@ const CreateStudyPlan = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!form.name.trim() || !form.description.trim()) {
-            alert("Please fill in the plan name and description.");
+            alert("Please fill in name and description.");
             return;
         }
 
+        setSaving(true);
         try {
-            setSaving(true);
             const payload = {
                 name: form.name,
                 description: form.description,
                 difficulty: form.difficulty,
-                duration: parseInt(form.duration),
+                duration: Number(form.duration),
                 icon: form.icon,
                 color: form.color,
                 topics: form.topics.split(',').map(t => t.trim()).filter(Boolean),
@@ -142,12 +142,8 @@ const CreateStudyPlan = () => {
     });
 
     const getDifficultyBadge = (diff) => {
-        switch (diff) {
-            case 'easy': return 'bg-gray-600/15 text-gray-400 border-gray-400/30';
-            case 'medium': return 'bg-gray-200 text-gray-400 border-gray-400';
-            case 'hard': return 'bg-gray-500/15 text-gray-400 border-gray-400/30';
-            default: return 'bg-gray-500/15 text-gray-400 border-gray-500/30';
-        }
+        const classes = { easy: 'badge-easy', medium: 'badge-medium', hard: 'badge-hard' };
+        return classes[diff] || '';
     };
 
     // All problems already added (across all days)
@@ -156,107 +152,109 @@ const CreateStudyPlan = () => {
     const totalProblems = form.days.reduce((sum, d) => sum + d.problems.length, 0);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300">
+        <div className="min-h-screen bg-canvas text-text-primary">
             <Navbar />
 
             <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/study-plans')}
-                    className="flex items-center gap-2 text-gray-400 hover:text-gray-900 dark:text-white transition-colors mb-6"
+                    className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors mb-6 font-medium text-sm"
                 >
                     <ArrowLeft size={18} />
                     <span>Back to Study Plans</span>
                 </button>
 
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-gray-200 rounded-xl">
-                        <BookOpen className="text-gray-400" size={28} />
+                <div className="flex items-center gap-4 mb-8 border-b border-border-subtle pb-4">
+                    <div className="p-3 bg-surface border border-border-subtle rounded-xl text-ember-400">
+                        <BookOpen size={28} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Study Plan</h1>
-                        <p className="text-gray-500">Build a structured learning path</p>
+                        <h1 className="text-3xl font-bold font-display text-text-primary">Create Study Plan</h1>
+                        <p className="text-text-secondary text-sm">Build a structured learning path</p>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Info Section */}
-                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+                    <div className="card-af">
+                        <h2 className="text-lg font-bold text-text-primary mb-4 font-display">Basic Information</h2>
 
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
-                                <label className="block text-sm text-gray-400 mb-1">Plan Name *</label>
+                                <label className="micro-label block mb-1.5">Plan Name *</label>
                                 <input
                                     type="text"
                                     value={form.name}
                                     onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
                                     placeholder="e.g. 30 Days of Code"
-                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none transition-colors"
+                                    className="input-af text-sm"
                                     required
                                 />
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-sm text-gray-400 mb-1">Description *</label>
+                                <label className="micro-label block mb-1.5">Description *</label>
                                 <textarea
                                     value={form.description}
                                     onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
                                     placeholder="What will learners achieve with this plan?"
                                     rows={2}
-                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none transition-colors resize-none"
+                                    className="input-af text-sm h-20 resize-none"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm text-gray-400 mb-1">Difficulty</label>
+                                <label className="micro-label block mb-1.5">Difficulty</label>
                                 <select
                                     value={form.difficulty}
                                     onChange={e => setForm(prev => ({ ...prev, difficulty: e.target.value }))}
-                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
+                                    className="input-af text-sm cursor-pointer bg-surface"
                                 >
-                                    <option value="easy">Easy</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="hard">Hard</option>
-                                    <option value="mixed">Mixed</option>
+                                    <option value="easy" className="bg-surface">Easy</option>
+                                    <option value="medium" className="bg-surface">Medium</option>
+                                    <option value="hard" className="bg-surface">Hard</option>
+                                    <option value="mixed" className="bg-surface">Mixed</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm text-gray-400 mb-1">Duration (days)</label>
+                                <label className="micro-label block mb-1.5">Duration (days)</label>
                                 <input
                                     type="number"
                                     min="1"
                                     max="365"
                                     value={form.duration}
                                     onChange={e => setForm(prev => ({ ...prev, duration: e.target.value }))}
-                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
+                                    className="input-af text-sm"
                                 />
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-sm text-gray-400 mb-1">Topics (comma separated)</label>
+                                <label className="micro-label block mb-1.5">Topics (comma separated)</label>
                                 <input
                                     type="text"
                                     value={form.topics}
                                     onChange={e => setForm(prev => ({ ...prev, topics: e.target.value }))}
                                     placeholder="e.g. Arrays, Strings, Dynamic Programming"
-                                    className="w-full bg-gray-50 dark:bg-[#0d1117] border border-gray-700 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
+                                    className="input-af text-sm"
                                 />
                             </div>
 
                             {/* Color Picker */}
                             <div>
-                                <label className="block text-sm text-gray-400 mb-2">Theme Color</label>
+                                <label className="micro-label block mb-2">Theme Color</label>
                                 <div className="flex gap-2">
                                     {COLOR_OPTIONS.map(c => (
                                         <button
                                             key={c.value}
                                             type="button"
                                             onClick={() => setForm(prev => ({ ...prev, color: c.value }))}
-                                            className={`w-8 h-8 rounded-lg bg-gradient-to-br ${c.value} ${form.color === c.value ? 'ring-2 ring-white ring-offset-2 ring-offset-[#161b22]' : ''} transition-all`}
+                                            className={`w-8 h-8 rounded-lg bg-gradient-to-br ${c.value} ${
+                                                form.color === c.value ? 'ring-2 ring-ember-400 ring-offset-2 ring-offset-canvas' : ''
+                                            } transition-all`}
                                             title={c.label}
                                         />
                                     ))}
@@ -265,30 +263,30 @@ const CreateStudyPlan = () => {
 
                             {/* Visibility */}
                             <div className="flex items-end">
-                                <label className="flex items-center gap-3 cursor-pointer">
+                                <label className="flex items-center gap-3 cursor-pointer select-none">
                                     <input
                                         type="checkbox"
                                         checked={form.isPublic}
                                         onChange={e => setForm(prev => ({ ...prev, isPublic: e.target.checked }))}
-                                        className="checkbox checkbox-primary checkbox-sm"
+                                        className="w-4 h-4 rounded text-ember-400 focus:ring-ember-400 border-border-subtle bg-canvas"
                                     />
-                                    <span className="text-sm text-gray-400">Make this plan public</span>
+                                    <span className="text-sm text-text-secondary font-medium">Make this plan public</span>
                                 </label>
                             </div>
                         </div>
                     </div>
 
                     {/* Day Schedule Section */}
-                    <div className="bg-white dark:bg-[#161b22] rounded-xl border border-gray-800 p-6">
+                    <div className="card-af">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Schedule</h2>
-                                <p className="text-sm text-gray-500">{totalProblems} problems across {form.days.length} days</p>
+                                <h2 className="text-lg font-bold text-text-primary font-display">Schedule</h2>
+                                <p className="text-xs text-text-muted font-mono">{totalProblems} problems across {form.days.length} days</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={addDay}
-                                className="btn btn-sm bg-gray-200 text-gray-400 border-gray-300/30 hover:bg-gray-700/30"
+                                className="btn-secondary-af px-3 py-1.5 text-xs flex items-center gap-1.5"
                             >
                                 <Plus size={16} /> Add Day
                             </button>
@@ -296,10 +294,10 @@ const CreateStudyPlan = () => {
 
                         <div className="space-y-4">
                             {form.days.map((day, dayIndex) => (
-                                <div key={dayIndex} className="bg-gray-50 dark:bg-[#0d1117] rounded-xl border border-gray-800 p-4">
+                                <div key={dayIndex} className="bg-inset rounded-xl border border-border-subtle p-4">
                                     {/* Day Header */}
                                     <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-sm font-semibold text-gray-400 shrink-0">
+                                        <span className="text-sm font-bold font-mono text-text-muted shrink-0">
                                             Day {day.dayNumber}
                                         </span>
                                         <input
@@ -307,12 +305,12 @@ const CreateStudyPlan = () => {
                                             value={day.title}
                                             onChange={e => updateDayTitle(dayIndex, e.target.value)}
                                             placeholder="Day title (optional)"
-                                            className="flex-1 bg-transparent border-b border-gray-800 px-2 py-1 text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none text-sm"
+                                            className="flex-1 bg-transparent border-b border-border-subtle/50 px-2 py-1 text-text-primary focus:border-ember-400 focus:outline-none text-sm transition-colors"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowProblemPicker(showProblemPicker === dayIndex ? null : dayIndex)}
-                                            className="btn btn-xs bg-gray-600/20 text-gray-400 border-gray-400/30"
+                                            className="btn-secondary-af px-2.5 py-1 text-xs flex items-center gap-1"
                                         >
                                             <Plus size={14} /> Add Problem
                                         </button>
@@ -320,7 +318,7 @@ const CreateStudyPlan = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => removeDay(dayIndex)}
-                                                className="btn btn-xs btn-ghost text-gray-400 hover:bg-gray-500/10"
+                                                className="btn-ghost-af text-hard p-2.5 hover:bg-hard/10 rounded-lg"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -331,19 +329,19 @@ const CreateStudyPlan = () => {
                                     {day.problems.length > 0 ? (
                                         <div className="space-y-1.5">
                                             {day.problems.map((problem, pIdx) => (
-                                                <div key={problem._id} className="flex items-center justify-between px-3 py-2 bg-gray-800/30 rounded-lg">
+                                                <div key={problem._id} className="flex items-center justify-between px-3 py-2 bg-surface rounded-lg border border-border-subtle/30">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-gray-600">{pIdx + 1}.</span>
-                                                        <span className="text-sm text-gray-900 dark:text-white">{problem.title}</span>
+                                                        <span className="text-xs text-text-muted font-mono">{pIdx + 1}.</span>
+                                                        <span className="text-sm text-text-primary font-medium">{problem.title}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`text-xs px-2 py-0.5 rounded border capitalize ${getDifficultyBadge(problem.difficulty)}`}>
+                                                        <span className={getDifficultyBadge(problem.difficulty)}>
                                                             {problem.difficulty}
                                                         </span>
                                                         <button
                                                             type="button"
                                                             onClick={() => removeProblemFromDay(dayIndex, problem._id)}
-                                                            className="text-gray-600 hover:text-gray-400 transition-colors"
+                                                            className="text-text-muted hover:text-text-secondary transition-colors p-1"
                                                         >
                                                             <X size={14} />
                                                         </button>
@@ -352,42 +350,42 @@ const CreateStudyPlan = () => {
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-gray-600 italic px-3">No problems added yet</p>
+                                        <p className="text-sm text-text-muted italic px-3 font-medium">No problems added yet</p>
                                     )}
 
                                     {/* Problem Picker (inline) */}
                                     {showProblemPicker === dayIndex && (
-                                        <div className="mt-3 border-t border-gray-800 pt-3">
+                                        <div className="mt-3 border-t border-border-subtle/50 pt-3">
                                             <div className="flex gap-2 mb-3">
                                                 <div className="relative flex-1">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={14} />
                                                     <input
                                                         type="text"
                                                         value={searchQuery}
                                                         onChange={e => setSearchQuery(e.target.value)}
                                                         placeholder="Search problems..."
-                                                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-white focus:border-gray-300 focus:outline-none"
+                                                        className="input-af pl-9 pr-3 py-2 text-sm"
                                                     />
                                                 </div>
                                                 <select
                                                     value={difficultyFilter}
                                                     onChange={e => setDifficultyFilter(e.target.value)}
-                                                    className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none"
+                                                    className="bg-surface border border-border-subtle rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
                                                 >
-                                                    <option value="all">All</option>
-                                                    <option value="easy">Easy</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="hard">Hard</option>
+                                                    <option value="all" className="bg-surface">All</option>
+                                                    <option value="easy" className="bg-surface">Easy</option>
+                                                    <option value="medium" className="bg-surface">Medium</option>
+                                                    <option value="hard" className="bg-surface">Hard</option>
                                                 </select>
                                             </div>
 
-                                            <div className="max-h-48 overflow-y-auto space-y-1">
+                                            <div className="max-h-48 overflow-y-auto space-y-1 bg-surface border border-border-subtle/70 rounded-lg p-2.5">
                                                 {loadingProblems ? (
                                                     <div className="text-center py-4">
-                                                        <Loader2 className="animate-spin mx-auto text-gray-500" size={20} />
+                                                        <Loader2 className="animate-spin mx-auto text-ember-400" size={20} />
                                                     </div>
                                                 ) : filteredProblems.length === 0 ? (
-                                                    <p className="text-sm text-gray-600 text-center py-4">No problems found</p>
+                                                    <p className="text-sm text-text-muted text-center py-4 italic font-medium">No problems found</p>
                                                 ) : (
                                                     filteredProblems.map(problem => {
                                                         const isAdded = allAddedProblemIds.includes(problem._id);
@@ -399,25 +397,25 @@ const CreateStudyPlan = () => {
                                                                 disabled={isAdded}
                                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-colors ${
                                                                     isAdded
-                                                                        ? 'bg-gray-600/5 text-gray-600 cursor-default'
-                                                                        : 'hover:bg-gray-800/50 text-gray-900 dark:text-white cursor-pointer'
+                                                                        ? 'bg-elevated/40 text-text-muted cursor-default'
+                                                                        : 'hover:bg-elevated text-text-primary cursor-pointer border border-transparent hover:border-border-subtle/30'
                                                                 }`}
                                                             >
                                                                 <div className="flex items-center gap-2">
                                                                     {isAdded ? (
-                                                                        <Check size={14} className="text-gray-500" />
+                                                                        <Check size={14} className="text-easy" />
                                                                     ) : (
-                                                                        <Plus size={14} className="text-gray-500" />
+                                                                        <Plus size={14} className="text-text-muted" />
                                                                     )}
-                                                                    <span className="text-sm">{problem.title}</span>
+                                                                    <span className="text-sm font-medium">{problem.title}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
                                                                     {problem.tags?.slice(0, 2).map((tag, tIdx) => (
-                                                                        <span key={tIdx} className="text-[10px] bg-gray-800 text-gray-500 px-1.5 py-0.5 rounded hidden sm:inline">
+                                                                        <span key={tIdx} className="tag-chip font-mono py-0.5">
                                                                             {tag}
                                                                         </span>
                                                                     ))}
-                                                                    <span className={`text-xs px-2 py-0.5 rounded border capitalize ${getDifficultyBadge(problem.difficulty)}`}>
+                                                                    <span className={getDifficultyBadge(problem.difficulty)}>
                                                                         {problem.difficulty}
                                                                     </span>
                                                                 </div>
@@ -438,14 +436,14 @@ const CreateStudyPlan = () => {
                         <button
                             type="button"
                             onClick={() => navigate('/study-plans')}
-                            className="btn bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700"
+                            className="btn-secondary-af px-5 py-2.5 text-sm"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={saving}
-                            className="btn bg-gradient-to-r from-purple-500 to-pink-500 text-gray-900 dark:text-white border-none px-8 hover:opacity-90"
+                            className="btn-ember px-8 py-3 text-sm font-semibold flex items-center gap-2 disabled:opacity-50"
                         >
                             {saving ? (
                                 <><Loader2 className="animate-spin" size={18} /> Creating...</>
