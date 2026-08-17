@@ -11,6 +11,46 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
+const DEFAULT_STARTER_CODES = {
+  javascript: `/**
+ * @param {object} input
+ * @return {any}
+ */
+function solve(input) {
+  // Write your solution here
+}
+`,
+  'c++': `#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    // Write your solution here
+    
+};
+`,
+  java: `import java.util.*;
+
+class Solution {
+    // Write your solution here
+    
+}
+`
+};
+
+const getStarterCodeForLanguage = (problemData, lang) => {
+  const custom = problemData?.startCode?.find(sc => sc.language === lang);
+  if (custom && custom.initialCode && !custom.initialCode.includes('function solution()') && custom.initialCode !== '// Write your solution here') {
+    return custom.initialCode;
+  }
+  return DEFAULT_STARTER_CODES[lang] || DEFAULT_STARTER_CODES.javascript;
+};
+
 const ProblemPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,6 +63,7 @@ const ProblemPage = () => {
   const [language, setLanguage] = useState('javascript');
   const [code, setCode] = useState('');
   const [copied, setCopied] = useState(false);
+
 
   // Execution State
   const [output, setOutput] = useState(null);
@@ -66,6 +107,11 @@ const ProblemPage = () => {
   // AI Complexity Critique State
   const [critique, setCritique] = useState('');
   const [critiqueLoading, setCritiqueLoading] = useState(false);
+
+  // Solutions Tab State
+  const [solutionLangTab, setSolutionLangTab] = useState('all');
+  const [copiedSolutionIdx, setCopiedSolutionIdx] = useState(null);
+  const [appliedSolutionIdx, setAppliedSolutionIdx] = useState(null);
 
   // Resizable panels
   const [leftWidth, setLeftWidth] = useState(40); // percentage
@@ -125,11 +171,16 @@ const ProblemPage = () => {
         const { data } = await axiosClient.get(`/problem/problemById/${id}`);
         setProblem(data);
         const savedDraft = localStorage.getItem(`algoforge_draft_${id}_${language}`);
-        if (savedDraft) {
+        const isInvalidDraft = savedDraft && (
+          ((language === 'java' || language === 'c++') && savedDraft.includes('function solution()')) ||
+          (language === 'java' && savedDraft.includes('// Write your solution here') && !savedDraft.includes('class')) ||
+          (language === 'c++' && savedDraft.includes('// Write your solution here') && !savedDraft.includes('class'))
+        );
+
+        if (savedDraft && !isInvalidDraft) {
           setCode(savedDraft);
         } else {
-          const defaultStartCode = data.startCode?.find(sc => sc.language === language);
-          setCode(defaultStartCode ? defaultStartCode.initialCode : '// Write your solution here\n\nfunction solution() {\n  // Your code\n}');
+          setCode(getStarterCodeForLanguage(data, language));
         }
         try {
           const bookmarkRes = await axiosClient.get(`/problem/bookmark/${id}`);
@@ -156,6 +207,7 @@ const ProblemPage = () => {
     };
     fetchProblem();
   }, [id, language]);
+
 
   // Horizontal resize handler
   const handleMouseMoveH = useCallback((e) => {
@@ -309,11 +361,16 @@ const ProblemPage = () => {
     setLanguage(newLang);
     setCritique('');
     const savedDraft = localStorage.getItem(`algoforge_draft_${id}_${newLang}`);
-    if (savedDraft) {
+    const isInvalidDraft = savedDraft && (
+      ((newLang === 'java' || newLang === 'c++') && savedDraft.includes('function solution()')) ||
+      (newLang === 'java' && savedDraft.includes('// Write your solution here') && !savedDraft.includes('class')) ||
+      (newLang === 'c++' && savedDraft.includes('// Write your solution here') && !savedDraft.includes('class'))
+    );
+
+    if (savedDraft && !isInvalidDraft) {
       setCode(savedDraft);
     } else {
-      const langCode = problem.startCode?.find(sc => sc.language === newLang);
-      setCode(langCode ? langCode.initialCode : '// Write your solution here');
+      setCode(getStarterCodeForLanguage(problem, newLang));
     }
   };
 
@@ -327,7 +384,7 @@ const ProblemPage = () => {
 
   const handleResetCode = () => {
     if (!problem) return;
-    const initial = problem.startCode?.find(sc => sc.language === language)?.initialCode || '// Write your solution here';
+    const initial = getStarterCodeForLanguage(problem, language);
     setCode(initial);
     setCritique('');
     localStorage.removeItem(`algoforge_draft_${id}_${language}`);
@@ -688,37 +745,126 @@ const ProblemPage = () => {
 
             {activeTab === 'solutions' && (
               <div className="p-5 h-full flex flex-col overflow-hidden">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Code2 size={20} className="text-gray-500" />
-                  Official Solutions
-                </h2>
-                
-                {problem.referenceSolution && problem.referenceSolution.length > 0 ? (
-                  <div className="space-y-6 flex-1 overflow-y-auto pr-2 pb-10">
-                    {problem.referenceSolution.map((sol, index) => (
-                      <div key={index} className="bg-gray-50 dark:bg-[#202020] rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                        <div className="bg-gray-100 dark:bg-[#151515] border-b border-gray-200 dark:border-gray-800 px-4 py-2 flex items-center justify-between">
-                          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{sol.language} Approach</span>
-                          <button
-                            onClick={() => navigator.clipboard.writeText(sol.completeCode)}
-                            className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
-                            title="Copy Code"
-                          >
-                            <Copy size={14} />
-                          </button>
-                        </div>
-                        <div className="p-4 text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre-wrap overflow-x-auto">
-                          {sol.completeCode}
-                        </div>
-                      </div>
+                {/* Solutions Header */}
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2 shrink-0">
+                  <h2 className="text-lg font-bold text-text-primary flex items-center gap-2 font-display">
+                    <Code2 size={18} className="text-ember-400" />
+                    Official Solutions & Editorial
+                  </h2>
+
+                  {/* Language Filter Tabs */}
+                  <div className="flex items-center bg-inset p-0.5 rounded-lg border border-border-subtle text-xs font-medium">
+                    {['all', 'javascript', 'c++', 'java'].map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => setSolutionLangTab(lang)}
+                        className={`px-2.5 py-1 rounded-md transition-colors capitalize ${
+                          solutionLangTab === lang
+                            ? 'bg-elevated text-text-primary border border-border-subtle shadow-sm font-semibold'
+                            : 'text-text-muted hover:text-text-primary'
+                        }`}
+                      >
+                        {lang === 'all' ? 'All' : lang}
+                      </button>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
-                    <MessageSquare size={40} className="mb-3 opacity-50" />
-                    <p className="text-sm font-medium">No official solution provided</p>
-                  </div>
-                )}
+                </div>
+
+                <div className="space-y-5 flex-1 overflow-y-auto pr-1 pb-10">
+                  {/* Editorial Section if available */}
+                  {problem.editorial && (
+                    <div className="card-af p-4 space-y-2 border-l-2 border-steel-500 bg-surface/70">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-steel-300 flex items-center gap-1.5 font-display">
+                        <Sparkles size={14} className="text-steel-300" />
+                        Approach & Complexity Analysis
+                      </h3>
+                      <div className="text-xs sm:text-sm text-text-secondary leading-relaxed space-y-2">
+                        <ReactMarkdown>{problem.editorial}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Filtered Solutions List */}
+                  {(() => {
+                    const filteredSolutions = (problem.referenceSolution || []).filter(sol => {
+                      if (solutionLangTab === 'all') return true;
+                      return sol.language?.toLowerCase() === solutionLangTab.toLowerCase();
+                    });
+
+                    if (filteredSolutions.length === 0) {
+                      return (
+                        <div className="flex-1 flex flex-col items-center justify-center py-12 text-center text-text-muted">
+                          <Code2 size={36} className="mb-2 opacity-40 text-steel-500" />
+                          <p className="text-sm font-medium text-text-secondary">No solution available for {solutionLangTab}</p>
+                          <p className="text-xs text-text-muted mt-1">Switch to "All" to view implementations in other languages.</p>
+                        </div>
+                      );
+                    }
+
+                    return filteredSolutions.map((sol, index) => {
+                      const isCopied = copiedSolutionIdx === index;
+                      const isApplied = appliedSolutionIdx === index;
+
+                      return (
+                        <div key={index} className="card-af p-0 overflow-hidden border border-border-subtle">
+                          {/* Solution Header */}
+                          <div className="bg-elevated px-4 py-2.5 flex items-center justify-between border-b border-border-subtle">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold uppercase tracking-wider text-ember-400 bg-ember-400/10 px-2 py-0.5 rounded border border-ember-400/20">
+                                {sol.language}
+                              </span>
+                              <span className="text-xs text-text-muted">Optimal Implementation</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              {/* Load in editor button */}
+                              <button
+                                onClick={() => {
+                                  setCode(sol.completeCode);
+                                  setLanguage(sol.language);
+                                  setAppliedSolutionIdx(index);
+                                  setTimeout(() => setAppliedSolutionIdx(null), 2000);
+                                }}
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-inset hover:bg-surface border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
+                                title="Load this code into Monaco editor"
+                              >
+                                {isApplied ? (
+                                  <>
+                                    <Check size={12} className="text-easy" />
+                                    <span className="text-easy font-semibold">Loaded!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles size={12} className="text-steel-300" />
+                                    <span>Use in Editor</span>
+                                  </>
+                                )}
+                              </button>
+
+                              {/* Copy button */}
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(sol.completeCode);
+                                  setCopiedSolutionIdx(index);
+                                  setTimeout(() => setCopiedSolutionIdx(null), 2000);
+                                }}
+                                className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface border border-transparent hover:border-border-subtle transition-colors"
+                                title="Copy code"
+                              >
+                                {isCopied ? <Check size={14} className="text-easy" /> : <Copy size={14} />}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Code Block */}
+                          <div className="p-4 text-xs sm:text-sm font-mono text-text-primary bg-inset whitespace-pre-wrap overflow-x-auto leading-relaxed selection:bg-ember-400/20">
+                            <code>{sol.completeCode}</code>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
             )}
 

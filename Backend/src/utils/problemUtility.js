@@ -91,4 +91,54 @@ const submitToken = async (resultToken) => {
   throw new Error("Judge0 request timeout - maximum retries exceeded");
 };
 
-module.exports = { getLanguageById, submitBatch, submitToken };
+/**
+ * Prepares user code for execution by injecting the hidden runner/driver
+ * if the user wrote a pure LeetCode-style solution function/class without I/O boilerplate.
+ */
+const prepareExecutableCode = (code, language) => {
+  if (!code) return code;
+  const lang = (language || "").toLowerCase();
+
+  if (lang === "javascript") {
+    // If the code already has manual stdin reader, pass through directly
+    if (code.includes("readFileSync") || code.includes("require('fs')")) {
+      return code;
+    }
+
+    // Wrap with hidden driver
+    return `
+const fs = require('fs');
+const __rawInput = fs.readFileSync(0, 'utf8').trim();
+let input;
+try {
+  input = JSON.parse(__rawInput);
+} catch (e) {
+  input = __rawInput;
+}
+
+// User Code
+${code}
+
+// Execution Driver
+if (typeof solve === 'function') {
+  const __res = solve(input);
+  if (__res !== undefined) {
+    console.log(typeof __res === 'object' ? JSON.stringify(__res) : __res);
+  }
+} else if (typeof Solution !== 'undefined') {
+  const __inst = new Solution();
+  const __methods = Object.getOwnPropertyNames(Solution.prototype).filter(m => m !== 'constructor');
+  if (__methods.length > 0 && typeof __inst[__methods[0]] === 'function') {
+    const __res = __inst[__methods[0]](input);
+    if (__res !== undefined) {
+      console.log(typeof __res === 'object' ? JSON.stringify(__res) : __res);
+    }
+  }
+}
+`;
+  }
+
+  return code;
+};
+
+module.exports = { getLanguageById, submitBatch, submitToken, prepareExecutableCode };

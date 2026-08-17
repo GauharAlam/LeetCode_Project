@@ -1,7 +1,8 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize Gemini API (uses env variable GEMINI_API_KEY)
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'AIzaSyDZ3F5pIwZm_FwnnYLpp3gcxcjnCkYH0yw');
+const AI_API_KEY = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || 'AIzaSyDZ3F5pIwZm_FwnnYLpp3gcxcjnCkYH0yw';
+const AI_MODEL = process.env.AI_MODEL || "gemini-2.0-flash";
+const genAI = new GoogleGenerativeAI(AI_API_KEY);
 
 // Get AI hint for a problem
 const getAIHint = async (req, res) => {
@@ -12,15 +13,15 @@ const getAIHint = async (req, res) => {
             return res.status(400).json({ message: "Problem title and description are required" });
         }
 
-        // Check if Gemini API key exists
-        if (!process.env.GEMINI_API_KEY) {
+        // Check if AI API key exists
+        if (!AI_API_KEY) {
             return res.status(503).json({
-                message: "AI hints are not available. Please configure GEMINI_API_KEY.",
+                message: "AI hints are not available at this moment.",
                 fallbackHint: getBasicHint(difficulty)
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: AI_MODEL });
 
         const prompt = `You are a helpful coding tutor. A student is working on this problem:
 
@@ -116,8 +117,8 @@ const getAIRecommendation = async (req, res) => {
         const weakTags = tagAnalysis.filter(t => Number(t.rate) < 50).slice(0, 5);
         const strongTags = tagAnalysis.filter(t => Number(t.rate) >= 50);
 
-        // Check if Gemini API is available
-        if (!process.env.GEMINI_API_KEY) {
+        // Check if AI API is available
+        if (!AI_API_KEY) {
             // Generate fallback recommendation without AI
             const recommendedProblems = unsolvedProblems
                 .filter(p => {
@@ -151,8 +152,8 @@ const getAIRecommendation = async (req, res) => {
             });
         }
 
-        // Use Gemini for intelligent recommendation
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        // Use AI for intelligent recommendation
+        const model = genAI.getGenerativeModel({ model: AI_MODEL });
 
         const prompt = `You are an expert DSA (Data Structures & Algorithms) tutor creating a personalized study plan.
 
@@ -437,13 +438,13 @@ const getAIFix = async (req, res) => {
             return res.status(400).json({ message: "Problem title and code are required for analysis." });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!AI_API_KEY) {
             return res.status(503).json({
-                message: "AI agent is offline. Please configure GEMINI_API_KEY."
+                message: "AI agent is currently offline. Please try again later."
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: AI_MODEL });
 
         const prompt = `You are an expert pair-programming AI agent for a LeetCode clone.
 A user wrote the following ${language || 'code'} for the problem "${problemTitle}".
@@ -490,13 +491,13 @@ const chatWithAI = async (req, res) => {
             return res.status(400).json({ message: "Message is required." });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!AI_API_KEY) {
             return res.status(503).json({
-                message: "AI agent is offline. Please configure GEMINI_API_KEY."
+                message: "AI agent is currently offline. Please try again later."
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: AI_MODEL });
 
         // Build the system context
         const systemPrompt = `You are "AlgoForge Agent", an expert programming tutor helping a user solve a coding problem named "${problemTitle}". 
@@ -516,7 +517,7 @@ Instructions:
 - Respond directly to the user's latest message below.
 `;
 
-        // Format history for Gemini SDK
+        // Format history for AI SDK
         const formattedHistory = [];
         if (chatHistory && Array.isArray(chatHistory)) {
             for (const msg of chatHistory) {

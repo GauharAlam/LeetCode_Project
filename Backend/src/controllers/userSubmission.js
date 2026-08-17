@@ -2,7 +2,7 @@ const Problem = require("../models/problems");
 const Submission = require("../models/submission");
 const UserStudyPlan = require("../models/userStudyPlan");
 const StudyPlan = require("../models/studyPlan");
-const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility");
+const { getLanguageById, submitBatch, submitToken, prepareExecutableCode } = require("../utils/problemUtility");
 
 const submitCode = async (req, res) => {
   try {
@@ -36,8 +36,9 @@ const submitCode = async (req, res) => {
     await problem.save();
 
     const languageId = getLanguageById(language);
+    const executableCode = prepareExecutableCode(code, language);
     const submissions = problem.hiddenTestCases.map((testcase) => ({
-      source_code: code,
+      source_code: executableCode,
       language_id: languageId,
       stdin: testcase.input,
       expected_output: testcase.output,
@@ -161,8 +162,9 @@ const runCode = async(req, res)=>{
     }
 
     const languageId = getLanguageById(language);
+    const executableCode = prepareExecutableCode(code, language);
     const submissions = problem.visibleTestCases.map((testcase) => ({
-      source_code: code,
+      source_code: executableCode,
       language_id: languageId,
       stdin: testcase.input,
       expected_output: testcase.output,

@@ -1,6 +1,7 @@
 const StudyPlan = require("../models/studyPlan");
 const UserStudyPlan = require("../models/userStudyPlan");
 const Problem = require("../models/problems");
+const User = require("../models/user");
 
 // Get all study plans (official + public custom)
 const getAllStudyPlans = async (req, res) => {
@@ -17,10 +18,15 @@ const getAllStudyPlans = async (req, res) => {
         .populate("createdBy", "firstName lastName")
         .sort({ isOfficial: -1, createdAt: -1 });
 
-        // Get user's enrollment status for each plan
+        // Get user's enrollment status and global solved problems
         let userEnrollments = [];
+        let globalSolvedSet = new Set();
         if (userId) {
             userEnrollments = await UserStudyPlan.find({ userId });
+            const userDoc = await User.findById(userId).select("problemSolved");
+            if (userDoc?.problemSolved) {
+                userDoc.problemSolved.forEach(id => globalSolvedSet.add(id.toString()));
+            }
         }
 
         const plansWithProgress = plans.map(plan => {
@@ -28,16 +34,35 @@ const getAllStudyPlans = async (req, res) => {
                 e => e.studyPlanId.toString() === plan._id.toString()
             );
             
-            // Calculate total problems in plan
-            const totalProblems = (plan.days || []).reduce((sum, day) => sum + (day.problems || []).length, 0);
+            // Calculate total problems and collect their IDs
+            const planProblemIds = [];
+            (plan.days || []).forEach(day => {
+                (day.problems || []).forEach(p => {
+                    if (p) planProblemIds.push(p.toString());
+                });
+            });
+            const totalProblems = planProblemIds.length;
+
+            // Merge enrollment solved with global solved
+            const solvedSet = new Set();
+            if (enrollment?.solvedProblems) {
+                enrollment.solvedProblems.forEach(sp => solvedSet.add(sp.problemId.toString()));
+            }
+            planProblemIds.forEach(pId => {
+                if (globalSolvedSet.has(pId)) solvedSet.add(pId);
+            });
             
+            const solvedCount = solvedSet.size;
+            const progress = totalProblems > 0 ? Math.round((solvedCount / totalProblems) * 100) : 0;
+
             return {
                 ...plan.toObject(),
                 isEnrolled: !!enrollment,
-                enrollmentStatus: enrollment?.status || null,
-                solvedCount: enrollment?.solvedProblems?.length || 0,
+                enrollmentStatus: progress === 100 ? "completed" : (enrollment?.status || null),
+                solvedCount,
                 totalProblems,
-                currentDay: enrollment?.currentDay || 0,
+                progress,
+                currentDay: enrollment?.currentDay || 1,
                 startedAt: enrollment?.startedAt || null,
                 completedAt: enrollment?.completedAt || null
             };
@@ -64,22 +89,47 @@ const getStudyPlanById = async (req, res) => {
             return res.status(404).json({ message: "Study plan not found" });
         }
 
-        // Get user's enrollment
+        // Get user's enrollment and global solved list
         let enrollment = null;
+        let globalSolvedSet = new Set();
         if (userId) {
             enrollment = await UserStudyPlan.findOne({ userId, studyPlanId: planId });
+            const userDoc = await User.findById(userId).select("problemSolved");
+            if (userDoc?.problemSolved) {
+                userDoc.problemSolved.forEach(id => globalSolvedSet.add(id.toString()));
+            }
         }
 
-        const totalProblems = (plan.days || []).reduce((sum, day) => sum + (day.problems || []).length, 0);
+        const planProblemIds = [];
+        (plan.days || []).forEach(day => {
+            (day.problems || []).forEach(p => {
+                if (p?._id) planProblemIds.push(p._id.toString());
+            });
+        });
+        const totalProblems = planProblemIds.length;
+
+        // Merge enrollment-recorded solves with global solved problems
+        const solvedSet = new Set();
+        if (enrollment?.solvedProblems) {
+            enrollment.solvedProblems.forEach(sp => solvedSet.add(sp.problemId.toString()));
+        }
+        planProblemIds.forEach(pId => {
+            if (globalSolvedSet.has(pId)) solvedSet.add(pId);
+        });
+
+        const solvedCount = solvedSet.size;
+        const progress = totalProblems > 0 ? Math.round((solvedCount / totalProblems) * 100) : 0;
+        const isCompleted = totalProblems > 0 && solvedCount >= totalProblems;
 
         res.status(200).json({
             ...plan.toObject(),
             isEnrolled: !!enrollment,
-            enrollmentStatus: enrollment?.status || null,
-            solvedCount: enrollment?.solvedProblems?.length || 0,
-            solvedProblems: enrollment?.solvedProblems?.map(sp => sp.problemId.toString()) || [],
+            enrollmentStatus: isCompleted ? "completed" : (enrollment?.status || null),
+            solvedCount,
+            solvedProblems: Array.from(solvedSet),
             totalProblems,
-            currentDay: enrollment?.currentDay || 0,
+            progress,
+            currentDay: enrollment?.currentDay || 1,
             startedAt: enrollment?.startedAt || null,
             completedAt: enrollment?.completedAt || null
         });
@@ -213,24 +263,46 @@ const getMyPlans = async (req, res) => {
             })
             .sort({ updatedAt: -1 });
 
+        const userDoc = await User.findById(userId).select("problemSolved");
+        const globalSolvedSet = new Set();
+        if (userDoc?.problemSolved) {
+            userDoc.problemSolved.forEach(id => globalSolvedSet.add(id.toString()));
+        }
+
         const plansWithProgress = enrollments.map(enrollment => {
             const plan = enrollment.studyPlanId;
             if (!plan) return null;
 
-            const totalProblems = (plan.days || []).reduce((sum, day) => sum + (day.problems || []).length, 0);
+            const planProblemIds = [];
+            (plan.days || []).forEach(day => {
+                (day.problems || []).forEach(p => {
+                    if (p) planProblemIds.push(p.toString());
+                });
+            });
+            const totalProblems = planProblemIds.length;
+
+            const solvedSet = new Set();
+            if (enrollment?.solvedProblems) {
+                enrollment.solvedProblems.forEach(sp => solvedSet.add(sp.problemId.toString()));
+            }
+            planProblemIds.forEach(pId => {
+                if (globalSolvedSet.has(pId)) solvedSet.add(pId);
+            });
+
+            const solvedCount = solvedSet.size;
+            const progress = totalProblems > 0 ? Math.round((solvedCount / totalProblems) * 100) : 0;
+            const isCompleted = totalProblems > 0 && solvedCount >= totalProblems;
 
             return {
                 ...plan.toObject(),
                 isEnrolled: true,
-                enrollmentStatus: enrollment.status,
-                solvedCount: enrollment.solvedProblems.length,
+                enrollmentStatus: isCompleted ? "completed" : enrollment.status,
+                solvedCount,
                 totalProblems,
                 currentDay: enrollment.currentDay,
                 startedAt: enrollment.startedAt,
                 completedAt: enrollment.completedAt,
-                progress: totalProblems > 0
-                    ? Math.round((enrollment.solvedProblems.length / totalProblems) * 100)
-                    : 0
+                progress
             };
         }).filter(Boolean);
 

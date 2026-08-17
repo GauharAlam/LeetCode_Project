@@ -148,7 +148,15 @@ const Homepage = () => {
               <p className="micro-label text-ember-400 mb-1">Practice with a plan</p>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-text-primary">Choose your next pattern</h1>
             </div>
-            <p className="text-sm text-text-secondary max-w-md">Small, focused tracks help learners build intuition—not just collect solved problems.</p>
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-text-secondary max-w-md hidden md:block">Small, focused tracks help learners build intuition—not just collect solved problems.</p>
+              <button
+                onClick={() => navigate('/study-plans')}
+                className="text-xs font-semibold text-ember-400 hover:text-ember-300 flex items-center gap-1 shrink-0"
+              >
+                View Study Plans <ArrowRight size={13} />
+              </button>
+            </div>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {learningTracks.map(({ title, subtitle, tag, count, icon, tone }) => (

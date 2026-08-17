@@ -33,7 +33,7 @@ const SupportPage = () => {
     },
     {
       question: "What are AI-powered study plans?",
-      answer: "Our recommendation engine studies your profile's weak categories (tags where you solve fewer problems). It then calls the Gemini API to customize a structured day-by-day learning plan containing specific, unsolved problems to bridge your skills gaps.",
+      answer: "Our recommendation engine studies your profile's weak categories (tags where you solve fewer problems). It then leverages our AI engine to customize a structured day-by-day learning plan containing specific, unsolved problems to bridge your skills gaps.",
       icon: BookOpen
     },
     {

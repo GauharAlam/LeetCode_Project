@@ -58,7 +58,7 @@ const AIRecommendation = ({ onPlanCreated }) => {
                             <h3 className="text-xl font-bold text-text-primary flex items-center gap-2 font-display">
                                 AI-Powered Plan
                                 <span className="text-[10px] bg-steel-500/10 text-steel-300 border border-steel-500/20 px-2 py-0.5 rounded-full font-mono font-bold">
-                                    GEMINI AI
+                                    AI POWERED
                                 </span>
                             </h3>
                             <p className="text-text-secondary text-sm mt-1">
@@ -115,7 +115,7 @@ const AIRecommendation = ({ onPlanCreated }) => {
                     </h3>
                     {aiGenerated && (
                         <span className="text-[10px] bg-steel-500/10 text-steel-300 border border-steel-500/20 px-2 py-0.5 rounded-full font-mono font-bold">
-                            ✨ GEMINI AI
+                            ✨ AI
                         </span>
                     )}
                 </div>
