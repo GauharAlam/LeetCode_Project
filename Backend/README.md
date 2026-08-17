@@ -80,6 +80,16 @@ Start the server:
 
 npm start
 
+Seed the initial DSA catalog (run this once after setting `DB_CONNECT_STRING`):
+
+npm run seed:problems
+
+The seed is safe to re-run. It creates a platform content account and adds only missing
+problems, including examples, hidden tests, hints, starter code, tags, and reference
+solutions. It currently includes foundation and interview patterns such as arrays,
+hash maps, stacks, sliding windows, binary search, graphs, dynamic programming, and
+intervals.
+
 
 The server should now be running on http://localhost:3000.
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import axiosClient from '../utils/axiosClient';
-import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronLeft, ChevronRight, Building2, Tag } from 'lucide-react';
+import { Search, CheckCircle2, Filter, ArrowUpDown, X, ListFilter, ChevronLeft, ChevronRight, Building2, Tag, Map, Layers3, Route, Network, ArrowRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import DailyChallenge from '../components/DailyChallenge';
 
@@ -32,6 +32,12 @@ const Homepage = () => {
   const { user } = useSelector((state) => state.auth);
 
   const companies = ['All', 'google', 'amazon', 'meta', 'microsoft', 'apple', 'netflix', 'uber', 'airbnb', 'linkedin', 'twitter', 'spotify', 'oracle', 'salesforce', 'adobe', 'nvidia', 'stripe', 'coinbase', 'other'];
+  const learningTracks = [
+    { title: 'Foundation', subtitle: 'Start with patterns that unlock dozens of questions.', tag: 'array', count: '12 problems', icon: Layers3, tone: 'text-easy bg-easy/10 border-easy/20' },
+    { title: 'Interview Core', subtitle: 'Hash maps, sliding windows, and two pointers.', tag: 'hashmap', count: '18 problems', icon: Route, tone: 'text-steel-300 bg-steel-500/10 border-steel-500/20' },
+    { title: 'Trees & Graphs', subtitle: 'Build confidence with recursive thinking.', tag: 'graph', count: '16 problems', icon: Network, tone: 'text-ember-300 bg-ember-400/10 border-ember-400/20' },
+    { title: 'Advanced Patterns', subtitle: 'Dynamic programming, heaps, and backtracking.', tag: 'dp', count: '14 problems', icon: Map, tone: 'text-medium bg-medium/10 border-medium/20' },
+  ];
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -101,6 +107,12 @@ const Homepage = () => {
   }, [problems, search, difficultyFilter, selectedTags, selectedCompany, sortConfig]);
 
   const toggleTag = (tag) => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  const startTrack = (tag) => {
+    setSelectedTags([tag]);
+    setDifficultyFilter('All');
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const handleSort = (key) => { setSortConfig(c => c?.key === key ? { key, direction: c.direction === 'asc' ? 'desc' : 'asc' } : { key, direction: 'asc' }); setShowSortMenu(false); };
   const isSolved = (problemId) => user?.problemSolved?.includes(problemId);
 
@@ -130,8 +142,35 @@ const Homepage = () => {
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <DailyChallenge />
 
+        <section className="mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4">
+            <div>
+              <p className="micro-label text-ember-400 mb-1">Practice with a plan</p>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-text-primary">Choose your next pattern</h1>
+            </div>
+            <p className="text-sm text-text-secondary max-w-md">Small, focused tracks help learners build intuition—not just collect solved problems.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {learningTracks.map(({ title, subtitle, tag, count, icon, tone }) => (
+              <button key={title} onClick={() => startTrack(tag)} className="text-left card-af card-af-interactive p-4 group">
+                <div className="flex items-start justify-between gap-3">
+                  <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${tone}`}>{React.createElement(icon, { size: 18 })}</div>
+                  <span className="text-[11px] font-mono text-text-muted">{count}</span>
+                </div>
+                <h2 className="mt-4 text-base font-semibold text-text-primary">{title}</h2>
+                <p className="mt-1 text-xs leading-relaxed text-text-secondary min-h-9">{subtitle}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-ember-400 group-hover:text-ember-300">Explore track <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" /></span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* Controls Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+
+          <div className="md:hidden">
+            <p className="text-lg font-semibold text-text-primary">Problem library</p>
+          </div>
 
           {/* Search */}
           <div className="relative w-full md:w-96 group">
@@ -283,6 +322,14 @@ const Homepage = () => {
             </div>
 
           </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="hidden md:block text-xl font-display font-bold text-text-primary">Problem library</h2>
+            <p className="text-sm text-text-muted">{totalProblems || '—'} curated challenges · Learn one pattern at a time</p>
+          </div>
+          {selectedTags.length > 0 && <button onClick={() => setSelectedTags([])} className="text-xs text-text-secondary hover:text-ember-300 transition-colors">Reset track</button>}
         </div>
 
         {/* Selected Tags Pills */}
