@@ -7,7 +7,7 @@ import {
   Play, Send, RotateCcw, CheckCircle2, AlertCircle, ChevronDown,
   Maximize2, Minimize2, Code2, FileText, Clock, Cpu, Bookmark,
   BookmarkCheck, Lightbulb, Loader2, X, ArrowLeft, ChevronLeft,
-  ChevronRight, Sun, Moon, Copy, Check, Tag, Building2, MessageSquare, Notebook, Save, Sparkles, SendHorizontal, ChevronUp, MessageCircle
+  ChevronRight, Sun, Moon, Copy, Check, Tag, Building2, MessageSquare, Notebook, Save, Sparkles, SendHorizontal, ChevronUp, MessageCircle, Brain
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -338,7 +338,13 @@ const ProblemPage = () => {
       });
       setChatHistory([...newHistory, { role: 'ai', content: data.reply }]);
     } catch (error) {
-      setChatHistory([...newHistory, { role: 'ai', content: 'Connection error. Please try again.' }]);
+      const data = error.response?.data;
+      const detail = !data
+        ? 'Connection error. Please try again.'
+        : typeof data === 'string'
+          ? data
+          : [data.message, data.details].filter(Boolean).join('\n\n') || 'Connection error. Please try again.';
+      setChatHistory([...newHistory, { role: 'ai', content: detail }]);
     } finally {
       setChatLoading(false);
     }
