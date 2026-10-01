@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { checkAuth, setUnauthenticated } from "./authSlice";
 import { useAuth } from "@clerk/clerk-react";
 import { setClerkGetToken } from "./utils/axiosClient";
@@ -51,20 +51,34 @@ function App() {
   const { isSignedIn, isLoaded, getToken } = useAuth();
   const dispatch = useDispatch();
 
-  // Sync Clerk auth state → axios token → Redux state
+  // Tracks whether the initial session check already ran, so background
+  // re-renders (e.g. Clerk refreshing its token helpers) never wipe the
+  // page with the full-screen loader again.
+  const checkedRef = useRef(false);
+  const [booted, setBooted] = useState(false);
   useEffect(() => {
-    if (isLoaded) {
-      if (isSignedIn) {
-        setClerkGetToken(getToken);
+    if (isLoaded && !booted) setBooted(true);
+  }, [isLoaded, booted]);
+
+  // Sync Clerk auth state → axios token → Redux state.
+  // checkAuth() fires exactly once per sign-in; the token getter is
+  // re-synced on every change without re-dispatching.
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (isSignedIn) {
+      setClerkGetToken(getToken);
+      if (!checkedRef.current) {
+        checkedRef.current = true;
         dispatch(checkAuth());
-      } else {
-        setClerkGetToken(null);
-        dispatch(setUnauthenticated());
       }
+    } else {
+      checkedRef.current = false;
+      setClerkGetToken(null);
+      dispatch(setUnauthenticated());
     }
   }, [isLoaded, isSignedIn, getToken, dispatch]);
 
-  if (!isLoaded || (isSignedIn && loading)) return <div className="h-screen flex items-center justify-center bg-canvas"><span className="loading loading-ring loading-lg text-ember-400"></span></div>;
+  if (!isLoaded || (!booted && isSignedIn && loading)) return <div className="h-screen flex items-center justify-center bg-canvas"><span className="loading loading-ring loading-lg text-ember-400"></span></div>;
 
   const PageTransition = ({ children }) => (
     <motion.div
