@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Env & secrets (per-app .gitignore files also cover these)
+.env
+**/.env
+
+# Dependencies & build output
+node_modules/
+**/node_modules/
+dist/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
