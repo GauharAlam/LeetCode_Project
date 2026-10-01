@@ -31,6 +31,24 @@ import SubmissionsPage from "./pages/SubmissionsPage";
 import SupportPage from "./pages/SupportPage";
 
 
+// Page transition wrapper. Defined at module scope (NOT inside App) so its
+// component identity is stable across renders. When it was declared inside
+// App, every App re-render (e.g. Clerk session/token refresh ≈ every 60s)
+// created a new component type, forcing React to unmount + remount the
+// entire active page — wiping editor results, tabs and scroll, i.e. a
+// visible "auto-refresh" with the URL unchanged.
+const PageTransition = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.2, ease: "easeOut" }}
+    className="h-full w-full"
+  >
+    {children}
+  </motion.div>
+);
+
 // Guard Component for Admin Routes
 const AdminRoute = () => {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
@@ -79,18 +97,6 @@ function App() {
   }, [isLoaded, isSignedIn, getToken, dispatch]);
 
   if (!isLoaded || (!booted && isSignedIn && loading)) return <div className="h-screen flex items-center justify-center bg-canvas"><span className="loading loading-ring loading-lg text-ember-400"></span></div>;
-
-  const PageTransition = ({ children }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="h-full w-full"
-    >
-      {children}
-    </motion.div>
-  );
 
   return (
     <Routes>
