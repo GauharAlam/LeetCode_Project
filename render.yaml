@@ -28,7 +28,7 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
       - key: AI_MODEL
-        value: z-ai/glm-5.2:free
+        value: qwen/qwen3.8-27b:free
       - key: EMAIL_USER
         sync: false
       - key: EMAIL_PASS

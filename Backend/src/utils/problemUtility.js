@@ -138,13 +138,16 @@ const submitToken = async (resultToken) => {
 
     if (isResultObtained) {
       // Decode base64 fields back to plain text so controllers/frontend
-      // keep working with `stdout` / `stderr` / `compile_output` strings.
+      // keep working with plain strings (Judge0 returns *every* field,
+      // including stdin/expected_output, base64-encoded when requested).
       return result.submissions.map((r) => ({
         ...r,
         stdout: unb64(r.stdout),
         stderr: unb64(r.stderr),
         compile_output: unb64(r.compile_output),
         message: unb64(r.message),
+        stdin: unb64(r.stdin),
+        expected_output: unb64(r.expected_output),
       }));
     }
 
@@ -611,6 +614,27 @@ const prepareExecutableCode = (code, language) => {
       return code;
     }
 
+    // Pick the entry function: `solve` wins, then `class Solution`,
+    // otherwise the first top-level function (e.g. `twoSum(nums, target)`).
+    let entryCall = null; // JS expression resolving to the function to call
+    if (/(?:function\s+solve\s*\(|(?:const|let|var)\s+solve\s*=)/.test(code)) {
+      entryCall = "solve";
+    } else if (/class\s+Solution\b/.test(code)) {
+      entryCall = "__solutionFn()";
+    } else {
+      const fnMatch =
+        code.match(/(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/) ||
+        code.match(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(/);
+      if (fnMatch) entryCall = fnMatch[1];
+    }
+    if (!entryCall) {
+      throw judgeError(
+        "Could not find a function to run. Define `function solve(input)`, a `class Solution` method, or a named function like `function twoSum(nums, target)`.",
+        null,
+        400
+      );
+    }
+
     // Wrap with hidden driver
     return `
 const fs = require('fs');
@@ -626,20 +650,52 @@ try {
 ${code}
 
 // Execution Driver
-if (typeof solve === 'function') {
-  const __res = solve(input);
+// Supports both styles:
+//   function solve(input) {...}            -> called with the parsed object
+//   function twoSum(nums, target) {...}     -> args matched by param name,
+//                                            falling back to object values
+//   class Solution { twoSum(nums, target) } -> same, via first method
+const __callWithInput = (fn) => {
+  if (typeof fn !== 'function') return undefined;
+  if (fn.length <= 1 || input === null || typeof input !== 'object' || Array.isArray(input)) {
+    return fn(input);
+  }
+  let names = [];
+  try {
+    const src = Function.prototype.toString.call(fn);
+    const m = src.match(/^[^(]*\(([^)]*)\)/) || src.match(/^\s*\(?([^)]*?)\)?\s*=>/);
+    if (m) {
+      names = m[1].split(',').map(s => s.trim()).filter(Boolean).map(s => {
+        const mm = s.match(/^([A-Za-z_$][\w$]*)/);
+        return mm ? mm[1] : '';
+      }).filter(Boolean);
+    }
+  } catch (e) { names = []; }
+  let args;
+  if (names.length > 0 && names.every(n => n in input)) {
+    args = names.map(n => input[n]);
+  } else {
+    args = Object.values(input);
+  }
+  return fn(...args);
+};
+const __printRes = (__res) => {
   if (__res !== undefined) {
     console.log(typeof __res === 'object' ? JSON.stringify(__res) : __res);
   }
-} else if (typeof Solution !== 'undefined') {
+};
+const __solutionFn = () => {
+  if (typeof Solution === 'undefined') return null;
   const __inst = new Solution();
   const __methods = Object.getOwnPropertyNames(Solution.prototype).filter(m => m !== 'constructor');
   if (__methods.length > 0 && typeof __inst[__methods[0]] === 'function') {
-    const __res = __inst[__methods[0]](input);
-    if (__res !== undefined) {
-      console.log(typeof __res === 'object' ? JSON.stringify(__res) : __res);
-    }
+    return __inst[__methods[0]].bind(__inst);
   }
+  return null;
+};
+const __entry = (typeof ${entryCall} !== 'undefined' && ${entryCall} instanceof Function) ? ${entryCall} : __solutionFn();
+if (typeof __entry === 'function') {
+  __printRes(__callWithInput(__entry));
 }
 `;
   }

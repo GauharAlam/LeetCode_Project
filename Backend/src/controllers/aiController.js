@@ -4,7 +4,7 @@ const axios = require("axios");
 // AI_MODEL can be any OpenRouter model id. Default is a free model
 // (":free" suffix = no charge, rate-limited).
 const AI_API_KEY = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
-const AI_MODEL = process.env.AI_MODEL || "z-ai/glm-5.2:free";
+const AI_MODEL = process.env.AI_MODEL || "qwen/qwen3.8-27b:free";
 const AI_BASE_URL = process.env.AI_BASE_URL || "https://openrouter.ai/api/v1";
 
 // Single helper for all AI calls (hints, fixes, recommendations, chat).
