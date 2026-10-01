@@ -369,10 +369,22 @@ const Homepage = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="px-6 py-20 text-center">
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <span className="loading loading-spinner loading-lg text-ember-400"></span>
-                        <span className="text-text-muted text-sm">Loading problems...</span>
+                    <td colSpan="5" className="p-0">
+                      <div className="space-y-0">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-border-subtle/40">
+                            <div className="w-5 h-5 rounded-full skeleton-shimmer shrink-0" />
+                            <div className="flex-1">
+                              <div className="h-4 skeleton-shimmer rounded w-2/5" />
+                            </div>
+                            <div className="h-5 w-14 skeleton-shimmer rounded-full" />
+                            <div className="flex gap-1.5">
+                              <div className="h-5 w-12 skeleton-shimmer rounded" />
+                              <div className="h-5 w-12 skeleton-shimmer rounded" />
+                            </div>
+                            <div className="h-7 w-16 skeleton-shimmer rounded-lg" />
+                          </div>
+                        ))}
                       </div>
                     </td>
                   </tr>
@@ -380,11 +392,12 @@ const Homepage = () => {
                   processedProblems.map((prob) => (
                     <tr
                       key={prob._id}
-                      className="group"
+                      className="group cursor-pointer hover:bg-elevated/40 transition-colors"
+                      onClick={() => navigate(`/problem/${prob._id}`)}
                     >
                       <td className="text-center">
                         {isSolved(prob._id) ? (
-                          <CheckCircle2 className="inline-block w-5 h-5 text-ember-400" />
+                          <CheckCircle2 className="inline-block w-5 h-5 text-easy" />
                         ) : (
                           <div className="w-5 h-5 rounded-full border-2 border-border-default inline-block group-hover:border-text-muted transition-colors" />
                         )}

@@ -497,7 +497,7 @@ const StudyPlansPage = () => {
                                         <div className="flex flex-wrap gap-1.5 mb-6">
                                             {plan.topics?.slice(0, 3).map((topic, idx) => (
                                                 <span key={idx} className="tag-chip text-xs">
-                                                    {topic === 'arary' ? 'Array' : topic}
+                                                    {topic}
                                                 </span>
                                             ))}
                                             {plan.topics?.length > 3 && (

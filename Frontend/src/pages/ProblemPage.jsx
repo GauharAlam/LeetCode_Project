@@ -435,6 +435,19 @@ const ProblemPage = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Backend now returns JSON { message, details } for execution errors, but
+  // older plain-text responses are still handled gracefully.
+  const getExecutionErrorMessage = (error, fallback) => {
+    const data = error.response?.data;
+    if (!data) return error.message || fallback;
+    if (typeof data === 'string') return data;
+    const parts = [];
+    if (data.message) parts.push(data.message);
+    if (data.details) parts.push(typeof data.details === 'string' ? data.details : JSON.stringify(data.details));
+    if (parts.length > 0) return parts.join('\n\n');
+    return error.message || fallback;
+  };
+
   const handleRun = async () => {
     setIsRunning(true);
     setOutput(null);
@@ -443,7 +456,7 @@ const ProblemPage = () => {
       const { data } = await axiosClient.post(`/submission/run/${id}`, { code, language, problemId: id });
       setOutput({ type: 'run', results: data });
     } catch (error) {
-      setOutput({ type: 'error', message: error.response?.data?.message || "Execution Failed" });
+      setOutput({ type: 'error', message: getExecutionErrorMessage(error, "Execution Failed") });
     } finally {
       setIsRunning(false);
     }
@@ -457,7 +470,7 @@ const ProblemPage = () => {
       const { data } = await axiosClient.post(`/submission/submit/${id}`, { code, language, problemId: id });
       setOutput({ type: 'submit', result: data });
     } catch (error) {
-      setOutput({ type: 'error', message: error.response?.data?.message || "Submission Failed" });
+      setOutput({ type: 'error', message: getExecutionErrorMessage(error, "Submission Failed") });
     } finally {
       setIsRunning(false);
     }
@@ -1266,8 +1279,11 @@ const ProblemPage = () => {
                       {output.type === 'submit' && (
                         <div className="text-center py-6">
                           <h2 className={`text-2xl font-bold mb-3 ${output.result.status === 'accepted' ? 'text-gray-500' : 'text-gray-500'}`}>
-                            {output.result.status === 'accepted' ? '✓ Accepted' : '✗ Wrong Answer'}
+                            {output.result.status === 'accepted' ? '✓ Accepted' : output.result.status === 'error' ? '✗ Runtime / Compile Error' : '✗ Wrong Answer'}
                           </h2>
+                          {output.result.status !== 'accepted' && output.result.errorMessage && (
+                            <pre className="mx-auto max-w-2xl mt-2 text-left text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap font-mono bg-gray-50 dark:bg-[#16162d] border border-gray-200 dark:border-gray-800 rounded-lg p-3">{output.result.errorMessage}</pre>
+                          )}
                           <div className="flex justify-center gap-8 mt-4">
                             {[
                               { label: 'Runtime', value: `${output.result.runtime} ms` },

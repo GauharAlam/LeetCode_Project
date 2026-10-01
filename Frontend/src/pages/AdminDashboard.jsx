@@ -113,7 +113,7 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="4" className="text-center py-10"><span className="loading loading-spinner loading-lg text-ember-400"></span></td></tr>
+                  <tr><td colSpan="4" className="text-center py-10"><span className="spinner-af spinner-af-lg text-ember-400"></span></td></tr>
                 ) : problems.length === 0 ? (
                   <tr><td colSpan="4" className="text-center py-10 text-text-muted">No problems found. Create one!</td></tr>
                 ) : problems.map((prob) => (
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan="5" className="text-center py-10"><span className="loading loading-spinner loading-lg text-ember-400"></span></td></tr>
+                    <tr><td colSpan="5" className="text-center py-10"><span className="spinner-af spinner-af-lg text-ember-400"></span></td></tr>
                   ) : contests.length === 0 ? (
                     <tr><td colSpan="5" className="text-center py-10 text-text-muted">No contests found. Create one!</td></tr>
                   ) : contests.map((contest) => (

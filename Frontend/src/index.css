@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "daisyui";
 
 /* ═══════════════════════════════════════════════════
    ALGOFORGE DESIGN SYSTEM — Tailwind v4 Theme
@@ -19,7 +18,7 @@
   /* ─── Text Scale ─── */
   --color-text-primary: #F3F1EC;
   --color-text-secondary: #9BA0AA;
-  --color-text-muted: #5C616B;
+  --color-text-muted: #6E737D;
 
   /* ─── Ember (warm — actions, progress, fire) ─── */
   --color-ember-300: #FF8A3D;
@@ -46,36 +45,6 @@
   /* ─── Border Radius ─── */
   --radius-control: 10px;
   --radius-card: 12px;
-}
-
-/* ═══════════════════════════════════════════════════
-   DaisyUI Theme Override
-   ═══════════════════════════════════════════════════ */
-
-:root {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  
-  /* Override DaisyUI theme tokens */
-  --color-primary: #E8722C;
-  --color-primary-content: #0A0B0D;
-  --color-secondary: #4F8FE8;
-  --color-secondary-content: #F3F1EC;
-  --color-accent: #FF8A3D;
-  --color-accent-content: #0A0B0D;
-  --color-neutral: #1B1E24;
-  --color-neutral-content: #9BA0AA;
-  --color-base-100: #0A0B0D;
-  --color-base-200: #131519;
-  --color-base-300: #1B1E24;
-  --color-base-content: #F3F1EC;
-  --color-info: #4F8FE8;
-  --color-info-content: #F3F1EC;
-  --color-success: #3FB68C;
-  --color-success-content: #0A0B0D;
-  --color-warning: #E0A93B;
-  --color-warning-content: #0A0B0D;
-  --color-error: #E14F4F;
-  --color-error-content: #F3F1EC;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -350,6 +319,28 @@
   .table-af tbody td {
     padding: 14px 24px;
   }
+
+  /* ─── Custom Spinner (replaces DaisyUI loading) ─── */
+  .spinner-af {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #1B1E24;
+    border-top-color: #E8722C;
+    border-radius: 9999px;
+    animation: spin-af 0.6s linear infinite;
+  }
+
+  .spinner-af-sm {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-width: 2px;
+  }
+
+  .spinner-af-lg {
+    width: 3rem;
+    height: 3rem;
+    border-width: 4px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -407,6 +398,15 @@
   animation: fade-in-up 0.3s ease-out forwards;
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
 @keyframes typing-cursor {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
@@ -414,6 +414,21 @@
 
 .animate-typing-cursor {
   animation: typing-cursor 1s step-end infinite;
+}
+
+@keyframes spin-af {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #1B1E24 25%, #23262C 50%, #1B1E24 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════

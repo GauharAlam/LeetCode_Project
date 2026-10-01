@@ -93,7 +93,7 @@ const BookmarksPage = () => {
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {problem.tags?.slice(0, 4).map((tag, idx) => (
                                                         <span key={idx} className="tag-chip">
-                                                            {tag === 'arary' ? 'Array' : tag}
+                                                            {tag}
                                                         </span>
                                                     ))}
                                                 </div>

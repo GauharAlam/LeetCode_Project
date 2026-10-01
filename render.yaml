@@ -8,3 +8,32 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
+      # Required at runtime — set values in the Render dashboard
+      # (Dashboard -> Service -> Environment). `sync: false` means Render
+      # will not overwrite manually entered secrets on redeploy.
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: DB_CONNECT_STRING
+        sync: false
+      - key: JWT_KEY
+        sync: false
+      - key: JUDGE0_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: AI_MODEL
+        value: z-ai/glm-5.2:free
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false

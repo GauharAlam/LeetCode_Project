@@ -2,6 +2,7 @@ const {
   getLanguageById,
   submitBatch,
   submitToken,
+  prepareExecutableCode,
 } = require("../utils/problemUtility");
 const Problem = require("../models/problems");
 const User = require("../models/user");
@@ -14,25 +15,44 @@ const createProblem = async (req, res) => {
 
   try {
     // STEP 1: Loop through and validate ALL solutions first.
+    // NOTE: validation runs through the same prepareExecutableCode driver as
+    // user submissions, so LeetCode-style `class Solution` reference code is
+    // accepted (C++/Java are wrapped with the auto-runner).
     for (const { language, completeCode } of referenceSolution) {
       const languageId = getLanguageById(language);
+      if (!languageId) {
+        return res.status(400).json({
+          message: `Unsupported language '${language}'. Supported languages: javascript, c++, java.`,
+        });
+      }
+
+      let executableCode;
+      try {
+        executableCode = prepareExecutableCode(completeCode, language);
+      } catch (driverErr) {
+        return res.status(driverErr.status || 400).json({
+          message: `The reference solution for '${language}' could not be prepared: ${driverErr.message}`,
+          details: driverErr.details,
+        });
+      }
 
       const submissions = req.body.visibleTestCases.map((testcase) => ({
-        source_code: completeCode,
+        source_code: executableCode,
         language_id: languageId,
         stdin: testcase.input,
         expected_output: testcase.output,
       }));
 
-      const submitResult = await submitBatch(submissions);
-      if (!submitResult) {
-        return res.status(500).send("No response from Judge0 during submission.");
-      }
-
-      const resultToken = submitResult.map((value) => value.token);
-      const testResult = await submitToken(resultToken);
-      if (!testResult) {
-        return res.status(500).send("No response from Judge0 when fetching results.");
+      let testResult;
+      try {
+        const submitResult = await submitBatch(submissions);
+        const resultToken = submitResult.map((value) => value.token);
+        testResult = await submitToken(resultToken);
+      } catch (judgeErr) {
+        return res.status(judgeErr.status || 502).json({
+          message: judgeErr.message || "No response from Judge0 during submission.",
+          details: judgeErr.details,
+        });
       }
 
       for (const result of testResult) {
@@ -40,7 +60,12 @@ const createProblem = async (req, res) => {
         if (result.status.id !== 3) { // 3 = Accepted
           return res.status(400).json({
             message: `The reference solution for '${language}' failed a test case.`,
-            details: result.status.description,
+            details: [
+              result.status.description,
+              result.compile_output ? `Compile output:\n${String(result.compile_output).slice(0, 2000)}` : null,
+              result.stderr ? `Stderr:\n${String(result.stderr).slice(0, 2000)}` : null,
+              result.stdout ? `Stdout:\n${String(result.stdout).slice(0, 2000)}` : null,
+            ].filter(Boolean).join("\n\n"),
           });
         }
       }
@@ -52,7 +77,7 @@ const createProblem = async (req, res) => {
       problemCreator: req.result._id,
     });
 
-    return res.status(201).send("Problem Saved Successfully");
+    return res.status(201).json({ message: "Problem Saved Successfully", problem: userProblem });
 
   } catch (err) {
     return res.status(500).json({ message: "An unexpected error occurred.", error: err.message });
@@ -71,25 +96,42 @@ const updateProblem = async (req, res) => {
     }
 
     // STEP 1: Loop through and validate ALL solutions first.
+    // (Same driver as submissions — see createProblem.)
     for (const { language, completeCode } of referenceSolution) {
       const languageId = getLanguageById(language);
+      if (!languageId) {
+        return res.status(400).json({
+          message: `Unsupported language '${language}'. Supported languages: javascript, c++, java.`,
+        });
+      }
+
+      let executableCode;
+      try {
+        executableCode = prepareExecutableCode(completeCode, language);
+      } catch (driverErr) {
+        return res.status(driverErr.status || 400).json({
+          message: `The updated reference solution for '${language}' could not be prepared: ${driverErr.message}`,
+          details: driverErr.details,
+        });
+      }
 
       const submissions = req.body.visibleTestCases.map((testcase) => ({
-        source_code: completeCode,
+        source_code: executableCode,
         language_id: languageId,
         stdin: testcase.input,
         expected_output: testcase.output,
       }));
 
-      const submitResult = await submitBatch(submissions);
-      if (!submitResult) {
-        return res.status(500).send("No response from Judge0 during submission.");
-      }
-
-      const resultToken = submitResult.map((value) => value.token);
-      const testResult = await submitToken(resultToken);
-      if (!testResult) {
-        return res.status(500).send("No response from Judge0 when fetching results.");
+      let testResult;
+      try {
+        const submitResult = await submitBatch(submissions);
+        const resultToken = submitResult.map((value) => value.token);
+        testResult = await submitToken(resultToken);
+      } catch (judgeErr) {
+        return res.status(judgeErr.status || 502).json({
+          message: judgeErr.message || "No response from Judge0 during submission.",
+          details: judgeErr.details,
+        });
       }
 
       for (const result of testResult) {
@@ -97,7 +139,12 @@ const updateProblem = async (req, res) => {
         if (result.status.id !== 3) { // 3 = Accepted
           return res.status(400).json({
             message: `The updated reference solution for '${language}' failed a test case.`,
-            details: result.status.description,
+            details: [
+              result.status.description,
+              result.compile_output ? `Compile output:\n${String(result.compile_output).slice(0, 2000)}` : null,
+              result.stderr ? `Stderr:\n${String(result.stderr).slice(0, 2000)}` : null,
+              result.stdout ? `Stdout:\n${String(result.stdout).slice(0, 2000)}` : null,
+            ].filter(Boolean).join("\n\n"),
           });
         }
       }

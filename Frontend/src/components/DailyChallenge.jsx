@@ -86,7 +86,7 @@ const DailyChallenge = () => {
                             </span>
                             {challenge.tags?.slice(0, 3).map((tag, idx) => (
                                 <span key={idx} className="tag-chip">
-                                    {tag === 'arary' ? 'Array' : tag}
+                                    {tag}
                                 </span>
                             ))}
                         </div>

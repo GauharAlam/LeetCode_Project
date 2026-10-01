@@ -117,7 +117,7 @@ function ForgotPassword() {
               className="btn-ember w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
               disabled={loading}
             >
-              {loading ? <span className="loading loading-spinner"></span> : "Send Reset Code"}
+              {loading ? <span className="spinner-af"></span> : "Send Reset Code"}
             </button>
 
             <Link to="/login" className="text-sm text-text-muted hover:text-text-primary transition-colors font-medium">
@@ -198,7 +198,7 @@ function ForgotPassword() {
               className="btn-ember w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
               disabled={loading}
             >
-              {loading ? <span className="loading loading-spinner"></span> : "Reset Password"}
+              {loading ? <span className="spinner-af"></span> : "Reset Password"}
             </button>
 
             <button

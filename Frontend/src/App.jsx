@@ -35,7 +35,7 @@ import SupportPage from "./pages/SupportPage";
 const AdminRoute = () => {
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-canvas"><span className="loading loading-spinner text-ember-400"></span></div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-canvas"><span className="spinner-af text-ember-400"></span></div>;
 
   // Check if authenticated AND role is admin
   if (isAuthenticated && user?.role === 'admin') {

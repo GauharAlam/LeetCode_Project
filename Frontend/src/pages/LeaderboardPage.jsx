@@ -31,18 +31,18 @@ const LeaderboardPage = () => {
 
     const getRankIcon = (rank) => {
         switch (rank) {
-            case 1: return <Trophy className="text-amber-300" size={24} />;
-            case 2: return <Medal className="text-slate-300" size={24} />;
-            case 3: return <Medal className="text-amber-600" size={24} />;
+            case 1: return <Trophy className="text-[#FFD9A0]" size={24} />;
+            case 2: return <Medal className="text-text-secondary" size={24} />;
+            case 3: return <Medal className="text-ember-500" size={24} />;
             default: return <span className="text-text-muted font-mono w-6 text-center">#{rank}</span>;
         }
     };
 
     const getRankBg = (rank) => {
         switch (rank) {
-            case 1: return 'bg-amber-400/5 border-amber-400/20';
-            case 2: return 'bg-slate-300/5 border-slate-300/20';
-            case 3: return 'bg-amber-600/5 border-amber-600/20';
+            case 1: return 'bg-[#FFD9A0]/5 border-[#FFD9A0]/20';
+            case 2: return 'bg-text-secondary/5 border-text-secondary/20';
+            case 3: return 'bg-ember-500/5 border-ember-500/20';
             default: return 'bg-surface border-border-subtle hover:border-border-default';
         }
     };

@@ -96,7 +96,7 @@ const Dashboard = () => {
             <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <span className="loading loading-spinner loading-lg text-ember-400"></span>
+                    <span className="spinner-af spinner-af-lg text-ember-400"></span>
                 </div>
             </div>
         );

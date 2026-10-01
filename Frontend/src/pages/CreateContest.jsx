@@ -105,7 +105,7 @@ const CreateContest = () => {
                 disabled={loading}
                 className="btn-ember px-5 py-2.5 text-sm flex items-center gap-2 font-semibold disabled:opacity-50"
               >
-                {loading ? <span className="loading loading-spinner text-canvas"></span> : <Save size={18} />}
+                {loading ? <span className="spinner-af text-canvas"></span> : <Save size={18} />}
                 Create Contest
               </button>
             </div>
@@ -177,7 +177,7 @@ const CreateContest = () => {
               
               <div className="bg-inset rounded-control p-3 max-h-96 overflow-y-auto border border-border-subtle">
                 {fetchLoading ? (
-                  <div className="flex justify-center p-8"><span className="loading loading-spinner text-ember-400"></span></div>
+                  <div className="flex justify-center p-8"><span className="spinner-af text-ember-400"></span></div>
                 ) : problems.length === 0 ? (
                   <p className="text-center p-4 text-text-muted italic">No problems available. Please create some problems first.</p>
                 ) : (

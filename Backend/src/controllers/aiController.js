@@ -1,8 +1,31 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const axios = require("axios");
 
-const AI_API_KEY = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || 'AIzaSyDZ3F5pIwZm_FwnnYLpp3gcxcjnCkYH0yw';
-const AI_MODEL = process.env.AI_MODEL || "gemini-2.0-flash";
-const genAI = new GoogleGenerativeAI(AI_API_KEY);
+// OpenRouter (OpenAI-compatible API) — set OPENROUTER_API_KEY in .env.
+// AI_MODEL can be any OpenRouter model id. Default is a free model
+// (":free" suffix = no charge, rate-limited).
+const AI_API_KEY = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
+const AI_MODEL = process.env.AI_MODEL || "z-ai/glm-5.2:free";
+const AI_BASE_URL = process.env.AI_BASE_URL || "https://openrouter.ai/api/v1";
+
+// Single helper for all AI calls (hints, fixes, recommendations, chat).
+const chatComplete = async (messages, { maxTokens = 1000, temperature = 0.7 } = {}) => {
+    const headers = {
+        Authorization: `Bearer ${AI_API_KEY}`,
+        "Content-Type": "application/json",
+        "X-Title": process.env.AI_APP_NAME || "AlgoForge",
+    };
+    const siteUrl = process.env.FRONTEND_URL || process.env.BACKEND_URL;
+    if (siteUrl) headers["HTTP-Referer"] = siteUrl;
+
+    const { data } = await axios.post(
+        `${AI_BASE_URL}/chat/completions`,
+        { model: AI_MODEL, messages, max_tokens: maxTokens, temperature },
+        { headers, timeout: 60000 }
+    );
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Empty response from AI provider");
+    return content.trim();
+};
 
 // Get AI hint for a problem
 const getAIHint = async (req, res) => {
@@ -21,8 +44,6 @@ const getAIHint = async (req, res) => {
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: AI_MODEL });
-
         const prompt = `You are a helpful coding tutor. A student is working on this problem:
 
 Problem: ${problemTitle}
@@ -38,9 +59,10 @@ Provide a helpful hint to guide them toward the solution WITHOUT giving away the
 
 Format: Just provide the hint directly, no additional formatting.`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const hint = response.text();
+        const hint = await chatComplete(
+            [{ role: "user", content: prompt }],
+            { maxTokens: 300 }
+        );
 
         res.status(200).json({ hint });
     } catch (error) {
@@ -153,8 +175,6 @@ const getAIRecommendation = async (req, res) => {
         }
 
         // Use AI for intelligent recommendation
-        const model = genAI.getGenerativeModel({ model: AI_MODEL });
-
         const prompt = `You are an expert DSA (Data Structures & Algorithms) tutor creating a personalized study plan.
 
 Here is the student's profile:
@@ -185,9 +205,10 @@ Rules:
 - Create 5-10 days with 1-3 problems each
 - Make day titles motivating and descriptive`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let aiText = response.text().trim();
+        let aiText = await chatComplete(
+            [{ role: "user", content: prompt }],
+            { maxTokens: 2000, temperature: 0.5 }
+        );
 
         // Clean up AI response (remove markdown code blocks if present)
         aiText = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -444,8 +465,6 @@ const getAIFix = async (req, res) => {
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: AI_MODEL });
-
         const prompt = `You are an expert pair-programming AI agent for a LeetCode clone.
 A user wrote the following ${language || 'code'} for the problem "${problemTitle}".
 
@@ -469,8 +488,10 @@ Output EXACTLY in the following JSON format (do not use markdown blocks around t
 }
 `;
 
-        const result = await model.generateContent(prompt);
-        let aiText = result.response.text().trim();
+        let aiText = await chatComplete(
+            [{ role: "user", content: prompt }],
+            { maxTokens: 2000, temperature: 0.5 }
+        );
         aiText = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
         const parsedResponse = JSON.parse(aiText);
@@ -497,8 +518,6 @@ const chatWithAI = async (req, res) => {
             });
         }
 
-        const model = genAI.getGenerativeModel({ model: AI_MODEL });
-
         // Build the system context
         const systemPrompt = `You are "AlgoForge Agent", an expert programming tutor helping a user solve a coding problem named "${problemTitle}". 
 Your goal is to guide them through every line, provide hints, and help them debug, without just giving away the full answer immediately unless they ask for it.
@@ -517,36 +536,20 @@ Instructions:
 - Respond directly to the user's latest message below.
 `;
 
-        // Format history for AI SDK
-        const formattedHistory = [];
+        // OpenAI-style messages: system context + prior turns + latest message.
+        // Frontend sends roles 'user' | 'ai' — map 'ai' to 'assistant'.
+        const messages = [{ role: "system", content: systemPrompt }];
         if (chatHistory && Array.isArray(chatHistory)) {
             for (const msg of chatHistory) {
-                formattedHistory.push({
-                    role: msg.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: msg.content }]
+                messages.push({
+                    role: msg.role === 'user' ? 'user' : 'assistant',
+                    content: msg.content
                 });
             }
         }
+        messages.push({ role: "user", content: userMessage });
 
-        const chatSession = model.startChat({
-            history: [
-                {
-                    role: 'user',
-                    parts: [{ text: systemPrompt }]
-                },
-                {
-                    role: 'model',
-                    parts: [{ text: "Understood! I will act as the AlgoForge Agent and help the user step-by-step." }]
-                },
-                ...formattedHistory
-            ],
-            generationConfig: {
-                maxOutputTokens: 1000,
-            }
-        });
-
-        const result = await chatSession.sendMessage(userMessage);
-        const aiResponse = result.response.text();
+        const aiResponse = await chatComplete(messages, { maxTokens: 1000 });
 
         res.status(200).json({ reply: aiResponse });
     } catch (error) {

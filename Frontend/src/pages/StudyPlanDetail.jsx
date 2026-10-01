@@ -205,7 +205,7 @@ const StudyPlanDetail = () => {
                                         onClick={() => navigate(`/problems?tag=${encodeURIComponent(topic)}`)}
                                         className="tag-chip cursor-pointer text-xs"
                                     >
-                                        {topic === 'arary' ? 'Array' : topic}
+                                        {topic}
                                     </span>
                                 ))}
                             </div>
@@ -435,7 +435,7 @@ const StudyPlanDetail = () => {
                                                                     <div className="hidden sm:flex items-center gap-1.5">
                                                                         {problem.tags?.slice(0, 2).map((tag, tIdx) => (
                                                                             <span key={tIdx} className="tag-chip text-[11px] py-0.5">
-                                                                                {tag === 'arary' ? 'Array' : tag}
+                                                                                {tag}
                                                                             </span>
                                                                         ))}
                                                                     </div>

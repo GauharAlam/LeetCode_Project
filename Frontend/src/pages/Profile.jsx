@@ -83,7 +83,7 @@ const Profile = () => {
             <div className="min-h-screen bg-canvas">
                 <Navbar />
                 <div className="flex items-center justify-center h-[80vh]">
-                    <span className="loading loading-spinner loading-lg text-ember-400"></span>
+                    <span className="spinner-af spinner-af-lg text-ember-400"></span>
                 </div>
             </div>
         );
@@ -182,7 +182,7 @@ const Profile = () => {
                                 className="btn-ember px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"
                             >
                                 {saving ? (
-                                    <span className="loading loading-spinner loading-sm"></span>
+                                    <span className="spinner-af spinner-af-sm"></span>
                                 ) : (
                                     <Save className="w-4 h-4" />
                                 )}

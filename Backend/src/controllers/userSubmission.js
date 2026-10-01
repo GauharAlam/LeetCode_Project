@@ -4,6 +4,30 @@ const UserStudyPlan = require("../models/userStudyPlan");
 const StudyPlan = require("../models/studyPlan");
 const { getLanguageById, submitBatch, submitToken, prepareExecutableCode } = require("../utils/problemUtility");
 
+// Send a JSON error, preserving structured Judge0/driver errors when present.
+const sendExecutionError = (res, error, fallbackMessage = "Internal server error") => {
+  const status = error?.status || 500;
+  const message = error?.message || fallbackMessage;
+  const payload = { message };
+  if (error?.details) {
+    payload.details = typeof error.details === "string"
+      ? error.details.slice(0, 2000)
+      : error.details;
+  }
+  return res.status(status).json(payload);
+};
+
+// Build a readable diagnostic from a Judge0 result (compile error, runtime
+// error, wrong answer) so users see *why* it failed, not just "error".
+const describeJudgeResult = (result) => {
+  const parts = [];
+  if (result?.status?.description) parts.push(result.status.description);
+  if (result?.compile_output) parts.push(`Compile output:\n${String(result.compile_output).slice(0, 2000)}`);
+  if (result?.stderr) parts.push(`Stderr:\n${String(result.stderr).slice(0, 2000)}`);
+  if (result?.stdout) parts.push(`Stdout:\n${String(result.stdout).slice(0, 2000)}`);
+  return parts.join("\n\n") || "Unknown execution error";
+};
+
 const submitCode = async (req, res) => {
   try {
     const userId = req.result._id;
@@ -11,14 +35,21 @@ const submitCode = async (req, res) => {
     const { code, language } = req.body;
 
     // console.log("helooooo",code);
-    
+
     if (!userId || !problemId || !code || !language) {
-      return res.status(400).send("Some field missing");
+      return res.status(400).json({ message: "Some field missing" });
+    }
+
+    const languageId = getLanguageById(language);
+    if (!languageId) {
+      return res.status(400).json({
+        message: `Unsupported language '${language}'. Supported languages: javascript, c++, java.`,
+      });
     }
 
     const problem = await Problem.findById(problemId);
     if (!problem) {
-      return res.status(404).send("Problem not found");
+      return res.status(404).json({ message: "Problem not found" });
     }
 
     // **FIX: Corrected variable name**
@@ -35,8 +66,15 @@ const submitCode = async (req, res) => {
     problem.submissionCount = (problem.submissionCount || 0) + 1;
     await problem.save();
 
-    const languageId = getLanguageById(language);
-    const executableCode = prepareExecutableCode(code, language);
+    let executableCode;
+    try {
+      executableCode = prepareExecutableCode(code, language);
+    } catch (driverErr) {
+      submittedResult.status = "error";
+      submittedResult.errorMessage = driverErr.message;
+      await submittedResult.save();
+      return sendExecutionError(res, driverErr);
+    }
     const submissions = problem.hiddenTestCases.map((testcase) => ({
       source_code: executableCode,
       language_id: languageId,
@@ -44,16 +82,12 @@ const submitCode = async (req, res) => {
       expected_output: testcase.output,
     }));
 
+    // submitBatch/submitToken throw structured errors (502/504/500) on
+    // Judge0 outages, missing API key, or timeouts.
     const submitResult = await submitBatch(submissions);
-    if (!submitResult) {
-      return res.status(500).send("No response from Judge0 during submission.");
-    }
 
     const resultToken = submitResult.map((value) => value.token);
     const testResult = await submitToken(resultToken);
-    if (!testResult) {
-      return res.status(500).send("No response from Judge0 when fetching results.");
-    }
 
     let testCasesPassed = 0;
     let totalRuntime = 0;
@@ -67,7 +101,7 @@ const submitCode = async (req, res) => {
       } else {
         const status = result.status.id === 4 ? 'wrong' : 'error';
         submittedResult.status = status;
-        submittedResult.errorMessage = result.status.description;
+        submittedResult.errorMessage = describeJudgeResult(result);
         submittedResult.testCasesPassed = testCasesPassed;
         await submittedResult.save();
         return res.status(200).send(submittedResult);
@@ -87,7 +121,7 @@ const submitCode = async (req, res) => {
     // problemId ko insert karenge userSchema ke problemSolved mein if it is not present there
 
     // req.result == user information
-    
+
     if(!req.result.problemSolved.includes(problemId)){
       req.result.problemSolved.push(problemId);
       await req.result.save();
@@ -142,7 +176,7 @@ const submitCode = async (req, res) => {
 
   } catch (error) {
     console.error("CRASH IN SUBMITCODE:", error);
-    res.status(500).send("Internal server error");
+    return sendExecutionError(res, error);
   }
 };
 
@@ -151,18 +185,29 @@ const runCode = async(req, res)=>{
     const userId = req.result._id;
     const problemId = req.params.id;
     const { code, language } = req.body;
-    
+
     if (!userId || !problemId || !code || !language) {
-      return res.status(400).send("Some field missing");
+      return res.status(400).json({ message: "Some field missing" });
+    }
+
+    const languageId = getLanguageById(language);
+    if (!languageId) {
+      return res.status(400).json({
+        message: `Unsupported language '${language}'. Supported languages: javascript, c++, java.`,
+      });
     }
 
     const problem = await Problem.findById(problemId);
     if (!problem) {
-      return res.status(404).send("Problem not found");
+      return res.status(404).json({ message: "Problem not found" });
     }
 
-    const languageId = getLanguageById(language);
-    const executableCode = prepareExecutableCode(code, language);
+    let executableCode;
+    try {
+      executableCode = prepareExecutableCode(code, language);
+    } catch (driverErr) {
+      return sendExecutionError(res, driverErr);
+    }
     const submissions = problem.visibleTestCases.map((testcase) => ({
       source_code: executableCode,
       language_id: languageId,
@@ -171,21 +216,15 @@ const runCode = async(req, res)=>{
     }));
 
     const submitResult = await submitBatch(submissions);
-    if (!submitResult) {
-      return res.status(500).send("No response from Judge0 during submission.");
-    }
 
     const resultToken = submitResult.map((value) => value.token);
     const testResult = await submitToken(resultToken);
-    if (!testResult) {
-      return res.status(500).send("No response from Judge0 when fetching results.");
-    }
 
     res.status(201).send(testResult);
 
   } catch (error) {
     console.error("CRASH IN SUBMITCODE:", error);
-    res.status(500).send("Internal server error");
+    return sendExecutionError(res, error);
   }
 }
 
