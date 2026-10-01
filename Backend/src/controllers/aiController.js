@@ -8,7 +8,8 @@ const AI_MODEL = process.env.AI_MODEL || "qwen/qwen3.8-27b:free";
 const AI_BASE_URL = process.env.AI_BASE_URL || "https://openrouter.ai/api/v1";
 
 // Single helper for all AI calls (hints, fixes, recommendations, chat).
-const chatComplete = async (messages, { maxTokens = 1000, temperature = 0.7 } = {}) => {
+// Retries transient free-tier 429/5xx errors before giving up.
+const chatComplete = async (messages, { maxTokens = 1000, temperature = 0.7, retries = 2 } = {}) => {
     const headers = {
         Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
@@ -17,14 +18,32 @@ const chatComplete = async (messages, { maxTokens = 1000, temperature = 0.7 } = 
     const siteUrl = process.env.FRONTEND_URL || process.env.BACKEND_URL;
     if (siteUrl) headers["HTTP-Referer"] = siteUrl;
 
-    const { data } = await axios.post(
-        `${AI_BASE_URL}/chat/completions`,
-        { model: AI_MODEL, messages, max_tokens: maxTokens, temperature },
-        { headers, timeout: 60000 }
-    );
-    const content = data?.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Empty response from AI provider");
-    return content.trim();
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const { data } = await axios.post(
+                `${AI_BASE_URL}/chat/completions`,
+                { model: AI_MODEL, messages, max_tokens: maxTokens, temperature },
+                { headers, timeout: 60000 }
+            );
+            const content = data?.choices?.[0]?.message?.content;
+            if (!content) throw new Error("Empty response from AI provider");
+            return content.trim();
+        } catch (err) {
+            lastError = err;
+            const status = err.response?.status;
+            const retryable = status === 429 || (status >= 500 && status < 600);
+            if (!retryable || attempt === retries) break;
+            const delay = status === 429 ? 4000 * (attempt + 1) : 2000;
+            console.warn(`AI request failed (${status}), retrying in ${delay}ms (attempt ${attempt + 1}/${retries})...`);
+            await new Promise((r) => setTimeout(r, delay));
+        }
+    }
+    const status = lastError.response?.status;
+    const providerMsg = lastError.response?.data?.error?.message;
+    const err = new Error(providerMsg || lastError.message || "AI provider request failed");
+    if (status) err.status = status;
+    throw err;
 };
 
 // Get AI hint for a problem
